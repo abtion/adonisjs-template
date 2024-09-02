@@ -1,4 +1,4 @@
-#!/usr/bin/awk BEGIN{system("node  --no-warnings=ExperimentalWarning --loader ts-node/esm "ARGV[1])}
+#!/usr/bin/awk BEGIN{system("node --no-warnings=ExperimentalWarning --loader ts-node/esm "ARGV[1])}
 
 /*
 |--------------------------------------------------------------------------
