@@ -4,9 +4,11 @@ import * as fs from 'node:fs/promises'
 import { BaseCommand } from '@adonisjs/core/ace'
 import { FileMigrationProvider, Migrator } from 'kysely'
 import type { CommandOptions } from '@adonisjs/core/types/ace'
+import { databaseConfig } from '#config/database'
+import env from '#start/env'
 
 export default class KyselyMigrate extends BaseCommand {
-  static commandName = 'kysely:migrate'
+  static commandName = 'db:migrate'
   static description = 'Migrate the database by executing pending migrations'
   static options: CommandOptions = {
     startApp: true,
@@ -42,6 +44,8 @@ export default class KyselyMigrate extends BaseCommand {
    * Runs migrations up method
    */
   async run() {
+    this.logger.info(`Migrating ${databaseConfig[env.get('NODE_ENV')]().database}`)
+
     const { error, results } = await this.migrator.migrateToLatest()
 
     /**

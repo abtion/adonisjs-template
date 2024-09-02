@@ -11,7 +11,9 @@
 
 import { Env } from '@adonisjs/core/env'
 
-const env = await Env.create(new URL('../', import.meta.url), {
+if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development'
+
+export const schema = {
   NODE_ENV: Env.schema.enum(['development', 'production', 'test'] as const),
   PORT: Env.schema.number(),
   APP_KEY: Env.schema.string(),
@@ -30,7 +32,10 @@ const env = await Env.create(new URL('../', import.meta.url), {
   | Variables for configuring database connection
   |----------------------------------------------------------
   */
-  DATABASE_URL: Env.schema.string(),
-})
+  DATABASE_SERVER: Env.schema.string.optional(), // Used for development and test
+  DATABASE_URL: Env.schema.string.optional(), // Used for production env
+}
+
+const env = await Env.create(new URL('../', import.meta.url), schema)
 
 export default env

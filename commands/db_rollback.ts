@@ -4,9 +4,11 @@ import * as fs from 'node:fs/promises'
 import { BaseCommand } from '@adonisjs/core/ace'
 import { FileMigrationProvider, Migrator } from 'kysely'
 import type { CommandOptions } from '@adonisjs/core/types/ace'
+import { databaseConfig } from '#config/database'
+import env from '#start/env'
 
 export default class KyselyRollback extends BaseCommand {
-  static commandName = 'kysely:rollback'
+  static commandName = 'db:rollback'
   static description = 'Rollback the database by running down method on the migration files'
   static options: CommandOptions = {
     startApp: true,
@@ -42,6 +44,8 @@ export default class KyselyRollback extends BaseCommand {
    * Runs migrations up method
    */
   async run() {
+    this.logger.info(`Rolling back ${databaseConfig[env.get('NODE_ENV')]().database}`)
+
     const { error, results } = await this.migrator.migrateDown()
 
     /**

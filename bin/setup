@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+echo '== Installing dependencies =='
+npm install
+
+echo "== Preparing database =="
+node ace db:create
+NODE_ENV=development node ace kysely:migrate
+NODE_ENV=test node ace kysely:migrate
