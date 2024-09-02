@@ -1,6 +1,6 @@
 import { Kysely, PostgresDialect } from 'kysely'
 import PG from 'pg'
-import { DB } from 'kysely-codegen/dist/db.js'
+import { DB } from '#database/types'
 import env from '#start/env'
 import { databaseConfig } from '#config/database'
 

@@ -5,6 +5,7 @@ import { BaseCommand } from '@adonisjs/core/ace'
 import { FileMigrationProvider, Migrator } from 'kysely'
 import type { CommandOptions } from '@adonisjs/core/types/ace'
 import { databaseConfig } from '#config/database'
+import { Cli as kyselyCodegenCli } from 'kysely-codegen/dist/cli/cli.js'
 import env from '#start/env'
 
 export default class KyselyMigrate extends BaseCommand {
@@ -72,5 +73,18 @@ export default class KyselyMigrate extends BaseCommand {
       this.error = error
       this.exitCode = 1
     }
+
+    /**
+     * Update database types
+     */
+    this.logger.info('Updating database types with kysely-codegen')
+    const config = databaseConfig[env.get('NODE_ENV')]()
+    const url = `postgres://${config.user}:${config.password}@${config.host}:${config.port}/${config.database}`
+    await new kyselyCodegenCli().generate({
+      url,
+      dialectName: 'postgres',
+      outFile: this.app.makePath('database', 'types.d.ts'),
+    })
+    this.logger.success('Database types updated')
   }
 }
