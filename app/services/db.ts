@@ -1,4 +1,4 @@
-import { Kysely, PostgresDialect } from 'kysely'
+import { CamelCasePlugin, Kysely, PostgresDialect } from 'kysely'
 import PG from 'pg'
 import { DB } from '#database/types'
 import env from '#start/env'
@@ -10,6 +10,7 @@ const dialect = new PostgresDialect({
 
 export const globalDb = new Kysely<DB>({
   dialect,
+  plugins: [new CamelCasePlugin()],
 })
 
 let globalTransaction: Kysely<DB> | null = null

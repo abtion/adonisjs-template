@@ -7,17 +7,17 @@ test.group('Home page', (group) => {
   test('see welcome message', async ({ visit }) => {
     const author = await db()
       .insertInto('authors')
-      .values({ name: 'John', created_at: new Date(), updated_at: new Date() })
+      .values({ name: 'John', createdAt: new Date(), updatedAt: new Date() })
       .returningAll()
       .executeTakeFirst()
 
     await db()
       .insertInto('books')
       .values({
-        author_id: author!.id,
+        authorId: author!.id,
         name: "John's book",
-        created_at: new Date(),
-        updated_at: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       })
       .executeTakeFirst()
 

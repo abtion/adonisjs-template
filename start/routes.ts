@@ -13,9 +13,9 @@ import { db } from '#services/db'
 export const presenter = async () => {
   const book = await db()
     .selectFrom('books')
-    .innerJoin('authors', 'authors.id', 'books.author_id')
+    .innerJoin('authors', 'authors.id', 'books.authorId')
     .selectAll()
-    .select('authors.name as author_name')
+    .select('authors.name as authorName')
     .executeTakeFirst()
 
   return {

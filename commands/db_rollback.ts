@@ -84,6 +84,7 @@ export default class KyselyRollback extends BaseCommand {
       url,
       dialectName: 'postgres',
       outFile: this.app.makePath('database', 'types.d.ts'),
+      camelCase: true,
     })
     this.logger.success('Database types updated')
   }

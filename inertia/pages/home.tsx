@@ -9,7 +9,7 @@ export default function Home(props: Awaited<ReturnType<typeof presenter>>) {
       <div className="container">
         <div className="title">AdonisJS {props.version} x Inertia x React</div>
 
-        <h1>{props.book?.author_name}</h1>
+        <h1>{props.book?.authorName}</h1>
 
         <span>
           Learn more about AdonisJS and Inertia.js by visiting the{' '}
