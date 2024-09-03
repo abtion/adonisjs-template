@@ -1,20 +1,22 @@
-import { type presenter } from '#start/routes'
-import { Head } from '@inertiajs/react'
+import type BooksController from '#controllers/books_controller'
+import { Head, Link } from '@inertiajs/react'
+import { InertiaProps } from '#types/utils'
 
-export default function Home(props: Awaited<ReturnType<typeof presenter>>) {
+export default function Home({ books }: InertiaProps<BooksController['index']>) {
   return (
     <>
-      <Head title="Homepage" />
+      <Head title="List of books" />
 
       <div className="container">
-        <div className="title">AdonisJS {props.version} x Inertia x React</div>
+        <h1>Books are</h1>
 
-        <h1>{props.book?.authorName}</h1>
+        {books.map((book) => (
+          <div>
+            {book.authorName}: {book.name}
+          </div>
+        ))}
 
-        <span>
-          Learn more about AdonisJS and Inertia.js by visiting the{' '}
-          <a href="https://docs.adonisjs.com/guides/inertia">AdonisJS documentation</a>.
-        </span>
+        <Link href={'/books/create'}>Create new book</Link>
       </div>
     </>
   )

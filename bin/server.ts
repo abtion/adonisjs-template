@@ -1,5 +1,3 @@
-#!/usr/bin/awk BEGIN{system("node --no-warnings=ExperimentalWarning --loader ts-node/esm "ARGV[1])}
-
 /*
 |--------------------------------------------------------------------------
 | HTTP server entrypoint
