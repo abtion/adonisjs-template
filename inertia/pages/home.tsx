@@ -12,7 +12,7 @@ export default function Home({ books }: InertiaProps<BooksController['index']>) 
 
         {books.map((book) => (
           <div>
-            {book.authorName}: {book.name}
+            {book.author?.name}: {book.name}
           </div>
         ))}
 

@@ -15,3 +15,5 @@ router.resource('books', BooksController)
 router.get('/', async ({ response }) => {
   response.redirect('/books')
 })
+
+router.on('/test').render('test')

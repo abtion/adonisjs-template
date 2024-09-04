@@ -1,10 +1,7 @@
 import { db } from '#services/db'
 import type { HttpContext } from '@adonisjs/core/http'
+import { jsonObjectFrom } from 'kysely/helpers/postgres'
 import z from 'zod'
-
-const storeDto = z.object({
-  name: z.string(),
-})
 
 export default class BooksController {
   /**
@@ -13,9 +10,12 @@ export default class BooksController {
   async index({ inertia }: HttpContext) {
     const books = await db()
       .selectFrom('books')
-      .innerJoin('authors', 'authors.id', 'books.authorId')
       .selectAll()
-      .select('authors.name as authorName')
+      .select((eb) => [
+        jsonObjectFrom(
+          eb.selectFrom('authors').selectAll().whereRef('id', '=', 'books.authorId')
+        ).as('author'),
+      ])
       .execute()
 
     return inertia.render('home', { books })
@@ -31,10 +31,22 @@ export default class BooksController {
   /**
    * Handle form submission for the create action
    */
-  async store({ inertia, params }: HttpContext & { params: z.infer<typeof storeDto> }) {
-    console.log('yay!')
-    const book = storeDto.parse(params)
-    return inertia.render('create', { book })
+  async store({ inertia, request, response }: HttpContext) {
+    const body = request.body()
+    const { success, data, error } = await this.parsedCreateBody(body)
+
+    if (success) {
+      const author = await db().selectFrom('authors').select('id').executeTakeFirst()
+
+      await db()
+        .insertInto('books')
+        .values({ ...data, createdAt: new Date(), updatedAt: new Date(), authorId: author!.id })
+        .execute()
+
+      return response.redirect('/books')
+    } else {
+      return inertia.render('create', { book: body, error: error.format() })
+    }
   }
 
   /**
@@ -56,4 +68,12 @@ export default class BooksController {
    * Delete record
    */
   async destroy({ params }: HttpContext) {}
+
+  parsedCreateBody(body: any) {
+    return z
+      .object({
+        name: z.string(),
+      })
+      .safeParseAsync(body)
+  }
 }
