@@ -18,14 +18,14 @@ export default class BooksController {
       ])
       .execute()
 
-    return inertia.render('home', { books })
+    return inertia.render('books/index', { books })
   }
 
   /**
    * Display form to create a new record
    */
   async create({ inertia }: HttpContext) {
-    return inertia.render('create', { book: { name: '' } })
+    return inertia.render('books/create', { book: { name: '' } })
   }
 
   /**
@@ -45,14 +45,17 @@ export default class BooksController {
 
       return response.redirect('/books')
     } else {
-      return inertia.render('create', { book: body, error: error.format() })
+      return inertia.render('books/create', {
+        book: body,
+        error: error.format(),
+      })
     }
   }
 
   /**
    * Show individual record
    */
-  async show({ params }: HttpContext) {}
+  async show({ request, response }: HttpContext) {}
 
   /**
    * Edit individual record
