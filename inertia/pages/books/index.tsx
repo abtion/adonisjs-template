@@ -10,7 +10,7 @@ export default function Home({ books }: InertiaProps<BooksController['index']>) 
       <Head title="List of books" />
 
       <div className="container my-10">
-        <h1 className="text-2xl">Books are</h1>
+        <h1 className="text-2xl">List of books</h1>
 
         <div className="w-80 mt-4 flex flex-col gap-2">
           {books.map((book) => (

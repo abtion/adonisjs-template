@@ -28,17 +28,18 @@ export default function Create(
           <h1 className="text-2xl">Create new book</h1>
 
           <div className="w-80 mt-4">
-            <p className="font-medium text-lg">Name</p>
-
-            <Input
-              className="w-full mt-2"
-              size="md"
-              type="text"
-              name="name"
-              variant={error?.name ? 'error' : 'default'}
-              defaultValue={props.book.name}
-              placeholder="The name of the book"
-            />
+            <label>
+              <p className="font-medium text-lg">Name</p>
+              <Input
+                className="w-full mt-2"
+                size="md"
+                type="text"
+                name="name"
+                variant={error?.name ? 'error' : 'default'}
+                defaultValue={props.book.name}
+                placeholder="The name of the book"
+              />
+            </label>
 
             {error?.name && (
               <Alert variant="danger" className="mt-2">
