@@ -2,7 +2,8 @@ import React from 'react'
 import classNames from 'classnames'
 import './index.scss'
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonClearProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   variant?:
     | 'basic'
     | 'secondary'
@@ -12,26 +13,25 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
     | 'danger'
     | 'warning'
     | 'info'
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 }
 
-function classes(props: ButtonProps, className?: string) {
+function classes(props: ButtonClearProps, className?: string) {
   const { size, variant } = props
 
   return classNames(
-    'Button',
+    'ButtonClear',
     {
-      [`Button--${size}`]: size,
-      [`Button--${variant}`]: variant,
+      [`ButtonClear--${size}`]: size,
+      [`ButtonClear--${variant}`]: variant,
     },
     className
   )
 }
 
-export default function Button(props: ButtonProps): JSX.Element {
+export default function ButtonClear(props: ButtonClearProps): JSX.Element {
   const { size, variant, className, ...rest } = props
 
   return <button className={classes(props, className)} {...rest} />
 }
 
-Button.cn = classes
+ButtonClear.cn = classes

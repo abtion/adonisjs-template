@@ -70,7 +70,13 @@ export default class BooksController {
   /**
    * Delete record
    */
-  async destroy({ params }: HttpContext) {}
+  async destroy({ params, response }: HttpContext) {
+    const bookId = params.id
+
+    await db().deleteFrom('books').where('books.id', '=', bookId).execute()
+
+    return response.redirect('/books')
+  }
 
   parsedCreateBody(body: any) {
     return z
