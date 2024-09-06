@@ -5,18 +5,26 @@ import Form from '~/components/form'
 import Button from '~/components/Button'
 import Alert from '~/components/Alert'
 import Input from '~/components/Input'
+import { router } from '@inertiajs/react'
+import { FormEvent } from 'react'
 
 export default function Create(
   props: InertiaProps<BooksController['create']> | InertiaProps<BooksController['store']>
 ) {
   const error = 'error' in props ? props.error : null
 
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    router.post('/books', formData)
+  }
+
   return (
     <>
       <Head title="List of books" />
 
       <div className="container my-10">
-        <Form action="/books" method="post">
+        <Form action="/books" method="post" onSubmit={handleSubmit}>
           <h1 className="text-2xl">Create new book</h1>
 
           <div className="w-80 mt-4">
