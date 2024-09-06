@@ -1,0 +1,38 @@
+.Input {
+  @apply border border-transparent text-base leading-4 focus:ring-1 focus:outline-none shadow-sm;
+
+  // Round if no rounding class is specified
+  &:not([class*="rounded"]) {
+    @apply rounded-md;
+  }
+
+  // Sizes
+  &--xs {
+    @apply px-2.5 py-1 text-xs;
+  }
+
+  &--sm {
+    @apply px-3 py-1.5 text-sm;
+  }
+
+  &--md {
+    @apply px-5 py-2 text-sm;
+  }
+
+  &--lg {
+    @apply px-5 py-2 text-base;
+  }
+
+  &--xl {
+    @apply px-6 py-3 text-base;
+  }
+
+  // Variants
+  &--default {
+    @apply border-neutral-300 focus:ring-primary-400 focus:border-primary-400;
+  }
+
+  &--error {
+    @apply border-danger-500 focus:ring-danger-400 focus:border-danger-400;
+  }
+}
