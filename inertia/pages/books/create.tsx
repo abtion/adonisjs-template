@@ -21,7 +21,7 @@ export default function Create(
 
   return (
     <>
-      <Head title="List of books" />
+      <Head title="New book" />
 
       <div className="container my-10">
         <Form action="/books" method="post" onSubmit={handleSubmit}>
