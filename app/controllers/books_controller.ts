@@ -1,7 +1,7 @@
 import { db } from '#services/db'
+import { createBookValidator } from '#validators/books_validator'
 import type { HttpContext } from '@adonisjs/core/http'
 import { jsonObjectFrom } from 'kysely/helpers/postgres'
-import z from 'zod'
 
 export default class BooksController {
   /**
@@ -33,7 +33,7 @@ export default class BooksController {
    */
   async store({ inertia, request, response }: HttpContext) {
     const body = request.body()
-    const { success, data, error } = await this.parsedCreateBody(body)
+    const { success, data, error } = await createBookValidator(body)
 
     if (success) {
       const author = await db().selectFrom('authors').select('id').executeTakeFirst()
@@ -76,13 +76,5 @@ export default class BooksController {
     await db().deleteFrom('books').where('books.id', '=', bookId).execute()
 
     return response.redirect('/books')
-  }
-
-  parsedCreateBody(body: any) {
-    return z
-      .object({
-        name: z.string(),
-      })
-      .safeParseAsync(body)
   }
 }
