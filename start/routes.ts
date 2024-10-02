@@ -10,7 +10,7 @@
 import router from '@adonisjs/core/services/router'
 
 // Remember to *always lazy load controllers*, otherwise hot module reload won't work
-const BooksController = () => import('#controllers/books_controller')
+const BooksController = () => import('#modules/books/books_controller')
 const dynamicCssVariables = () => import('#utils/dynamicCssVariables')
 
 router.resource('books', BooksController)

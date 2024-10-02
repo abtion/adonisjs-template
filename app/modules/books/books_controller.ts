@@ -1,5 +1,5 @@
 import { db } from '#services/db'
-import { createBookValidator } from '#validators/books_validator'
+import { createBookValidator } from './books_validator.js'
 import type { HttpContext } from '@adonisjs/core/http'
 import { jsonObjectFrom } from 'kysely/helpers/postgres'
 

@@ -1,20 +1,24 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title inertia>AdonisJS x Inertia x React</title>
-  <link rel="stylesheet" href="/colors.css" />
+    <title inertia>
+      AdonisJS x Inertia x React
+    </title>
+    <link rel="stylesheet" href="/colors.css" />
 
-  @viteReactRefresh()
-  @inertiaHead()
-  @vite(['inertia/app/app.tsx', `inertia/pages/${page.component}.tsx`])
-</head>
+    @viteReactRefresh()
+    @inertiaHead()
+    @let([module, ...path] = page.component.split('/'))
+    @vite(['inertia/app/app.tsx', `app/components/${module}/pages/${path.join('/')}.tsx`])
+  </head>
 
-<body>
-  @inertia()
-</body>
+  <body>
+    {{ `app/components/${module}/pages/${path.join('/')}.tsx` }}
+    @inertia()
+  </body>
 
 </html>
