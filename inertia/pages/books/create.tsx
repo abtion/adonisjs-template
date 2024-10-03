@@ -24,7 +24,7 @@ export default function Create(
       <Head title="New book" />
 
       <div className="container my-10">
-        <Form action="/books" method="post" onSubmit={handleSubmit}>
+        <form action="/books" method="post" onSubmit={handleSubmit}>
           <h1 className="text-2xl">Create new book</h1>
 
           <div className="w-80 mt-4">
@@ -55,7 +55,7 @@ export default function Create(
               Save
             </Button>
           </div>
-        </Form>
+        </form>
       </div>
     </>
   )
