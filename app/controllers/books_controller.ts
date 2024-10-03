@@ -25,47 +25,38 @@ export default class BooksController {
    * Display form to create a new record
    */
   async create({ inertia }: HttpContext) {
-    return inertia.render('books/create', { book: { name: '' } })
+    return inertia.render('books/create')
   }
 
   /**
    * Handle form submission for the create action
    */
-  async store({ inertia, request, response }: HttpContext) {
-    const body = request.body()
-    const { success, data, error } = await createBookValidator(body)
+  async store({ request, response }: HttpContext) {
+    const data = await request.validateUsing(createBookValidator)
+    const author = await db().selectFrom('authors').select('id').executeTakeFirst()
 
-    if (success) {
-      const author = await db().selectFrom('authors').select('id').executeTakeFirst()
+    await db()
+      .insertInto('books')
+      .values({ ...data, createdAt: new Date(), updatedAt: new Date(), authorId: author!.id })
+      .execute()
 
-      await db()
-        .insertInto('books')
-        .values({ ...data, createdAt: new Date(), updatedAt: new Date(), authorId: author!.id })
-        .execute()
-
-      return response.redirect('/books')
-    } else {
-      return inertia.render('books/create', {
-        book: body,
-        error: error.format(),
-      })
-    }
+    return response.redirect('/books')
   }
 
   /**
    * Show individual record
    */
-  async show({ request, response }: HttpContext) {}
+  async show(_: HttpContext) {}
 
   /**
    * Edit individual record
    */
-  async edit({ params }: HttpContext) {}
+  async edit(_: HttpContext) {}
 
   /**
    * Handle form submission for the edit action
    */
-  async update({ params, request }: HttpContext) {}
+  async update(_: HttpContext) {}
 
   /**
    * Delete record

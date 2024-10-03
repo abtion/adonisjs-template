@@ -1,10 +1,10 @@
 import type BooksController from '#controllers/books_controller'
 import { Head, Link } from '@inertiajs/react'
-import { InertiaProps } from '#types/utils'
 import Button from '~/components/Button'
 import ButtonClear from '~/components/ButtonClear'
+import { InferPageProps } from '@adonisjs/inertia/types'
 
-export default function Home({ books }: InertiaProps<BooksController['index']>) {
+export default function Home({ books }: InferPageProps<BooksController, 'index'>) {
   return (
     <>
       <Head title="List of books" />

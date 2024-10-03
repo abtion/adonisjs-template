@@ -1,8 +1,7 @@
-import z from 'zod'
+import vine from '@vinejs/vine'
 
-export const createBookValidator = (body: Record<string, any>) =>
-  z
-    .object({
-      name: z.string(),
-    })
-    .safeParseAsync(body)
+export const createBookValidator = vine.compile(
+  vine.object({
+    name: vine.string(),
+  })
+)

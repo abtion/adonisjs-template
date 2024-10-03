@@ -1,22 +1,24 @@
 import type BooksController from '#controllers/books_controller'
 import { Head } from '@inertiajs/react'
-import { InertiaProps } from '#types/utils'
-import Form from '~/components/form'
 import Button from '~/components/Button'
 import Alert from '~/components/Alert'
 import Input from '~/components/Input'
-import { router } from '@inertiajs/react'
-import { FormEvent } from 'react'
+import { ChangeEvent, FormEvent } from 'react'
+import { InferPageProps } from '@adonisjs/inertia/types'
+import { useForm } from '@inertiajs/react'
 
-export default function Create(
-  props: InertiaProps<BooksController['create']> | InertiaProps<BooksController['store']>
-) {
-  const error = 'error' in props ? props.error : null
+export default function Create(props: InferPageProps<BooksController, 'create'>) {
+  const { data, setData, post, processing, errors } = useForm({
+    name: '',
+  })
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    router.post('/books', formData)
+    post('/books')
+  }
+
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    setData(event.currentTarget.name as keyof typeof data, event.currentTarget.value)
   }
 
   return (
@@ -35,23 +37,22 @@ export default function Create(
                 size="md"
                 type="text"
                 name="name"
-                variant={error?.name ? 'error' : 'default'}
-                defaultValue={props.book.name}
+                variant={errors.name ? 'error' : 'default'}
+                value={data.name}
+                onChange={handleChange}
                 placeholder="The name of the book"
               />
             </label>
 
-            {error?.name && (
+            {errors.name && (
               <Alert variant="danger" className="mt-2">
-                {error.name._errors.map((error) => (
-                  <p key={error}>{error}</p>
-                ))}
+                {errors.name}
               </Alert>
             )}
           </div>
 
           <div className="mt-5">
-            <Button size="md" variant="primary" type="submit">
+            <Button size="md" variant="primary" disabled={processing} type="submit">
               Save
             </Button>
           </div>
