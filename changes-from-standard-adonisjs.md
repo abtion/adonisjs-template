@@ -11,7 +11,9 @@
     - Allows us to have types in react
 - Tailwind added + setup for component library
 - Development server running on 3000 instead of uncommon port 3333
-- Browser test server port changed to not conflict with development server
+- Tests
+  - Test server port changed to not conflict with development server
+  - Automatically run pending migrations
 
 # WIP:
 
