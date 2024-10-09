@@ -11,8 +11,6 @@
 
 import { Env } from '@adonisjs/core/env'
 
-if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development'
-
 export const schema = {
   NODE_ENV: Env.schema.enum(['development', 'production', 'test'] as const),
   PORT: Env.schema.number(),

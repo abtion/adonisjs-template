@@ -13,6 +13,12 @@
 |
 */
 
+if (!process.env.NODE_ENV) {
+  // Default to "test" node env for test command, otherwise default to "development"
+  const isTestCommand = process.argv[2] === 'test'
+  process.env.NODE_ENV = isTestCommand ? 'test' : 'development'
+}
+
 import 'reflect-metadata'
 import { Ignitor, prettyPrintError } from '@adonisjs/core'
 
