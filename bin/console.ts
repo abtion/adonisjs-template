@@ -15,7 +15,8 @@
 
 if (!process.env.NODE_ENV) {
   // Default to "test" node env for test command, otherwise default to "development"
-  const isTestCommand = process.argv[2] === 'test'
+  const commandName = process.argv.slice(2).find((value) => !value.startsWith('-'))
+  const isTestCommand = commandName === 'test'
   process.env.NODE_ENV = isTestCommand ? 'test' : 'development'
 }
 
