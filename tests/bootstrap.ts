@@ -37,7 +37,10 @@ export const plugins: Config['plugins'] = [
  */
 export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
   setup: [],
-  teardown: [],
+  teardown: [
+    // Close db connection so the test process will exit immediately after finishing the tests
+    async () => await db().destroy(),
+  ],
 }
 
 /**
