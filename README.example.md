@@ -66,7 +66,7 @@ For running the project locally:
    ```sh
    asdf install # To install runtimes
    bin/setup # To install dependencies and initialize the database
-   bin/rails s # To run the webserver
+   npm run dev # To run the webserver
    ```
 
 3. The project can now be accessed at <http://localhost:3000>
@@ -78,51 +78,64 @@ It will also require changes to the connection string env vars.
 
 #### Available scripts
 
-Checkout the [bin](./bin/) for scripts and binstubs \
-[package.json](./package.json) also contains a few frontend specific scripts
-
-Commonly used:
+Contrary to other Abtion projects, not all files under `bin` are executable.\
+Some are instead used by AdonisJS' `ace` tool:
 
 ```sh
-bundle install # Install ruby gems
-npm install # Install frontend dependencies
-bin/rspec # Run rails tests
-npm run test # Run frontend tests
-bin/lint # Run all linters
-bin/lint-fix # Run all linters and attempt to fix problems
-bin/test-all-strict # Run all tests and linters
-bin/shakapacker-dev-server # Watch for frontend changes and compile on the go
+bin/console.ts # AdonisJS commands
+bin/server.ts # AdonisJS server
+bin/test.ts # AdonisJS tests
 ```
 
-Spring is also available for development. Since using spring can cause hard-to-debug errors, the binstubs are not springifie, but you can run easily use spring with `bin/spring [command]`, e.g.:
+Otherwise regular "shebang" type scripts are added:
 
 ```sh
-bin/spring rspec
-bin/spring rails s
+bin/setup # For setting up the project
+```
+
+Custom commands for `ace` (similar to `rake` commands for rails) are located inside `commands` and include:
+
+```sh
+node ace db:create # Create dev and test dbs
+node ace db:drop # Drop dev and test dbs
+node ace db:migrate # Migrate dev (or test) db
+node ace db:rollback # Rollback dev (or test) db
+node ace make:migration # Create a db migration using kysely's migration language
+```
+
+There are also many other built-in commands that can be inspected by just running `node ace`, for instance:
+
+```sh
+node ace make:* # Lots of options, like `rails g`
+node ace repl # Similar to `rails c`
+node ace list:routes # Similar to `rails routes`
 ```
 
 ## Good to know
 
-### Notable inclusions and exclusions
+### Notable changes to default AdonisJS template
 
-Inclusions:
+The project was initialized:
 
-- [Devise](https://github.com/heartcombo/devise) for authentication
-- [Pundit](https://github.com/varvet/pundit) for authorization
-- [Shakapacker](https://github.com/shakacode/shakapacker)
-- [Jest](https://jestjs.io/)
-- [Rollbar](https://rollbar.com) error monitoring
-- [Prettier](https://prettier.io/) for linting javascript files
-- [RSpec](https://rspec.info/)
-  - [FactoryBot](https://github.com/thoughtbot/factory_bot)
-  - [Capybara](https://github.com/teamcapybara/capybara) for system specs
-- [Rubocop](https://github.com/rubocop/rubocop) for linting ruby files
-- [Sidekiq](https://github.com/sidekiq/sidekiq) for running jobs
-- [Spring](https://github.com/rails/spring) (without binstubs)
+- as a web project
+- with React (Inertia) front-end
+- postgres was selected for database.
 
-Exclusions:
+Otherwise the following changes where made:
 
-- Turbolinks
+- Railsification
+  - Env files made more like our rails template
+  - Setup script added: `bin/setup`
+  - Scripts for creating and dropping databases
+  - `config/database.ts`: A single place for db config for multiple envs (like rails)
+- Database
+  - Kysely used instead of lucid
+    - Allows us to have types in react
+- Tailwind added + setup for component library compatibility
+- Development server running on 3000 because we are used to that
+- Tests
+  - Test server port changed to not conflict with development server
+  - Automatically run pending migrations
 
 ### Development admin credentials
 
