@@ -9,10 +9,7 @@
     - [Other setups](#other-setups)
     - [Available scripts](#available-scripts)
   - [Good to know](#good-to-know)
-    - [Notable inclusions and exclusions](#notable-inclusions-and-exclusions)
-    - [Development admin credentials](#development-admin-credentials)
-    - [Sidekiq](#sidekiq)
-    - [Deployments](#deployments)
+    - [Notable inclusions and exclusions](#notable-changes-to-default-adonisjs-template)
     - [Third party services](#third-party-services)
 
 Description of the project. What is it solving? Who are the users?
@@ -136,28 +133,6 @@ Otherwise the following changes where made:
 - Tests
   - Test server port changed to not conflict with development server
   - Automatically run pending migrations
-
-### Development admin credentials
-
-```txt
-user: admin@example.com
-password: password
-```
-
-### Screenshots in CI
-
-When system spec fails in CI a screenshot will be saved as a Github Actions artifact. If need be you can download the `capybara.zip` file and extract it to get to the screenshots.
-
-### Sidekiq
-
-`Sidekiq` provides useful web-interface (available at [/sidekiq](http://localhost:3000/sidekiq)).
-
-For staging/production envs, username and password are set with - and can be found in - env vars `SIDEKIQ_USERNAME` and `SIDEKIQ_PASSWORD` for the respective envs.
-
-### Deployments
-
-Commits to `main` are automatically deployed to the staging environment (after they've passed [CI](.github/workflows/ci.yml)).
-Deployments to production happen by promoting the staging environment.
 
 ### Third party services
 
