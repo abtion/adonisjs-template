@@ -11,6 +11,15 @@ const inertiaConfig = defineConfig({
    * Data that should be shared with all rendered pages
    */
   sharedData: {
+    auth: (ctx) => {
+      const { user, isAuthenticated } = ctx.auth.use('web')
+      return {
+        isAuthenticated,
+        user: user && {
+          fullName: user.fullName,
+        },
+      }
+    },
     errors: (ctx) => {
       const errors = ctx.session?.flashMessages.get('errors') ?? {}
       return Object.keys(errors).reduce(
@@ -18,6 +27,8 @@ const inertiaConfig = defineConfig({
         {}
       )
     },
+    exceptions: (ctx) => ctx.session?.flashMessages.get('errorsBag') ?? {},
+    messages: (ctx) => ctx.session?.flashMessages.all() ?? {},
     xcrfToken: (ctx) => ctx.request.csrfToken,
   },
 

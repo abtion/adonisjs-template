@@ -6,7 +6,11 @@ import { apiClient } from '@japa/api-client'
 import { inertiaApiClient } from '@adonisjs/inertia/plugins/api_client'
 import testUtils from '@adonisjs/core/services/test_utils'
 import { browserClient } from '@japa/browser-client'
+import { authBrowserClient } from '@adonisjs/auth/plugins/browser_client'
 import { FileMigrationProvider, Migrator } from 'kysely'
+import { sessionBrowserClient } from '@adonisjs/session/plugins/browser_client'
+import { sessionApiClient } from '@adonisjs/session/plugins/api_client'
+import { authApiClient } from '@adonisjs/auth/plugins/api_client'
 import { db } from '#services/db'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
@@ -21,11 +25,19 @@ import * as path from 'node:path'
 export const plugins: Config['plugins'] = [
   assert(),
   pluginAdonisJS(app),
+
+  // Functional tests
+  apiClient(),
+  sessionApiClient(app),
+  authApiClient(app),
+  inertiaApiClient(app),
+
+  // Browser test
   browserClient({
     runInSuites: ['browser'],
   }),
-  apiClient(),
-  inertiaApiClient(app),
+  sessionBrowserClient(app),
+  authBrowserClient(app),
 ]
 
 /**

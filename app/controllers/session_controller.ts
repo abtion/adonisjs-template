@@ -1,29 +1,50 @@
+import { db } from '#services/db'
+import { createSessionValidator } from '#validators/session_validator'
+import hash from '@adonisjs/core/services/hash'
+import { setTimeout } from 'timers/promises'
+import { errors } from '@adonisjs/auth'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class SessionController {
   /**
    * Sign-in form
    */
-  async index({ inertia }: HttpContext) {
-    return inertia.render('session/index', { session: { email: '', password: '' } })
+  async show({ inertia }: HttpContext) {
+    return inertia.render('sign-in')
   }
 
   /**
-   * Sign-in
+   * Sign in
    */
-  async store({ inertia, request }: HttpContext) {
-    const body = request.body()
-    const { success, data, error } = await this.parsedCreateBody(body)
+  async store({ response, request, auth }: HttpContext) {
+    const data = await request.validateUsing(createSessionValidator)
 
-    if (success) {
-    } else {
+    const findAndVerifyUser = async () => {
+      const user = await db()
+        .selectFrom('users')
+        .selectAll()
+        .where('users.email', '=', data.email)
+        .executeTakeFirst()
+      if (!user) return null
+
+      const isPasswordValid = await hash.verify(user.password, data.password)
+      return isPasswordValid ? user : null
     }
+
+    const [verifiedUser] = await Promise.all([findAndVerifyUser(), setTimeout(50)])
+
+    if (!verifiedUser) throw new errors.E_INVALID_CREDENTIALS('Invalid credentials')
+
+    await auth.use('web').login(verifiedUser)
+
+    response.redirect('/')
   }
 
   /**
    * Delete session
    */
-  async destroy({ params, response }: HttpContext) {
+  async destroy({ response, auth }: HttpContext) {
+    await auth.use('web').logout()
     return response.redirect('/')
   }
 }

@@ -1,9 +1,14 @@
 import { db, withGlobalTransaction } from '#services/db'
+import { createUser } from '#tests/support/factories/user'
 import { test } from '@japa/runner'
 import { expect } from '@playwright/test'
 
 test.group('Books', (group) => {
   group.each.setup(() => withGlobalTransaction())
+  group.each.setup(async ({ context: { browserContext } }) => {
+    const user = await createUser()
+    await browserContext.loginAs(user)
+  })
 
   test('CRUD book', async ({ visit }) => {
     await db()
