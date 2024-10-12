@@ -16,14 +16,14 @@ export const schema = {
   PORT: Env.schema.number(),
   APP_KEY: Env.schema.string(),
   HOST: Env.schema.string({ format: 'host' }),
-  LOG_LEVEL: Env.schema.string(),
+  LOG_LEVEL: Env.schema.string.optional(),
 
   /*
   |----------------------------------------------------------
   | Variables for configuring session package
   |----------------------------------------------------------
   */
-  SESSION_DRIVER: Env.schema.enum(['cookie', 'memory'] as const),
+  SESSION_DRIVER: Env.schema.enum.optional(['cookie', 'memory'] as const),
 
   /*
   |----------------------------------------------------------
