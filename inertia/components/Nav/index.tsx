@@ -3,6 +3,7 @@ import cn from 'classnames'
 import Logo from '../Logo'
 import { Link, usePage } from '@inertiajs/react'
 import { SharedProps } from '@adonisjs/inertia/types'
+import NavLink from './NavLink'
 
 export default function Nav() {
   const [open, setOpen] = useState(false)
@@ -55,13 +56,11 @@ export default function Nav() {
             <li className="md:flex-grow"></li>
             <li>
               {auth.isAuthenticated ? (
-                <Link href="/session" method="delete" className="NavLink" as="button">
+                <NavLink href="/session" method="delete" as="button">
                   Sign out
-                </Link>
+                </NavLink>
               ) : (
-                <Link href="/sign-in" className="NavLink">
-                  Sign in
-                </Link>
+                <NavLink href="/sign-in">Sign in</NavLink>
                 // <%- if Devise.mappings[:user].registerable? && controller_name != 'registrations' %>
                 //   <%= link_to t(".sign_up"), new_registration_path(User), class: "NavLink" %>
                 // <% end %>
