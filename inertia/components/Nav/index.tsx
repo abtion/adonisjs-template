@@ -8,7 +8,8 @@ import NavLink from './NavLink'
 export default function Nav() {
   const [open, setOpen] = useState(false)
   const {
-    props: { auth },
+    props: { auth, policies },
+    component,
   } = usePage<SharedProps>()
 
   return (
@@ -45,13 +46,17 @@ export default function Nav() {
               hidden: !open,
             })}
           >
-            {/* <% if user_signed_in? %>
-            <% if policy(:user).index? %>
-              <li>
-                <%= link_to t(".users"), admin_users_path, class: "NavLink #{'NavLink--active' if controller_name == 'users'}" %>
-              </li>
-            <% end %>
-          <% end %> */}
+            {auth.isAuthenticated && (
+              <>
+                {policies.BookPolicy.index && (
+                  <li>
+                    <NavLink href="/books" active={component.startsWith('books')}>
+                      Books
+                    </NavLink>
+                  </li>
+                )}
+              </>
+            )}
 
             <li className="md:flex-grow"></li>
             <li>
@@ -61,9 +66,6 @@ export default function Nav() {
                 </NavLink>
               ) : (
                 <NavLink href="/sign-in">Sign in</NavLink>
-                // <%- if Devise.mappings[:user].registerable? && controller_name != 'registrations' %>
-                //   <%= link_to t(".sign_up"), new_registration_path(User), class: "NavLink" %>
-                // <% end %>
               )}
             </li>
           </ul>

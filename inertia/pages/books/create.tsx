@@ -6,7 +6,7 @@ import { ChangeEvent, FormEvent } from 'react'
 import { useForm } from '@inertiajs/react'
 import MainLayout from '~/layouts/main'
 
-export default function Create() {
+export default function BooksCreate() {
   const { data, setData, post, processing, errors } = useForm({
     name: '',
   })

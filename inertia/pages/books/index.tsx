@@ -5,7 +5,7 @@ import ButtonClear from '~/components/ButtonClear'
 import { InferPageProps } from '@adonisjs/inertia/types'
 import MainLayout from '~/layouts/main'
 
-export default function Home({ books }: InferPageProps<BooksController, 'index'>) {
+export default function BooksIndex({ books }: InferPageProps<BooksController, 'index'>) {
   return (
     <MainLayout>
       <Head title="List of books" />

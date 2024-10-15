@@ -5,12 +5,12 @@ import { symbols } from '@adonisjs/auth'
 import { SessionGuardUser, SessionUserProviderContract } from '@adonisjs/auth/types/session'
 import { db } from '#services/db'
 
-type User = Selectable<Users>
+export type SessionUser = Pick<Selectable<Users>, 'id' | 'email' | 'fullName'>
 
-export class SessionKyselyUserProvider implements SessionUserProviderContract<User> {
-  declare [symbols.PROVIDER_REAL_USER]: User
+export class SessionKyselyUserProvider implements SessionUserProviderContract<SessionUser> {
+  declare [symbols.PROVIDER_REAL_USER]: SessionUser
 
-  async createUserForGuard(user: User): Promise<SessionGuardUser<User>> {
+  async createUserForGuard(user: SessionUser): Promise<SessionGuardUser<SessionUser>> {
     return {
       getId() {
         return user.id
@@ -21,10 +21,10 @@ export class SessionKyselyUserProvider implements SessionUserProviderContract<Us
     }
   }
 
-  async findById(identifier: number): Promise<SessionGuardUser<User> | null> {
+  async findById(identifier: number): Promise<SessionGuardUser<SessionUser> | null> {
     const user = await db()
       .selectFrom('users')
-      .selectAll()
+      .select(['id', 'email', 'fullName'])
       .where('id', '=', identifier)
       .executeTakeFirst()
 

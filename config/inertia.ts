@@ -1,3 +1,4 @@
+import { policies } from '#policies/main'
 import { defineConfig } from '@adonisjs/inertia'
 import type { InferSharedProps } from '@adonisjs/inertia/types'
 
@@ -13,12 +14,18 @@ const inertiaConfig = defineConfig({
   sharedData: {
     auth: (ctx) => {
       const { user, isAuthenticated } = ctx.auth.use('web')
-      return {
-        isAuthenticated,
-        user: user && {
-          fullName: user.fullName,
-        },
+      return { isAuthenticated, user }
+    },
+    policies: async ({ bouncer }) => {
+      const res = {} as Record<keyof typeof policies, Record<string, boolean>>
+
+      for (let [name, importer] of Object.entries(policies)) {
+        const { default: policy } = await importer()
+        res[name as keyof typeof policies] = {
+          index: await bouncer.with(policy).allows('index'),
+        }
       }
+      return res
     },
     errors: (ctx) => {
       const errors = ctx.session?.flashMessages.get('errors') ?? {}
