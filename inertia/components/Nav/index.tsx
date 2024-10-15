@@ -48,10 +48,10 @@ export default function Nav() {
           >
             {auth.isAuthenticated && (
               <>
-                {policies.BookPolicy.index && (
+                {policies.UserPolicy.index && (
                   <li>
-                    <NavLink href="/books" active={component.startsWith('books')}>
-                      Books
+                    <NavLink href="/users" active={component.startsWith('users')}>
+                      Users
                     </NavLink>
                   </li>
                 )}

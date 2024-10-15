@@ -10,7 +10,7 @@ export default async function (db: Kysely<DB>, logger: BaseCommand['logger']) {
     .select((qb) => qb.fn.countAll().as('count'))
     .executeTakeFirstOrThrow()
 
-  if (count !== 0) {
+  if (Number(count) !== 0) {
     logger.info('Skipping user creation. Table is not empty')
     return
   }
@@ -19,8 +19,21 @@ export default async function (db: Kysely<DB>, logger: BaseCommand['logger']) {
     .insertInto('users')
     .values([
       {
-        fullName: 'John Doe',
+        name: 'Admin Doe',
         email: 'admin@example.com',
+        admin: true,
+        password: await hash.make('password'),
+        ...timestamps(),
+      },
+    ])
+    .execute()
+
+  await db
+    .insertInto('users')
+    .values([
+      {
+        name: 'User Doe',
+        email: 'user@example.com',
         password: await hash.make('password'),
         ...timestamps(),
       },

@@ -8,7 +8,8 @@ export async function getUserAttributes(
   attributes: Partial<InsertObject<DB, 'users'>>
 ): Promise<InsertObject<DB, 'users'>> {
   return {
-    fullName: 'John Doe',
+    name: 'John Doe',
+    admin: true,
     email: 'admin@example.com',
     password: await hash.make('password'),
     ...timestamps(),

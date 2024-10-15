@@ -13,5 +13,5 @@
 */
 
 export const policies = {
-  BookPolicy: () => import('#policies/book_policy')
+  UserPolicy: () => import('#policies/user_policy'),
 }

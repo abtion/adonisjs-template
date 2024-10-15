@@ -1,27 +1,24 @@
-import type BooksController from '#controllers/books_controller'
+import type UsersController from '#controllers/users_controller'
 import { Head, Link } from '@inertiajs/react'
 import Button from '~/components/Button'
 import ButtonClear from '~/components/ButtonClear'
 import { InferPageProps } from '@adonisjs/inertia/types'
 import MainLayout from '~/layouts/main'
 
-export default function BooksIndex({ books }: InferPageProps<BooksController, 'index'>) {
+export default function UsersIndex({ users }: InferPageProps<UsersController, 'index'>) {
   return (
     <MainLayout>
-      <Head title="List of books" />
+      <Head title="List of users" />
 
       <div className="container my-10">
-        <h1 className="text-2xl">List of books</h1>
+        <h1 className="text-2xl">List of users</h1>
 
         <div className="w-80 mt-4 flex flex-col gap-2">
-          {books.map((book) => (
-            <div key={book.id} className="flex items-start justify-between">
-              <div>
-                <h3 className="text-lg font-medium">{book.name}</h3>
-                <p className="font-light">{book.author?.name}</p>
-              </div>
+          {users.map((user) => (
+            <div key={user.id} className="flex items-start justify-between">
+              <h3 className="text-lg font-medium">{user.name}</h3>
               <Link
-                href={`/books/${book.id}`}
+                href={`/users/${user.id}`}
                 method="delete"
                 as="button"
                 onBefore={() => confirm('Are you sure?')}
@@ -34,8 +31,8 @@ export default function BooksIndex({ books }: InferPageProps<BooksController, 'i
         </div>
 
         <div className="mt-5">
-          <Link href="/books/create" className={Button.cn({ size: 'sm', variant: 'primary' })}>
-            Create book
+          <Link href="/users/create" className={Button.cn({ size: 'sm', variant: 'primary' })}>
+            Create user
           </Link>
         </div>
       </div>

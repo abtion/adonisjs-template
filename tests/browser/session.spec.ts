@@ -15,6 +15,8 @@ test.group('Session', (group) => {
 
     const page = await visit('/')
 
+    await page.getByRole('link', { name: 'Sign in' }).click()
+
     await expect(page.locator('h2', { hasText: 'Sign in' })).toBeVisible()
 
     await page.getByLabel('Email').fill('admin@example.com')
@@ -24,7 +26,7 @@ test.group('Session', (group) => {
     await expect(page.getByText('Sign out')).toBeVisible()
     await page.getByRole('button', { name: 'Sign out' }).click()
 
-    await expect(page.locator('h2', { hasText: 'Sign in' })).toBeVisible()
+    await expect(page.getByText('Sign in')).toBeVisible()
   })
 
   test('failed sign in', async ({ visit }) => {
@@ -33,7 +35,7 @@ test.group('Session', (group) => {
       password: await hash.make('password'),
     })
 
-    const page = await visit('/')
+    const page = await visit('/sign-in')
 
     await page.getByLabel('Email').fill('admin@example.com')
     await page.getByLabel('Password').fill('incorrect password')

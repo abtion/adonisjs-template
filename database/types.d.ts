@@ -11,32 +11,16 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
-export interface Authors {
-  createdAt: Timestamp;
-  id: Generated<number>;
-  name: string;
-  updatedAt: Timestamp;
-}
-
-export interface Books {
-  authorId: number;
-  createdAt: Timestamp;
-  id: Generated<number>;
-  name: string;
-  updatedAt: Timestamp;
-}
-
 export interface Users {
+  admin: Generated<boolean>;
   createdAt: Timestamp;
   email: string;
-  fullName: string;
   id: Generated<number>;
+  name: string;
   password: string;
   updatedAt: Timestamp;
 }
 
 export interface DB {
-  authors: Authors;
-  books: Books;
   users: Users;
 }
