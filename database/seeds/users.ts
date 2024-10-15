@@ -1,11 +1,10 @@
 import { DB } from '#database/types'
+import timestamps from '#tests/support/timestamps'
 import { BaseCommand } from '@adonisjs/core/ace'
 import hash from '@adonisjs/core/services/hash'
 import { Kysely } from 'kysely'
 
 export default async function (db: Kysely<DB>, logger: BaseCommand['logger']) {
-  const timestamps = { createdAt: new Date(), updatedAt: new Date() }
-
   const { count } = await db
     .selectFrom('users')
     .select((qb) => qb.fn.countAll().as('count'))
@@ -23,7 +22,7 @@ export default async function (db: Kysely<DB>, logger: BaseCommand['logger']) {
         fullName: 'John Doe',
         email: 'admin@example.com',
         password: await hash.make('password'),
-        ...timestamps,
+        ...timestamps(),
       },
     ])
     .execute()
