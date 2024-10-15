@@ -54,7 +54,10 @@ export default class KyselyMigrate extends BaseCommand {
     this.logger.info(`Seeding ${databaseConfig[env.get('NODE_ENV')]().database}`)
 
     const dbInstance = db()
-    const seedDefs: { name: string; fn: (db: typeof dbInstance) => PromiseLike<void> }[] = []
+    const seedDefs: {
+      name: string
+      fn: (db: typeof dbInstance, logger: BaseCommand['logger']) => PromiseLike<void>
+    }[] = []
 
     try {
       for (let seedName of this.seedNames) {
@@ -74,7 +77,7 @@ export default class KyselyMigrate extends BaseCommand {
 
     for (let { name, fn } of seedDefs) {
       this.logger.info(`Executing seed ${name}`)
-      await fn(dbInstance)
+      await fn(dbInstance, this.logger)
     }
 
     this.logger.success('Database seeded')

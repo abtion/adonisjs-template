@@ -5,3 +5,4 @@ npm install
 echo "== Preparing database =="
 node ace db:create
 node ace db:migrate
+node ace db:seed
