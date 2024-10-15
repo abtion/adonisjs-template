@@ -1,13 +1,12 @@
-import type BooksController from '#controllers/books_controller'
 import { Head } from '@inertiajs/react'
 import Button from '~/components/Button'
 import Alert from '~/components/Alert'
 import Input from '~/components/Input'
 import { ChangeEvent, FormEvent } from 'react'
-import { InferPageProps } from '@adonisjs/inertia/types'
 import { useForm } from '@inertiajs/react'
+import MainLayout from '~/layouts/main'
 
-export default function Create(props: InferPageProps<BooksController, 'create'>) {
+export default function BooksCreate() {
   const { data, setData, post, processing, errors } = useForm({
     name: '',
   })
@@ -22,7 +21,7 @@ export default function Create(props: InferPageProps<BooksController, 'create'>)
   }
 
   return (
-    <>
+    <MainLayout>
       <Head title="New book" />
 
       <div className="container my-10">
@@ -58,6 +57,6 @@ export default function Create(props: InferPageProps<BooksController, 'create'>)
           </div>
         </form>
       </div>
-    </>
+    </MainLayout>
   )
 }

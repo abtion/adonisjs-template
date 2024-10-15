@@ -18,6 +18,9 @@ export default {
       current: 'currentColor',
       ...tailwindColors,
     },
+    fontFamily: {
+      sans: ['Inter', 'sans-serif'],
+    },
   },
   plugins: [require('@tailwindcss/aspect-ratio')],
 } satisfies Config

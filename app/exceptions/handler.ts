@@ -1,6 +1,7 @@
 import app from '@adonisjs/core/services/app'
 import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
 import type { StatusPageRange, StatusPageRenderer } from '@adonisjs/core/types/http'
+import { errors as bouncerErrors } from '@adonisjs/bouncer'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -30,6 +31,16 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * response to the client
    */
   async handle(error: unknown, ctx: HttpContext) {
+    if (error instanceof bouncerErrors.E_AUTHORIZATION_FAILURE) {
+      if (ctx.session) {
+        ctx.session.flashErrors({ [error.code]: error.message })
+        ctx.response.redirect('back', true)
+      } else {
+        ctx.response.status(error.status).send(error.message)
+      }
+      return
+    }
+
     return super.handle(error, ctx)
   }
 

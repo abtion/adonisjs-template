@@ -1,3 +1,4 @@
+import BookPolicy from '#policies/book_policy'
 import { db } from '#services/db'
 import { createBookValidator } from '#validators/books_validator'
 import type { HttpContext } from '@adonisjs/core/http'
@@ -7,7 +8,9 @@ export default class BooksController {
   /**
    * Display a list of resource
    */
-  async index({ inertia }: HttpContext) {
+  async index({ inertia, bouncer }: HttpContext) {
+    await bouncer.with(BookPolicy).authorize('index')
+
     const books = await db()
       .selectFrom('books')
       .selectAll()
@@ -24,14 +27,18 @@ export default class BooksController {
   /**
    * Display form to create a new record
    */
-  async create({ inertia }: HttpContext) {
+  async create({ inertia, bouncer }: HttpContext) {
+    await bouncer.with(BookPolicy).authorize('create')
+
     return inertia.render('books/create')
   }
 
   /**
    * Handle form submission for the create action
    */
-  async store({ request, response }: HttpContext) {
+  async store({ request, response, bouncer }: HttpContext) {
+    await bouncer.with(BookPolicy).authorize('create')
+
     const data = await request.validateUsing(createBookValidator)
     const author = await db().selectFrom('authors').select('id').executeTakeFirst()
 
@@ -61,10 +68,15 @@ export default class BooksController {
   /**
    * Delete record
    */
-  async destroy({ params, response }: HttpContext) {
-    const bookId = params.id
+  async destroy({ params, response, bouncer }: HttpContext) {
+    const book = await db()
+      .selectFrom('books')
+      .where('id', '=', params.id)
+      .selectAll()
+      .executeTakeFirstOrThrow()
 
-    await db().deleteFrom('books').where('books.id', '=', bookId).execute()
+    await bouncer.with(BookPolicy).authorize('delete', book)
+    await db().deleteFrom('books').where('books.id', '=', book.id).execute()
 
     return response.redirect('/books')
   }

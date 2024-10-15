@@ -3,10 +3,11 @@ import { Head, Link } from '@inertiajs/react'
 import Button from '~/components/Button'
 import ButtonClear from '~/components/ButtonClear'
 import { InferPageProps } from '@adonisjs/inertia/types'
+import MainLayout from '~/layouts/main'
 
-export default function Home({ books }: InferPageProps<BooksController, 'index'>) {
+export default function BooksIndex({ books }: InferPageProps<BooksController, 'index'>) {
   return (
-    <>
+    <MainLayout>
       <Head title="List of books" />
 
       <div className="container my-10">
@@ -38,6 +39,6 @@ export default function Home({ books }: InferPageProps<BooksController, 'index'>
           </Link>
         </div>
       </div>
-    </>
+    </MainLayout>
   )
 }
