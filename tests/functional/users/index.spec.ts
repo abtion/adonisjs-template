@@ -1,5 +1,5 @@
 import { test } from '@japa/runner'
-import { db, withGlobalTransaction } from '#services/db'
+import { withGlobalTransaction } from '#services/db'
 import { createUser } from '#tests/support/factories/user'
 
 test.group('Users list', (group) => {
