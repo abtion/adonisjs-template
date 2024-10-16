@@ -8,7 +8,7 @@ export default class UsersController {
   /**
    * Display a list of resource
    */
-  async index({ inertia, bouncer }: HttpContext) {
+  async index({ inertia, bouncer, permissions }: HttpContext) {
     await bouncer.with(UserPolicy).authorize('index')
 
     const users = await db()
@@ -16,7 +16,9 @@ export default class UsersController {
       .select(['id', 'email', 'name', 'createdAt'])
       .execute()
 
-    return inertia.render('users/index', { users })
+    return inertia.render('users/index', {
+      users: await permissions.appendToList(users, UserPolicy, ['destroy', 'edit']),
+    })
   }
 
   /**
@@ -52,7 +54,18 @@ export default class UsersController {
   /**
    * Show individual record
    */
-  async show(_: HttpContext) {}
+  async show({ inertia, bouncer, permissions }: HttpContext) {
+    const user = await db()
+      .selectFrom('users')
+      .select(['id', 'email', 'name', 'createdAt'])
+      .executeTakeFirstOrThrow()
+
+    await bouncer.with(UserPolicy).authorize('show', user)
+
+    return inertia.render('users/show', {
+      user: await permissions.appendTo(user, UserPolicy),
+    })
+  }
 
   /**
    * Edit individual record
@@ -74,7 +87,7 @@ export default class UsersController {
       .select('id')
       .executeTakeFirstOrThrow()
 
-    await bouncer.with(UserPolicy).authorize('delete', user)
+    await bouncer.with(UserPolicy).authorize('destroy', user)
     await db().deleteFrom('users').where('users.id', '=', user.id).execute()
 
     return response.redirect('/users')

@@ -4,7 +4,7 @@ import { SessionUser } from '../auth_providers/session_user_provider.js'
 import type { Users } from '../../database/types.js'
 import { Selectable } from 'kysely'
 
-type User = Pick<Selectable<Users>, 'id'>
+export type PolicyUser = { id: number }
 
 export default class UserPolicy extends BasePolicy {
   index(user: SessionUser): AuthorizerResponse {
@@ -15,15 +15,15 @@ export default class UserPolicy extends BasePolicy {
     return user.admin
   }
 
-  show(user: SessionUser, targetUser: User): AuthorizerResponse {
-    return user.admin || user.id === targetUser.id
+  show(user: SessionUser, targetUser: PolicyUser): AuthorizerResponse {
+    return user.id === targetUser.id
   }
 
-  edit(user: SessionUser, targetUser: User): AuthorizerResponse {
-    return user.admin || user.id === targetUser.id
+  edit(user: SessionUser, targetUser: PolicyUser): AuthorizerResponse {
+    return user.id === targetUser.id
   }
 
-  delete(user: SessionUser, targetUser: User): AuthorizerResponse {
-    return user.admin || user.id === targetUser.id
+  destroy(user: SessionUser, targetUser: PolicyUser): AuthorizerResponse {
+    return user.id === targetUser.id
   }
 }

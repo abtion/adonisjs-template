@@ -17,12 +17,13 @@ const inertiaConfig = defineConfig({
       return { isAuthenticated, user }
     },
     policies: async ({ bouncer }) => {
-      const res = {} as Record<keyof typeof policies, Record<string, boolean>>
+      const res = {} as Record<keyof typeof policies, Record<'index' | 'create', boolean>>
 
       for (let [name, importer] of Object.entries(policies)) {
         const { default: policy } = await importer()
         res[name as keyof typeof policies] = {
           index: await bouncer.with(policy).allows('index'),
+          create: await bouncer.with(policy).allows('create'),
         }
       }
       return res

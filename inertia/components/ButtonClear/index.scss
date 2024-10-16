@@ -31,6 +31,7 @@
   }
 
   // Colors
+  &[href],
   &:enabled {
     &.ButtonClear--neutral {
       @apply text-neutral-500 hover:underline active:bg-neutral-100 ring-neutral-500;
