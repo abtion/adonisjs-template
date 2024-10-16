@@ -1,6 +1,5 @@
 # TODO:
 
-- Authentication (extra points for user management)
 - Background job handling
 - Don't load .env in production env (maybe delete it when building?)
 
