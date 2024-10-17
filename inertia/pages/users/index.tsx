@@ -43,8 +43,11 @@ export default function UsersIndex({ users, policies }: InferPageProps<UsersCont
                   <td className="text-sm text-neutral-800 font-medium px-3 py-2 whitespace-nowrap">
                     <Link
                       href={`/users/${user.id}`}
-                      className={ButtonClear.cn({ size: 'sm', variant: 'primary' })}
-                      disabled={!user.permissions.show}
+                      className={ButtonClear.cn({
+                        size: 'sm',
+                        variant: 'primary',
+                        disabled: !user.permissions.show,
+                      })}
                     >
                       {user.email}
                     </Link>
@@ -53,13 +56,16 @@ export default function UsersIndex({ users, policies }: InferPageProps<UsersCont
                     {user.name}
                   </td>
                   <td className="text-sm text-neutral-500 px-6 py-4 whitespace-nowrap">
-                    {new Date(user.createdAt).toLocaleDateString('en-US')}
+                    {new Date(user.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-3 py-2 flex justify-end">
                     <Link
                       href={`/users/${user.id}`}
-                      className={ButtonClear.cn({ size: 'sm', variant: 'primary' })}
-                      disabled={!user.permissions.edit}
+                      className={ButtonClear.cn({
+                        size: 'sm',
+                        variant: 'primary',
+                        disabled: !user.permissions.edit,
+                      })}
                     >
                       Edit
                     </Link>
@@ -67,9 +73,12 @@ export default function UsersIndex({ users, policies }: InferPageProps<UsersCont
                       href={`/users/${user.id}`}
                       method="delete"
                       as="button"
-                      onBefore={() => confirm('Are you sure?')}
-                      className={ButtonClear.cn({ size: 'sm', variant: 'danger' })}
                       disabled={!user.permissions.destroy}
+                      onBefore={() => confirm('Are you sure?')}
+                      className={ButtonClear.cn({
+                        size: 'sm',
+                        variant: 'danger',
+                      })}
                     >
                       Delete
                     </Link>
