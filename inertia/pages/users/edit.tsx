@@ -3,17 +3,19 @@ import { ChangeEvent, FormEvent } from 'react'
 import { useForm } from '@inertiajs/react'
 import MainLayout from '~/layouts/main'
 import UserForm from '~/components/UserForm'
+import UsersController from '#controllers/users_controller'
+import { InferPageProps } from '@adonisjs/inertia/types'
 
-export default function UsersCreate() {
-  const { data, setData, post, processing, errors } = useForm({
-    name: '',
-    email: '',
+export default function UsersEdit({ user }: InferPageProps<UsersController, 'edit'>) {
+  const { data, setData, put, processing, errors } = useForm({
+    name: user.name,
+    email: user.email,
     password: '',
   })
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    post('/users')
+    put(`/users/${user.id}`)
   }
 
   function handleChange(event: ChangeEvent<{ name: string; value: string }>) {
@@ -25,9 +27,10 @@ export default function UsersCreate() {
       <Head title="New user" />
 
       <div className="container my-10">
-        <h1 className="text-2xl">Create new user</h1>
+        <h1 className="text-2xl">Edit {user.name}</h1>
 
         <UserForm
+          isEdit
           data={data}
           processing={processing}
           errors={errors}

@@ -1,6 +1,6 @@
 import UserPolicy from '#policies/user_policy'
 import { db } from '#services/db'
-import { createUserValidator } from '#validators/users_validator'
+import { createUserValidator, updateUserValidator } from '#validators/users_validator'
 import type { HttpContext } from '@adonisjs/core/http'
 import hash from '@adonisjs/core/services/hash'
 
@@ -71,12 +71,45 @@ export default class UsersController {
   /**
    * Edit individual record
    */
-  async edit(_: HttpContext) {}
+  async edit({ params, inertia, bouncer, permissions }: HttpContext) {
+    const user = await db()
+      .selectFrom('users')
+      .where('id', '=', params.id)
+      .select(['id', 'email', 'name', 'createdAt'])
+      .executeTakeFirstOrThrow()
+
+    await bouncer.with(UserPolicy).authorize('edit', user)
+
+    return inertia.render('users/edit', {
+      user: await permissions.appendTo(user, UserPolicy),
+    })
+  }
 
   /**
    * Handle form submission for the edit action
    */
-  async update(_: HttpContext) {}
+  async update({ request, response, bouncer, params }: HttpContext) {
+    const user = await db()
+      .selectFrom('users')
+      .where('id', '=', params.id)
+      .select(['id'])
+      .executeTakeFirstOrThrow()
+
+    await bouncer.with(UserPolicy).authorize('edit', user)
+
+    const data = await request.validateUsing(updateUserValidator)
+
+    await db()
+      .updateTable('users')
+      .where('id', '=', params.id)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .execute()
+
+    return response.redirect('/users')
+  }
 
   /**
    * Delete record

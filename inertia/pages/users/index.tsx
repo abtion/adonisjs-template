@@ -60,7 +60,7 @@ export default function UsersIndex({ users, policies }: InferPageProps<UsersCont
                   </td>
                   <td className="px-3 py-2 flex justify-end">
                     <Link
-                      href={`/users/${user.id}`}
+                      href={`/users/${user.id}/edit`}
                       className={ButtonClear.cn({
                         size: 'sm',
                         variant: 'primary',

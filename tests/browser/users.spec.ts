@@ -25,7 +25,7 @@ test.group('Users', (group) => {
     await expect(page.getByText('Password')).toBeVisible()
     await page.getByLabel('Password').fill('password')
 
-    await page.getByRole('button', { name: 'Save' }).click()
+    await page.getByRole('button', { name: 'Create' }).click()
 
     await expect(page.getByText('List of users')).toBeVisible()
     page.on('dialog', (dialog) => dialog.accept())
