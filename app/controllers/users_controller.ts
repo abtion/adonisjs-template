@@ -17,7 +17,7 @@ export default class UsersController {
       .execute()
 
     return inertia.render('users/index', {
-      users: await permissions.appendToList(users, UserPolicy, ['destroy', 'edit']),
+      users: await permissions.appendToList(users, UserPolicy),
     })
   }
 
