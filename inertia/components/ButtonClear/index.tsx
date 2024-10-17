@@ -23,6 +23,7 @@ function classes(props: ButtonClearProps, className?: string) {
     {
       [`ButtonClear--${size}`]: size,
       [`ButtonClear--${variant}`]: variant,
+      ['ButtonClear--disabled']: props.disabled,
     },
     className
   )
