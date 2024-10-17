@@ -54,9 +54,10 @@ export default class UsersController {
   /**
    * Show individual record
    */
-  async show({ inertia, bouncer, permissions }: HttpContext) {
+  async show({ params, inertia, bouncer, permissions }: HttpContext) {
     const user = await db()
       .selectFrom('users')
+      .where('id', '=', params.id)
       .select(['id', 'email', 'name', 'createdAt'])
       .executeTakeFirstOrThrow()
 
