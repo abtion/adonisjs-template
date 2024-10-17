@@ -16,90 +16,70 @@ export type RelevantActions<PolicyInstance, UserType, TargetType> = {
     : never
 }[keyof PolicyInstance]
 
-type AppendTo = <
-  Target extends {},
-  Policy extends Constructor<any>,
-  Action extends RelevantActions<InstanceType<Policy>, SessionUser, Target>,
->(
-  target: Target,
-  policy: Policy,
-  actions?: Action[]
-) => Promise<
-  Target & {
-    permissions: Record<
-      (typeof actions extends [] ? typeof actions : typeof defaultActions)[number],
-      boolean
-    >
-  }
->
-
-type AppendToList = <
-  Target extends {},
-  Policy extends Constructor<any>,
-  Action extends RelevantActions<InstanceType<Policy>, SessionUser, Target>,
->(
-  target: Target[],
-  policy: Policy,
-  actions?: Action[]
-) => Promise<
-  (Target & {
-    permissions: Record<
-      (typeof actions extends [] ? typeof actions : typeof defaultActions)[number],
-      boolean
-    >
-  })[]
->
-
 export default class InitializePermissionsMiddleware {
-  async handle(ctx: HttpContext, next: NextFn) {
-    const appendTo: AppendTo = async function (
-      target,
-      policy,
-      // @ts-expect-error A runtime check catches if one of the default actions is not implemented
-      actions = defaultActions
-    ) {
-      const permissions = {} as Record<
-        (typeof actions extends [] ? typeof actions : typeof defaultActions)[number],
-        boolean
-      >
-
-      await Promise.all(
+  async generatePermissionHelpers(ctx: HttpContext) {
+    async function appendTo<
+      Target extends {},
+      Policy extends Constructor<any>,
+      Action extends RelevantActions<InstanceType<Policy>, SessionUser, Target>,
+    >(target: Target, policy: Policy, actions?: Action[]) {
+      if (actions) {
+        const permissions = {} as Record<(typeof actions)[number], boolean>
         actions.map(async (action) => {
+          // @ts-expect-error TypeScript does not infer that we only allow actions with the target
+          //                  as parameter
+          permissions[action] = await ctx.bouncer.with(policy).allows(action, target)
+        })
+
+        return { ...target, permissions }
+      } else {
+        const permissions = {} as Record<(typeof defaultActions)[number], boolean>
+        defaultActions.map(async (action) => {
           // If one of the default actions is not implemented, it will be catched here
           if (!(action in policy.prototype)) {
             throw new Error(`${policy.name} does not have the action "${action as string}"`)
           }
 
-          // @ts-expect-error TypeScript does not infer that we only allow actions with the target
-          //                  as parameter
+          // @ts-expect-error The check above will throw an error if the action is not implemented
+          //                  This will also let through the unlikely event that the policy
+          //                  immplements the action but does not take the right parameters
           permissions[action] = await ctx.bouncer.with(policy).allows(action, target)
         })
-      )
 
-      return {
-        ...target,
-        permissions,
+        return { ...target, permissions }
       }
     }
 
-    const appendToList: AppendToList = async function (targets, policy, actions) {
-      return await Promise.all(targets.map((target) => appendTo(target, policy, actions)))
+    async function appendToList<
+      Target extends {},
+      Policy extends Constructor<any>,
+      Action extends RelevantActions<InstanceType<Policy>, SessionUser, Target>,
+    >(targets: Target[], policy: Policy, actions?: Action[]) {
+      if (actions) {
+        return await Promise.all(
+          targets.map((target) => appendTo<Target, Policy, Action>(target, policy, actions))
+        )
+      } else {
+        return await Promise.all(
+          targets.map((target) => appendTo<Target, Policy, Action>(target, policy))
+        )
+      }
     }
 
-    ctx.permissions = {
+    return {
       appendTo,
       appendToList,
     }
+  }
 
+  async handle(ctx: HttpContext, next: NextFn) {
+    ctx.permissions = await this.generatePermissionHelpers(ctx)
     return next()
   }
 }
 
 declare module '@adonisjs/core/http' {
   export interface HttpContext {
-    permissions: {
-      appendTo: AppendTo
-      appendToList: AppendToList
-    }
+    permissions: Awaited<ReturnType<InitializePermissionsMiddleware['generatePermissionHelpers']>>
   }
 }
