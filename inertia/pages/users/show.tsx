@@ -11,32 +11,34 @@ export default function UserShow({ user, policies }: InferPageProps<UsersControl
       <div className="container mx-auto my-20 max-w-3xl">
         <div className="flex items-center">
           <h1 className="text-3xl flex-grow">{user.email}</h1>
-
           {policies.UserPolicy.index && (
             <Link
               href="/users/"
-              className={ButtonClear.cn({ size: 'sm', variant: 'primary' }, 'mr-2')}
-              disabled={!user.permissions.show}
+              className={ButtonClear.cn(
+                { size: 'sm', variant: 'primary', disabled: !user.permissions.show },
+                'mr-2'
+              )}
             >
               Back
             </Link>
           )}
-
           {user.permissions.edit && (
             <Link
               href={`/users/${user.id}/edit`}
-              className={ButtonClear.cn({ size: 'sm', variant: 'primary' })}
-              disabled={!user.permissions.show}
+              className={ButtonClear.cn(
+                { size: 'sm', variant: 'primary', disabled: !user.permissions.show },
+                'mr-2'
+              )}
             >
               Edit
             </Link>
           )}
-
           {user.permissions.destroy && (
             <Link
               href={`/users/${user.id}`}
               className={Button.cn({ size: 'sm', variant: 'danger' })}
               disabled={!user.permissions.show}
+              onBefore={() => confirm('Are you sure?')}
               as="button"
               method="delete"
             >
@@ -71,7 +73,7 @@ export default function UserShow({ user, policies }: InferPageProps<UsersControl
                   Created at
                 </th>
                 <td className="text-sm text-neutral-800 font-medium px-3 py-2 whitespace-nowrap">
-                  {new Date(user.createdAt).toLocaleDateString('en-US')}
+                  {new Date(user.createdAt).toLocaleDateString()}
                 </td>
               </tr>
             </tbody>
