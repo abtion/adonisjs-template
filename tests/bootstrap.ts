@@ -14,6 +14,8 @@ import { authApiClient } from '@adonisjs/auth/plugins/api_client'
 import { db } from '#services/db'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
+import collectBrowserCoverage from './support/plugins/collectBrowserCoverage.js'
+
 /**
  * This file is imported by the "bin/test.ts" entrypoint file
  */
@@ -38,6 +40,10 @@ export const plugins: Config['plugins'] = [
   }),
   sessionBrowserClient(app),
   authBrowserClient(app),
+  collectBrowserCoverage(app, {
+    runInSuites: ['browser'],
+    coverageFolder: '.coverage/frontend',
+  }),
 ]
 
 /**
