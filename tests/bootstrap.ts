@@ -7,13 +7,11 @@ import { inertiaApiClient } from '@adonisjs/inertia/plugins/api_client'
 import testUtils from '@adonisjs/core/services/test_utils'
 import { browserClient } from '@japa/browser-client'
 import { authBrowserClient } from '@adonisjs/auth/plugins/browser_client'
-import { FileMigrationProvider, Migrator } from 'kysely'
 import { sessionBrowserClient } from '@adonisjs/session/plugins/browser_client'
 import { sessionApiClient } from '@adonisjs/session/plugins/api_client'
 import { authApiClient } from '@adonisjs/auth/plugins/api_client'
 import { db } from '#services/db'
-import * as fs from 'node:fs/promises'
-import * as path from 'node:path'
+import migrateDb from './support/hooks/migrateDb.js'
 import collectBrowserCoverage from './support/plugins/collectBrowserCoverage.js'
 
 /**
@@ -54,7 +52,7 @@ export const plugins: Config['plugins'] = [
  * The teardown functions are executer after all the tests
  */
 export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
-  setup: [],
+  setup: [migrateDb],
   teardown: [
     // Close db connection so the test process will exit immediately after finishing the tests
     async () => await db().destroy(),
@@ -66,33 +64,6 @@ export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
  * Learn more - https://japa.dev/docs/test-suites#lifecycle-hooks
  */
 export const configureSuite: Config['configureSuite'] = (suite) => {
-  suite.setup(async () => {
-    const migrator = new Migrator({
-      db: db(),
-      provider: new FileMigrationProvider({
-        fs,
-        path,
-        migrationFolder: app.migrationsPath(),
-      }),
-    })
-
-    const migrations = await migrator.getMigrations()
-    if (migrations.every((migration) => migration.executedAt)) {
-      return
-    }
-
-    console.info('Schema not up-to-date, migrating')
-    const { error } = await migrator.migrateToLatest()
-
-    if (!error) {
-      console.info('Schema migrated')
-    } else {
-      throw new Error(
-        'Could not migrate test database. Please ensure that the database is running. To inspect errors, run: node ace db:migrate'
-      )
-    }
-  })
-
   if (['browser', 'functional', 'e2e'].includes(suite.name)) {
     suite.setup(() => testUtils.httpServer().start())
   }
