@@ -8,17 +8,20 @@ import env from '#start/env'
 
 //  The types for the default export of 'vite-plugin-istanbul' are not working correctly
 const istanbulPlugin = istanbulPluginUntyped as unknown as (opts?: IstanbulPluginOptions) => Plugin
+const isTest = process.env.NODE_ENV === 'test'
 
 export default defineConfig({
   plugins: [
     inertia({ ssr: { enabled: true, entrypoint: 'inertia/app/ssr.tsx' } }),
     react(),
-    adonisjs({ entrypoints: ['inertia/app/app.tsx'], reload: ['resources/views/**/*.edge'] }),
-    ...('test' === 'test'
+    adonisjs({
+      entrypoints: ['inertia/app/app.tsx'],
+      reload: ['resources/views/**/*.edge'],
+    }),
+    ...(isTest
       ? [
           istanbulPlugin({
-            include: 'inertia',
-            exclude: ['node_modules', 'test/'],
+            exclude: ['inertia/app/ssr.tsx'],
             extension: ['.js', '.ts', '.tsx'],
           }),
         ]

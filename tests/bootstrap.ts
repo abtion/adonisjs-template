@@ -13,6 +13,7 @@ import { authApiClient } from '@adonisjs/auth/plugins/api_client'
 import { db } from '#services/db'
 import migrateDb from './support/hooks/migrateDb.js'
 import collectBrowserCoverage from './support/plugins/collectBrowserCoverage.js'
+import summarizeCoverage from './support/hooks/summarizeCoverage.js'
 
 /**
  * This file is imported by the "bin/test.ts" entrypoint file
@@ -40,7 +41,6 @@ export const plugins: Config['plugins'] = [
   authBrowserClient(app),
   collectBrowserCoverage(app, {
     runInSuites: ['browser'],
-    coverageFolder: '.coverage/frontend',
   }),
 ]
 
@@ -56,6 +56,9 @@ export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
   teardown: [
     // Close db connection so the test process will exit immediately after finishing the tests
     async () => await db().destroy(),
+    summarizeCoverage({
+      runInSuites: ['browser'],
+    }),
   ],
 }
 

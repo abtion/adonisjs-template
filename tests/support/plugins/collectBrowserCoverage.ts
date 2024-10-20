@@ -14,7 +14,7 @@ type Config = {
 }
 
 const defaultConfig: Config = {
-  coverageFolder: '.coverage/frontend',
+  coverageFolder: '.nyc_output',
   runInSuites: ['browser'],
 }
 
