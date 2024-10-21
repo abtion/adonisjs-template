@@ -1,7 +1,6 @@
 {
   "include": [
     "app",
-    "utils",
-    "commands"
+    "utils"
   ]
 }

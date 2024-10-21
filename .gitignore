@@ -25,4 +25,5 @@ yarn-error.log
 
 # Coverage
 .nyc_output
+.v8-coverage
 coverage

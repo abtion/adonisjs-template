@@ -58,7 +58,7 @@
     "istanbul-lib-report": "^3.0.1",
     "istanbul-reports": "^3.1.7",
     "kysely-codegen": "^0.16.3",
-    "monocart-coverage-reports": "^2.10.9",
+    "monocart-coverage-reports": "^2.11.1",
     "pino-pretty": "^11.2.1",
     "playwright": "^1.46.1",
     "postcss": "^8.4.45",

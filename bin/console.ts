@@ -18,6 +18,35 @@ if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = isTestCommand ? 'test' : 'development'
 }
 
+if (process.argv.slice(2).includes('--coverage')) {
+  // set NODE_V8_COVERAGE to enable v8 coverage for spawned processes
+  process.env.NODE_V8_COVERAGE = '.v8-coverage'
+
+  // Clear coverage folders
+  const { rimrafSync } = await import('rimraf')
+  rimrafSync(process.env.NODE_V8_COVERAGE)
+  rimrafSync('coverage')
+  let reportsPrinted = false
+
+  // If reports are enabled, show reports when the process exits
+  if (process.argv.slice(2).includes('--report-coverage')) {
+    // Consume argument
+    process.argv = process.argv.filter((arg) => arg !== '--report-coverage')
+
+    const reportCoverage = (await import('#utils/printCoverage')).default
+
+    process.on('beforeExit', async () => {
+      if (reportsPrinted) return
+      reportsPrinted = true
+      reportCoverage({
+        backendCoverageFolder: process.env.NODE_V8_COVERAGE,
+        frontendCoverageFolder: '.nyc_output',
+        reportDir: 'coverage',
+      })
+    })
+  }
+}
+
 import 'reflect-metadata'
 import { Ignitor, prettyPrintError } from '@adonisjs/core'
 

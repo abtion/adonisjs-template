@@ -8,7 +8,6 @@ import env from '#start/env'
 
 //  The types for the default export of 'vite-plugin-istanbul' are not working correctly
 const istanbulPlugin = istanbulPluginUntyped as unknown as (opts?: IstanbulPluginOptions) => Plugin
-const isTest = process.env.NODE_ENV === 'test'
 
 export default defineConfig({
   plugins: [
@@ -18,7 +17,7 @@ export default defineConfig({
       entrypoints: ['inertia/app/app.tsx'],
       reload: ['resources/views/**/*.edge'],
     }),
-    ...(isTest
+    ...(process.argv.includes('--coverage')
       ? [
           istanbulPlugin({
             exclude: ['inertia/app/ssr.tsx'],

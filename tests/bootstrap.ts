@@ -39,9 +39,15 @@ export const plugins: Config['plugins'] = [
   }),
   sessionBrowserClient(app),
   authBrowserClient(app),
-  collectBrowserCoverage(app, {
-    runInSuites: ['browser'],
-  }),
+
+  // Enable browser coverage collection of --coverage flag is used
+  ...(process.argv.includes('--coverage')
+    ? [
+        collectBrowserCoverage(app, {
+          runInSuites: ['browser'],
+        }),
+      ]
+    : []),
 ]
 
 /**
@@ -56,9 +62,6 @@ export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
   teardown: [
     // Close db connection so the test process will exit immediately after finishing the tests
     async () => await db().destroy(),
-    summarizeCoverage({
-      runInSuites: ['browser'],
-    }),
   ],
 }
 
