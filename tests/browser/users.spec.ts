@@ -13,6 +13,7 @@ test.group('Users', (group) => {
   test('CRUD user', async ({ visit }) => {
     const page = await visit('/users')
 
+    // Create
     await expect(page.getByText('List of users')).toBeVisible()
     await page.getByRole('link', { name: 'Create user' }).click()
 
@@ -26,15 +27,31 @@ test.group('Users', (group) => {
     await page.getByLabel('Password').fill('password')
 
     await page.getByRole('button', { name: 'Create' }).click()
+    await expect(page.getByText('List of users')).toBeVisible()
+
+    // Read
+    page.getByText('user@userson.com').click()
+    await expect(page.locator('h1', { hasText: 'user@userson.com' })).toBeVisible()
+
+    // Update
+    page.getByText('Edit').click()
+    await expect(page.locator('h1', { hasText: 'Edit User Userson' })).toBeVisible()
+    await expect(page.getByText('Email')).toBeVisible()
+    await page.getByLabel('Email').fill('user@userson.eu')
+    await page.getByRole('button', { name: 'Save' }).click()
 
     await expect(page.getByText('List of users')).toBeVisible()
-    page.on('dialog', (dialog) => dialog.accept())
+    await expect(page.getByText('user@userson.eu')).toBeVisible()
 
+    // Delete
     const userNameElement = page.getByText('User Userson')
     const userRowElement = userNameElement.locator('..')
     const userDeleteButton = userRowElement.getByRole('button', { name: 'Delete' })
 
+    page.on('dialog', (dialog) => dialog.accept())
     await userDeleteButton.click()
+
     await expect(userDeleteButton).not.toBeVisible()
+    await expect(page.getByText('User Userson')).not.toBeVisible()
   })
 })
