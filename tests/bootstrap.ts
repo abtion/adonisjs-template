@@ -13,7 +13,6 @@ import { authApiClient } from '@adonisjs/auth/plugins/api_client'
 import { db } from '#services/db'
 import migrateDb from './support/hooks/migrateDb.js'
 import collectBrowserCoverage from './support/plugins/collectBrowserCoverage.js'
-import summarizeCoverage from './support/hooks/summarizeCoverage.js'
 
 /**
  * This file is imported by the "bin/test.ts" entrypoint file
@@ -40,8 +39,8 @@ export const plugins: Config['plugins'] = [
   sessionBrowserClient(app),
   authBrowserClient(app),
 
-  // Enable browser coverage collection of --coverage flag is used
-  ...(process.argv.includes('--coverage')
+  // Enable browser coverage collection if NYC_COVERAGE is set
+  ...(process.env.NYC_COVERAGE
     ? [
         collectBrowserCoverage(app, {
           runInSuites: ['browser'],

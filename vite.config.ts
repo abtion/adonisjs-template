@@ -17,7 +17,9 @@ export default defineConfig({
       entrypoints: ['inertia/app/app.tsx'],
       reload: ['resources/views/**/*.edge'],
     }),
-    ...(process.argv.includes('--coverage')
+
+    // Enable browser coverage collection if NYC_COVERAGE is set
+    ...(process.env.NYC_COVERAGE
       ? [
           istanbulPlugin({
             exclude: ['inertia/app/ssr.tsx'],
