@@ -22,8 +22,8 @@ router.on('/').renderInertia('home/index')
 router.resource('users', UsersController).use('*', middleware.auth())
 
 // Session management
-router.get('sign-in', [SessionController, 'show'])
-router.post('sign-in', [SessionController, 'store'])
+router.get('sign-in', [SessionController, 'show']).use(middleware.guest())
+router.post('sign-in', [SessionController, 'store']).use(middleware.guest())
 router.delete('session', [SessionController, 'destroy']).use(middleware.auth())
 
 let cssVariables: string
