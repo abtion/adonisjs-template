@@ -37,6 +37,10 @@ test.group('Session', (group) => {
 
     const page = await visit('/sign-in')
 
+    await page.getByLabel('Email').fill('incorrect@user.com')
+    await page.getByLabel('Password').fill('incorrect password')
+    await page.getByRole('button', { name: 'Sign in' }).click()
+
     await page.getByLabel('Email').fill('admin@example.com')
     await page.getByLabel('Password').fill('incorrect password')
     await page.getByRole('button', { name: 'Sign in' }).click()
