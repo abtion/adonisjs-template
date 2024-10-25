@@ -1,7 +1,7 @@
 import type { Config } from 'tailwindcss'
 
 import colors from './colors.json'
-import prepareColorVariables from './utils/prepareColorVariables.js'
+import prepareColorVariables from './utils/prepare_color_variables.js'
 const tailwindColors = prepareColorVariables(colors).tailwindColors
 
 export default {

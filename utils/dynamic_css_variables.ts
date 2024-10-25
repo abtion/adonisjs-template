@@ -1,4 +1,4 @@
-import prepareColorVariables from './prepareColorVariables.js'
+import prepareColorVariables from './prepare_color_variables.js'
 import colors from '../colors.json' with { type: 'json' }
 
 // Define CSS variables for all colors

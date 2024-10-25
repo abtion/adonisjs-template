@@ -1,4 +1,4 @@
-import getContrastColor from './getContrastColor.js'
+import getContrastColor from './get_contrast_color.js'
 import colorString from 'color-string'
 import type { Config } from 'tailwindcss'
 
@@ -26,12 +26,12 @@ export default function prepareColorVariables(jsonColors: JSONColors) {
       colorHasShades = true
     }
 
-    for (let [shade, color] of Object.entries(shades)) {
+    for (let [shade, colorCode] of Object.entries(shades)) {
       let variableName = `--color-${colorName}`
       if (shade !== 'DEFAULT') variableName += `-${shade}`
 
       tailwindColor[shade] = `rgb(var(${variableName}) / <alpha-value>)`
-      const [colorR, colorG, colorB] = colorString.get.rgb(color)
+      const [colorR, colorG, colorB] = colorString.get.rgb(colorCode)
       cssVariables[variableName] = `${colorR} ${colorG} ${colorB}`
 
       // Find contrast colors only for colors with shades, and not for manually specified contrast colors
@@ -43,7 +43,7 @@ export default function prepareColorVariables(jsonColors: JSONColors) {
       // If a color has a manually specified contrast color, don't compute one
       if (shades[contrastVariantName] !== undefined) continue
 
-      const contrastColor = getContrastColor(color, jsonColors.dark, jsonColors.light)
+      const contrastColor = getContrastColor(colorCode, jsonColors.dark, jsonColors.light)
       const contrastVariableName =
         contrastColor === jsonColors.dark ? '--color-dark' : '--color-light'
 

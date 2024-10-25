@@ -1,5 +1,5 @@
 import env from '#start/env'
-import { basename, join } from 'path'
+import { basename, join } from 'node:path'
 import PG from 'pg'
 
 type DatabaseConfig = Record<string, () => PG.ClientConfig>
@@ -23,7 +23,7 @@ export const databaseConfig: DatabaseConfig = {
     const url = new URL(requireEnvVar('DATABASE_SERVER'))
     return {
       host: url.hostname,
-      port: parseInt(url.port),
+      port: Number.parseInt(url.port),
       user: url.username,
       password: url.password,
       database: `${appFolderName}_development`,
@@ -33,7 +33,7 @@ export const databaseConfig: DatabaseConfig = {
     const url = new URL(requireEnvVar('DATABASE_SERVER'))
     return {
       host: url.hostname,
-      port: parseInt(url.port),
+      port: Number.parseInt(url.port),
       user: url.username,
       password: url.password,
       database: `${appFolderName}_test`,

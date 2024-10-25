@@ -1,9 +1,9 @@
 #!/usr/bin/env -S node --no-warnings=ExperimentalWarning --loader ts-node/esm
 
-import * as fs from 'fs'
-import * as path from 'path'
-import { execSync } from 'child_process'
-import readline from 'readline/promises'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
+import { execSync } from 'node:child_process'
+import readline from 'node:readline/promises'
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -68,7 +68,7 @@ class FileRenamer {
 
   static getFiles(): string[] {
     const gitOutput = execSync('git ls-tree -r main --name-only').toString().split('\n')
-    const ignoredFiles = ['README.md', 'bin/replace-project-names', '']
+    const ignoredFiles = ['README.md', 'bin/replace_project_names', '']
     return gitOutput.filter(Boolean).filter((file) => !ignoredFiles.includes(file))
   }
 

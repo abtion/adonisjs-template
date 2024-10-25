@@ -51,10 +51,10 @@ export default async function coverageHook() {
       ...partialConfig,
     }
 
-    const { exec } = (await import('child_process')).default
-    const utils = (await import('util')).default
+    const { exec } = await import('node:child_process')
+    const { promisify } = await import('node:util')
 
-    const execute = utils.promisify(exec)
+    const execute = promisify(exec)
     const coverageCommandEnv = { ...process.env, FORCE_COLOR: '3' }
 
     const reportCommands = {

@@ -3,9 +3,9 @@ import { args, BaseCommand } from '@adonisjs/core/ace'
 import type { CommandOptions } from '@adonisjs/core/types/ace'
 import { databaseConfig } from '#config/database'
 import env from '#start/env'
-import { readdir } from 'fs/promises'
-import { basename, join, resolve } from 'path'
-import { existsSync } from 'fs'
+import { readdir } from 'node:fs/promises'
+import { basename, join, resolve } from 'node:path'
+import { existsSync } from 'node:fs'
 
 export default class KyselyMigrate extends BaseCommand {
   static commandName = 'db:seed'

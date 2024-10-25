@@ -18,7 +18,8 @@ if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = isTestCommand ? 'test' : 'development'
 }
 
-;(await import('#utils/coverageHook')).default()
+const { default: coverageHook } = await import('#utils/coverage_hook')
+coverageHook()
 
 import 'reflect-metadata'
 import { Ignitor, prettyPrintError } from '@adonisjs/core'

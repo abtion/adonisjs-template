@@ -1,4 +1,4 @@
-import getLuminance from './getLuminance.js'
+import getLuminance from './get_luminance.js'
 
 // Based on luminance, pick the best suited contrast color (dark/light) to the target color
 export default function getContrastColor(target: string, dark: string, light: string) {
