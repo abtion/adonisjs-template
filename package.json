@@ -9,7 +9,7 @@
     "build": "node ace build",
     "dev": "node ace serve --hmr",
     "test": "node ace test",
-    "lint": "eslint . && npx stylelint inertia/**/*.scss",
+    "lint": "eslint . && stylelint inertia/**/*.scss",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit"
   },
@@ -64,6 +64,7 @@
     "postcss": "^8.4.45",
     "prettier": "^3.3.2",
     "rimraf": "^6.0.1",
+    "stylelint": "^16.10.0",
     "stylelint-config-sass-guidelines": "^12.1.0",
     "stylelint-config-tailwindcss": "^0.0.7",
     "tailwindcss": "^3.4.10",
