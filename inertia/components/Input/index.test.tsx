@@ -1,13 +1,13 @@
-import React from "react"
-import { render } from "@testing-library/react"
-import Input, { InputProps } from "."
+import React from 'react'
+import { render } from '@testing-library/react'
+import Input, { InputProps } from '.'
 
 const defaultProps: InputProps = {
-  placeholder: "Input placeholder",
+  placeholder: 'Input placeholder',
 }
 
 describe(Input, () => {
-  it("displays Input text", () => {
+  it('displays Input text', () => {
     const { getByPlaceholderText } = render(<Input {...defaultProps} />)
 
     const input = getByPlaceholderText(defaultProps.placeholder as string)
@@ -15,27 +15,23 @@ describe(Input, () => {
     expect(input).toBeInTheDocument()
   })
 
-  describe("when size is set", () => {
-    it("adds size class", () => {
-      const { getByPlaceholderText } = render(
-        <Input {...defaultProps} size="md" />
-      )
+  describe('when size is set', () => {
+    it('adds size class', () => {
+      const { getByPlaceholderText } = render(<Input {...defaultProps} size="md" />)
 
       const input = getByPlaceholderText(defaultProps.placeholder as string)
 
-      expect(input).toHaveClass("Input--md")
+      expect(input).toHaveClass('Input--md')
     })
   })
 
-  describe("when variant is set", () => {
-    it("adds variant class", () => {
-      const { getByPlaceholderText } = render(
-        <Input {...defaultProps} variant="default" />
-      )
+  describe('when variant is set', () => {
+    it('adds variant class', () => {
+      const { getByPlaceholderText } = render(<Input {...defaultProps} variant="default" />)
 
       const input = getByPlaceholderText(defaultProps.placeholder as string)
 
-      expect(input).toHaveClass("Input--default")
+      expect(input).toHaveClass('Input--default')
     })
   })
 })

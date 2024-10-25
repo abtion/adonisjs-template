@@ -15,7 +15,11 @@ export default function UserShow({ user, policies }: InferPageProps<UsersControl
             <Link
               href="/users/"
               className={ButtonClear.cn(
-                { size: 'sm', variant: 'primary', disabled: !user.permissions.show },
+                {
+                  size: 'sm',
+                  variant: 'primary',
+                  disabled: !user.permissions.show,
+                },
                 'mr-2'
               )}
             >
@@ -26,7 +30,11 @@ export default function UserShow({ user, policies }: InferPageProps<UsersControl
             <Link
               href={`/users/${user.id}/edit`}
               className={ButtonClear.cn(
-                { size: 'sm', variant: 'primary', disabled: !user.permissions.show },
+                {
+                  size: 'sm',
+                  variant: 'primary',
+                  disabled: !user.permissions.show,
+                },
                 'mr-2'
               )}
             >

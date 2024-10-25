@@ -1,14 +1,14 @@
-import React from "react"
-import { render } from "@testing-library/react"
+import React from 'react'
+import { render } from '@testing-library/react'
 
-import ButtonClear, { ButtonClearProps } from "."
+import ButtonClear, { ButtonClearProps } from '.'
 
 const defaultProps: ButtonClearProps = {
-  children: "ButtonClear text",
+  children: 'ButtonClear text',
 }
 
 describe(ButtonClear, () => {
-  it("displays button text", () => {
+  it('displays button text', () => {
     const { getByText } = render(<ButtonClear {...defaultProps} />)
 
     const button = getByText(defaultProps.children as string)
@@ -16,25 +16,23 @@ describe(ButtonClear, () => {
     expect(button).toBeInTheDocument()
   })
 
-  describe("when size is set", () => {
-    it("adds size class", () => {
+  describe('when size is set', () => {
+    it('adds size class', () => {
       const { getByText } = render(<ButtonClear {...defaultProps} size="md" />)
 
       const button = getByText(defaultProps.children as string)
 
-      expect(button).toHaveClass("ButtonClear--md")
+      expect(button).toHaveClass('ButtonClear--md')
     })
   })
 
-  describe("when variant is set", () => {
-    it("adds variant class", () => {
-      const { getByText } = render(
-        <ButtonClear {...defaultProps} variant="primary" />
-      )
+  describe('when variant is set', () => {
+    it('adds variant class', () => {
+      const { getByText } = render(<ButtonClear {...defaultProps} variant="primary" />)
 
       const button = getByText(defaultProps.children as string)
 
-      expect(button).toHaveClass("ButtonClear--primary")
+      expect(button).toHaveClass('ButtonClear--primary')
     })
   })
 })

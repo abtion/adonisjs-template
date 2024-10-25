@@ -46,7 +46,9 @@ test.group('Users', (group) => {
     // Delete
     const userNameElement = page.getByText('User Userson')
     const userRowElement = userNameElement.locator('..')
-    const userDeleteButton = userRowElement.getByRole('button', { name: 'Delete' })
+    const userDeleteButton = userRowElement.getByRole('button', {
+      name: 'Delete',
+    })
 
     page.on('dialog', (dialog) => dialog.accept())
     await userDeleteButton.click()

@@ -1,9 +1,4 @@
 {
-  "include": [
-    "app",
-    "utils"
-  ],
-  "exclude": [
-    "utils/coverageHook.ts"
-  ]
+  "include": ["app", "utils"],
+  "exclude": ["utils/coverageHook.ts"]
 }
