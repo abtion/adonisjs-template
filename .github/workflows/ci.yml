@@ -1,0 +1,85 @@
+name: CI
+
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.tool-versions'
+          cache: 'npm'
+      - name: npm
+        run: npm ci
+      - name: lint
+        run: npm run lint
+  schema:
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+
+    services:
+      postgres:
+        image: postgres:15.5-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 2s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.tool-versions'
+          cache: 'npm'
+      - name: npm
+        run: npm ci
+      - name: run migrations
+        run: |
+          node ace db:migrate
+      - name: check git diff
+        run: git diff --exit-code db/types.d.ts
+
+  tests:
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_SERVER: postgres://postgres:postgres@localhost:5432
+      NODE_ENV: test
+
+    services:
+      postgres:
+        image: postgres:15.5-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 2s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.tool-versions'
+          cache: 'npm'
+      - name: npm
+        run: npm ci
+      - name: playwright
+        run: npx playwright install chromium
+      - name: setup database
+        run: |
+          node ace db:create
+          node ace db:migrate
+      - name: tests
+        run: node ace test --coverage
