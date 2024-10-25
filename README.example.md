@@ -44,7 +44,7 @@ Example: The app is using NemID to authenticate all its users.
 
 #### Environment
 
-[See here](https://docs.adonisjs.com/guides/getting-started/environment-variables#all-other-dot-env-files)
+Env files are ONLY loaded for non-production envs. They follow [AdonisJS's documentation](https://docs.adonisjs.com/guides/getting-started/environment-variables#all-other-dot-env-files).
 
 ### Setup
 
@@ -114,9 +114,9 @@ node ace list:routes # Similar to `rails routes`
 
 The project was initialized:
 
-- as a web project
-- with React (Inertia) front-end
-- postgres was selected for database.
+- As a web project
+- With React (Inertia) front-end
+- PostgresQL was selected as database.
 
 Otherwise the following changes where made:
 
@@ -133,6 +133,9 @@ Otherwise the following changes where made:
 - Tests
   - Test server port changed to not conflict with development server
   - Automatically run pending migrations
+  - Code coverage has been set up (Use `--coverage` flag when running tests)
+- Authentication implemented
+- Landing page and simple user management implemented
 
 ### Third party services
 

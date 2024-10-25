@@ -34,6 +34,9 @@ export const schema = {
   DATABASE_URL: Env.schema.string.optional(), // Used for production env
 }
 
-const env = await Env.create(new URL('../', import.meta.url), schema)
+const env =
+  process.env.NODE_ENV === 'production'
+    ? new Env(Env.rules(schema).validate(process.env))
+    : await Env.create(new URL('../', import.meta.url), schema) // Only load .env-files when not production
 
 export default env
