@@ -14,7 +14,7 @@ import { Env } from '@adonisjs/core/env'
 export const schema = {
   NODE_ENV: Env.schema.enum.optional(['development', 'production', 'test'] as const),
   PORT: Env.schema.number(),
-  APP_KEY: Env.schema.string.optional(),
+  APP_KEY: Env.schema.string(),
   HOST: Env.schema.string({ format: 'host' }),
   LOG_LEVEL: Env.schema.string.optional(),
 

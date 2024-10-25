@@ -2,8 +2,6 @@ import env from '#start/env'
 import { basename, join } from 'node:path'
 import PG from 'pg'
 
-type DatabaseConfig = Record<string, () => PG.ClientConfig>
-
 const requireEnvVar = (key: string) => {
   const value = env.get(key)
   if (!value) throw new Error(`${key} required for ${env.get('NODE_ENV')}`)
@@ -13,13 +11,13 @@ const requireEnvVar = (key: string) => {
 const appFolderName = basename(join(import.meta.dirname, '..')).replace(/[^\w]+/, '_')
 
 // const type = Record<>
-export const databaseConfig: DatabaseConfig = {
-  production: () => {
+export const databaseConfig = {
+  production: (): PG.ClientConfig => {
     return {
       connectionString: requireEnvVar('DATABASE_URL'),
     }
   },
-  development: () => {
+  development: (): PG.ClientConfig => {
     const url = new URL(requireEnvVar('DATABASE_SERVER'))
     return {
       host: url.hostname,
@@ -29,7 +27,7 @@ export const databaseConfig: DatabaseConfig = {
       database: `${appFolderName}_development`,
     }
   },
-  test: () => {
+  test: (): PG.ClientConfig => {
     const url = new URL(requireEnvVar('DATABASE_SERVER'))
     return {
       host: url.hostname,
