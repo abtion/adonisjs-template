@@ -9,8 +9,8 @@
     "build": "node ace build",
     "dev": "node ace serve --hmr",
     "test": "node ace test",
-    "lint": "eslint . && stylelint inertia/**/*.scss",
-    "lint-fix": "eslint . --fix && stylelint inertia/**/*.scss --fix",
+    "lint": "prettier . --check && eslint . && stylelint inertia/**/*.scss",
+    "lint-fix": "prettier . --write && eslint . --fix && stylelint inertia/**/*.scss --fix",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit"
   },
