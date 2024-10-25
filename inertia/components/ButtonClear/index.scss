@@ -26,6 +26,7 @@
   &--disabled {
     @apply text-neutral-400 cursor-not-allowed;
   }
+
   &--disabled {
     pointer-events: none;
   }

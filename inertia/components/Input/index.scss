@@ -2,7 +2,7 @@
   @apply border border-transparent text-base leading-4 focus:ring-1 focus:outline-none shadow-sm;
 
   // Round if no rounding class is specified
-  &:not([class*="rounded"]) {
+  &:not([class*='rounded']) {
     @apply rounded-md;
   }
 
