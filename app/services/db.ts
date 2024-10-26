@@ -5,7 +5,7 @@ import env from '#start/env'
 import { databaseConfig } from '#config/database'
 
 const dialect = new PostgresDialect({
-  pool: new PG.Pool(databaseConfig[env.get('NODE_ENV')]()),
+  pool: new PG.Pool(databaseConfig[env.get('NODE_ENV') as keyof typeof databaseConfig]()),
 })
 
 export const globalDb = new Kysely<DB>({
