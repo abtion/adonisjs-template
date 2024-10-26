@@ -44,7 +44,9 @@ Example: The app is using NemID to authenticate all its users.
 
 #### Environment
 
-Env files are ONLY loaded for non-production envs. They follow [AdonisJS's documentation](https://docs.adonisjs.com/guides/getting-started/environment-variables#all-other-dot-env-files).
+Env files are ONLY loaded for non-production envs.
+
+Otherwise they follow [AdonisJS's environment variables docs](https://docs.adonisjs.com/guides/getting-started/environment-variables#all-other-dot-env-files).
 
 ### Setup
 
@@ -124,7 +126,7 @@ Otherwise the following changes where made:
   - Env files made more like our rails template
   - Setup script added: `bin/setup`
   - Scripts for creating and dropping databases
-  - `config/database.ts`: A single place for db config for multiple envs (like rails)
+  - `config/database.ts`: A single place for db config for multiple envs
 - Database
   - Kysely used instead of lucid
     - Allows us to have types in react
