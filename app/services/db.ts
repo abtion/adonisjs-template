@@ -40,10 +40,11 @@ export const withGlobalTransaction = () => {
         })
       })
       .catch((error) => {
-        // console.log(error)
+        /* v8 ignore start */
         if (!(error instanceof Rollback)) {
           throw error
         }
+        /* v8 ignore end */
       })
   })
 }
