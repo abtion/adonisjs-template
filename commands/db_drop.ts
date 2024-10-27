@@ -23,7 +23,7 @@ export default class KyselyMigrate extends BaseCommand {
   }
 
   async run() {
-    for (const env of ['development', 'test']) {
+    for (const env of ['development', 'test'] as const) {
       const { database } = databaseConfig[env]()
       this.logger.info(`Dropping "${database}"`)
 

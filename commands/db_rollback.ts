@@ -7,6 +7,7 @@ import type { CommandOptions } from '@adonisjs/core/types/ace'
 import { databaseConfig } from '#config/database'
 import { Cli as kyselyCodegenCli } from 'kysely-codegen/dist/cli/cli.js'
 import env from '#start/env'
+import { default as PG } from 'pg'
 
 export default class KyselyRollback extends BaseCommand {
   static commandName = 'db:rollback'
@@ -45,7 +46,10 @@ export default class KyselyRollback extends BaseCommand {
    * Runs migrations up method
    */
   async run() {
-    this.logger.info(`Rolling back ${databaseConfig[env.get('NODE_ENV')]().database}`)
+    const config = databaseConfig[env.get('NODE_ENV') as keyof typeof databaseConfig]()
+    const client = new PG.Client(config)
+
+    this.logger.info(`Rolling back ${client.database}`)
 
     const { error, results } = await this.migrator.migrateDown()
 
@@ -78,8 +82,8 @@ export default class KyselyRollback extends BaseCommand {
      * Update database types
      */
     this.logger.info('Updating database types with kysely-codegen')
-    const config = databaseConfig[env.get('NODE_ENV')]()
-    const url = `postgres://${config.user}:${config.password}@${config.host}:${config.port}/${config.database}`
+    const url = `postgres://${client.user}:${client.password}@${client.host}:${client.port}/${client.database}`
+
     await new kyselyCodegenCli().generate({
       url,
       dialectName: 'postgres',

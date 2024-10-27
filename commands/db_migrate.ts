@@ -8,7 +8,6 @@ import { databaseConfig } from '#config/database'
 import { Cli as kyselyCodegenCli } from 'kysely-codegen/dist/cli/cli.js'
 import env from '#start/env'
 import { default as PG } from 'pg'
-import { promisify } from 'node:util'
 
 export default class KyselyMigrate extends BaseCommand {
   static commandName = 'db:migrate'

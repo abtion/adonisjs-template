@@ -6,6 +6,7 @@ import env from '#start/env'
 import { readdir } from 'node:fs/promises'
 import { basename, join, resolve } from 'node:path'
 import { existsSync } from 'node:fs'
+import { default as PG } from 'pg'
 
 export default class KyselyMigrate extends BaseCommand {
   static commandName = 'db:seed'
@@ -51,7 +52,10 @@ export default class KyselyMigrate extends BaseCommand {
    * Run all seed files
    */
   async run() {
-    this.logger.info(`Seeding ${databaseConfig[env.get('NODE_ENV')]().database}`)
+    const config = databaseConfig[env.get('NODE_ENV') as keyof typeof databaseConfig]()
+    const client = new PG.Client(config)
+
+    this.logger.info(`Seeding ${client.database}`)
 
     const dbInstance = db()
     const seedDefs: {
