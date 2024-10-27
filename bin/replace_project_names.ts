@@ -94,7 +94,7 @@ class FileRenamer {
   static replaceInFile(initialString: string, replacementString: string, file: string): void {
     const content = fs.readFileSync(file, 'utf-8')
     const newContent = content.replace(new RegExp(initialString, 'g'), replacementString)
-    // fs.writeFileSync(file, newContent)
+    fs.writeFileSync(file, newContent)
   }
 }
 
