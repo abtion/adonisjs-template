@@ -4,7 +4,7 @@ import hash from '@adonisjs/core/services/hash'
 import { test } from '@japa/runner'
 import { expect } from '@playwright/test'
 
-test.group('Session', (group) => {
+test.group('Auth', (group) => {
   group.each.setup(() => withGlobalTransaction())
 
   test('sign in / out', async ({ visit }) => {
@@ -46,5 +46,17 @@ test.group('Session', (group) => {
     await page.getByRole('button', { name: 'Sign in' }).click()
 
     await expect(page.getByText('Invalid credentials')).toBeVisible()
+  })
+
+  test('already signed in users are redirected await from sign-in page', async ({
+    browserContext,
+    visit,
+  }) => {
+    const user = await createUser()
+    await browserContext.loginAs(user)
+
+    const page = await visit('/sign-in')
+
+    await expect(page).toHaveURL('/')
   })
 })
