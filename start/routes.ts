@@ -13,7 +13,7 @@ import { middleware } from './kernel.js'
 // Remember to *always lazy load controllers*, otherwise hot module reload won't work
 const UsersController = () => import('#controllers/users_controller')
 const SessionController = () => import('#controllers/session_controller')
-const dynamicCssVariables = () => import('#utils/dynamic_css_variables')
+const ColorsController = () => import('#controllers/colors_controller')
 
 // Home
 router.on('/').renderInertia('home/index')
@@ -26,12 +26,4 @@ router.get('sign-in', [SessionController, 'show']).use(middleware.guest())
 router.post('sign-in', [SessionController, 'store']).use(middleware.guest())
 router.delete('session', [SessionController, 'destroy']).use(middleware.auth())
 
-let cssVariables: string
-router.get('/colors.css', async ({ response }) => {
-  if (!cssVariables) {
-    const dynamicCssVariablesModule = await dynamicCssVariables()
-    cssVariables = dynamicCssVariablesModule.default
-  }
-
-  response.type('text/css').send(cssVariables)
-})
+router.get('/colors.css', [ColorsController])

@@ -1,5 +1,77 @@
 import colorString from 'color-string'
 
+import type { Config } from 'tailwindcss'
+
+type TailwindColors = NonNullable<NonNullable<Config['theme']>['colors']>
+type JSONColors = {
+  light: string
+  dark: string
+  [color: string]: string | Record<string, string>
+}
+
+// Prepare colors for usage in tailwind config and as css variables
+export function prepareColorVariables(jsonColors: JSONColors) {
+  const tailwindColors: TailwindColors = {}
+  const cssVariables: Record<string, string> = {}
+
+  for (let [colorName, color] of Object.entries(jsonColors)) {
+    let tailwindColor: TailwindColors = {}
+    let colorHasShades: boolean
+    let shades: Record<string, string>
+    if (typeof color === 'string') {
+      shades = { DEFAULT: color }
+      colorHasShades = false
+    } else {
+      shades = color
+      colorHasShades = true
+    }
+
+    for (let [shade, colorCode] of Object.entries(shades)) {
+      let variableName = `--color-${colorName}`
+      if (shade !== 'DEFAULT') variableName += `-${shade}`
+
+      tailwindColor[shade] = `rgb(var(${variableName}) / <alpha-value>)`
+      const [colorR, colorG, colorB] = colorString.get.rgb(colorCode)
+      cssVariables[variableName] = `${colorR} ${colorG} ${colorB}`
+
+      // Find contrast colors only for colors with shades, and not for manually specified contrast colors
+      const shadeIsContrastColor = /^(.+-|)contrast$/.test(shade)
+      if (!colorHasShades || shadeIsContrastColor) continue
+
+      const contrastVariantName = shade === 'DEFAULT' ? 'contrast' : `${shade}-contrast`
+
+      // If a color has a manually specified contrast color, don't compute one
+      if (shades[contrastVariantName] !== undefined) continue
+
+      const contrastColor = getContrastColor(colorCode, jsonColors.dark, jsonColors.light)
+      const contrastVariableName =
+        contrastColor === jsonColors.dark ? '--color-dark' : '--color-light'
+
+      if (shade === 'DEFAULT') {
+        tailwindColor['contrast'] = `rgb(var(${contrastVariableName}) / <alpha-value>)`
+      } else {
+        tailwindColor[`${shade}-contrast`] = `rgb(var(${contrastVariableName}) / <alpha-value>)`
+      }
+    }
+
+    tailwindColors[colorName] = tailwindColor
+  }
+
+  return { tailwindColors, cssVariables }
+}
+
+// Based on luminance, pick the best suited contrast color (dark/light) to the target color
+export function getContrastColor(target: string, dark: string, light: string) {
+  const targetLuminance = getLuminance(target)
+  const darkLuminance = getLuminance(dark)
+  const lightLuminance = getLuminance(light)
+
+  const darkDiff = Math.abs(targetLuminance - darkLuminance)
+  const lightDiff = Math.abs(targetLuminance - lightLuminance)
+
+  return darkDiff > lightDiff ? dark : light
+}
+
 // The calculation is based on the following algorithm:
 // https://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
 
@@ -30,7 +102,7 @@ const luminanceList = [
   0.9734, 0.9823, 0.9911, 1,
 ]
 
-export default function getLuminance(color: any) {
+export function getLuminance(color: any) {
   let [rInt, gInt, bInt] = colorString.get.rgb(color)!
 
   const rFloat = rInt / 255
