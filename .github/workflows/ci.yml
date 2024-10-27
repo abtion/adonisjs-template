@@ -16,6 +16,9 @@ jobs:
         run: npm ci
       - name: lint
         run: npm run lint
+      - name: check types
+        run: npm run typecheck
+
   schema:
     runs-on: ubuntu-latest
 
