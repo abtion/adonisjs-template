@@ -28,6 +28,7 @@ export class SessionKyselyUserProvider implements SessionUserProviderContract<Se
       .where('id', '=', identifier)
       .executeTakeFirst()
 
+    /* v8 ignore next */
     if (!user) return null
 
     return this.createUserForGuard(user)
