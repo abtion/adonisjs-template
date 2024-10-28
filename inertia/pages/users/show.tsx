@@ -18,7 +18,7 @@ export default function UserShow({ user, policies }: InferPageProps<UsersControl
                 {
                   size: 'sm',
                   variant: 'primary',
-                  disabled: !user.permissions.show,
+                  disabled: !policies.UserPolicy.index,
                 },
                 'mr-2'
               )}
@@ -33,7 +33,7 @@ export default function UserShow({ user, policies }: InferPageProps<UsersControl
                 {
                   size: 'sm',
                   variant: 'primary',
-                  disabled: !user.permissions.show,
+                  disabled: !user.permissions.edit,
                 },
                 'mr-2'
               )}
@@ -45,7 +45,7 @@ export default function UserShow({ user, policies }: InferPageProps<UsersControl
             <Link
               href={`/users/${user.id}`}
               className={Button.cn({ size: 'sm', variant: 'danger' })}
-              disabled={!user.permissions.show}
+              disabled={!user.permissions.destroy}
               onBefore={() => confirm('Are you sure?')}
               as="button"
               method="delete"

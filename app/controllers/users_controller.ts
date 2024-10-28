@@ -64,7 +64,7 @@ export default class UsersController {
     await bouncer.with(UserPolicy).authorize('show', user)
 
     return inertia.render('users/show', {
-      user: await permissions.appendTo(user, UserPolicy),
+      user: await permissions.appendTo(user, UserPolicy, ['edit', 'destroy']),
     })
   }
 
