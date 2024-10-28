@@ -64,7 +64,7 @@ export default async function coverageHook() {
     }
 
     if (existsSync(frontendCoverageFolder)) {
-      reportCommands.frontend = `npx nyc report --temp-dir .nyc_output -r text -r html --report-dir ${frontendCoverageFolder}/frontend`
+      reportCommands.frontend = `npx nyc report --temp-dir .nyc_output -r text -r html --report-dir ${reportDir}/frontend`
     } else {
       console.log('No front-end coverage found')
     }
