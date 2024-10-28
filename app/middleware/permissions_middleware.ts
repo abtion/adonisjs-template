@@ -16,59 +16,81 @@ export type RelevantActions<PolicyInstance, UserType, TargetType> = {
     : never
 }[keyof PolicyInstance]
 
+export async function appendPermissionsToRecord<
+  Target extends {},
+  Policy extends Constructor<any>,
+  Action extends RelevantActions<InstanceType<Policy>, SessionUser, Target>,
+>(bouncer: HttpContext['bouncer'], target: Target, policy: Policy, actions?: Action[]) {
+  if (actions) {
+    const permissions = {} as Record<(typeof actions)[number], boolean>
+    for (const action of actions) {
+      // @ts-expect-error TypeScript does not infer that we only allow actions with the target
+      //                  as parameter
+      permissions[action] = await bouncer.with(policy).allows(action, target)
+    }
+
+    return { ...target, permissions }
+  } else {
+    const permissions = {} as Record<(typeof defaultActions)[number], boolean>
+
+    for (const action of defaultActions) {
+      // If one of the default actions is not implemented, it will be catched here
+      if (!(action in policy.prototype)) {
+        throw new Error(`${policy.name} does not have the action "${action as string}"`)
+      }
+
+      // @ts-expect-error The check above will throw an error if the action is not implemented
+      //                  This will also let through the unlikely event that the policy
+      //                  immplements the action but does not take the right parameters
+      permissions[action] = await bouncer.with(policy).allows(action, target)
+    }
+
+    return { ...target, permissions }
+  }
+}
+
+export async function appendPermissionsToRecords<
+  Target extends {},
+  Policy extends Constructor<any>,
+  Action extends RelevantActions<InstanceType<Policy>, SessionUser, Target>,
+>(bouncer: HttpContext['bouncer'], targets: Target[], policy: Policy, actions?: Action[]) {
+  if (actions) {
+    return await Promise.all(
+      targets.map((target) =>
+        appendPermissionsToRecord<Target, Policy, Action>(bouncer, target, policy, actions)
+      )
+    )
+  } else {
+    return await Promise.all(
+      targets.map((target) =>
+        appendPermissionsToRecord<Target, Policy, Action>(bouncer, target, policy)
+      )
+    )
+  }
+}
+
 export default class InitializePermissionsMiddleware {
   async generatePermissionHelpers(ctx: HttpContext) {
-    async function appendTo<
-      Target extends {},
-      Policy extends Constructor<any>,
-      Action extends RelevantActions<InstanceType<Policy>, SessionUser, Target>,
-    >(target: Target, policy: Policy, actions?: Action[]) {
-      if (actions) {
-        const permissions = {} as Record<(typeof actions)[number], boolean>
-        actions.map(async (action) => {
-          // @ts-expect-error TypeScript does not infer that we only allow actions with the target
-          //                  as parameter
-          permissions[action] = await ctx.bouncer.with(policy).allows(action, target)
-        })
-
-        return { ...target, permissions }
-      } else {
-        const permissions = {} as Record<(typeof defaultActions)[number], boolean>
-        defaultActions.map(async (action) => {
-          // If one of the default actions is not implemented, it will be catched here
-          if (!(action in policy.prototype)) {
-            throw new Error(`${policy.name} does not have the action "${action as string}"`)
-          }
-
-          // @ts-expect-error The check above will throw an error if the action is not implemented
-          //                  This will also let through the unlikely event that the policy
-          //                  immplements the action but does not take the right parameters
-          permissions[action] = await ctx.bouncer.with(policy).allows(action, target)
-        })
-
-        return { ...target, permissions }
-      }
-    }
-
-    async function appendToList<
-      Target extends {},
-      Policy extends Constructor<any>,
-      Action extends RelevantActions<InstanceType<Policy>, SessionUser, Target>,
-    >(targets: Target[], policy: Policy, actions?: Action[]) {
-      if (actions) {
-        return await Promise.all(
-          targets.map((target) => appendTo<Target, Policy, Action>(target, policy, actions))
-        )
-      } else {
-        return await Promise.all(
-          targets.map((target) => appendTo<Target, Policy, Action>(target, policy))
-        )
-      }
-    }
-
     return {
-      appendTo,
-      appendToList,
+      appendTo: <
+        Target extends {},
+        Policy extends Constructor<any>,
+        Action extends RelevantActions<InstanceType<Policy>, SessionUser, Target>,
+      >(
+        target: Target,
+        policy: Policy,
+        actions?: Action[]
+      ) => appendPermissionsToRecord(ctx.bouncer, target, policy, actions),
+
+      appendToList: <
+        Target extends {},
+        Policy extends Constructor<any>,
+        Action extends RelevantActions<InstanceType<Policy>, SessionUser, Target>,
+      >(
+        targets: Target[],
+        policy: Policy,
+        actions?: Action[]
+      ) => appendPermissionsToRecords(ctx.bouncer, targets, policy, actions),
     }
   }
 

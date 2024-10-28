@@ -4,9 +4,7 @@ import { InsertObject } from 'kysely'
 import { DB } from '#database/types'
 import { db } from '#services/db'
 
-export async function getUserAttributes(
-  attributes: Partial<InsertObject<DB, 'users'>>
-): Promise<InsertObject<DB, 'users'>> {
+export async function getUserAttributes(attributes: Partial<InsertObject<DB, 'users'>> = {}) {
   return {
     name: 'John Doe',
     admin: true,
