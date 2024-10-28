@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs'
+
 const supportedCoverageArguments = [
   '--coverage', // Collect and report coverage
   '--collect-coverage', // Collect coverage
@@ -57,9 +59,14 @@ export default async function coverageHook() {
     const execute = promisify(exec)
     const coverageCommandEnv = { ...process.env, FORCE_COLOR: '3' }
 
-    const reportCommands = {
+    const reportCommands: Record<string, string> = {
       backend: `npx c8 report --all --temp-dir ${backendCoverageFolder} -r text -r html --reports-dir ${reportDir}/backend`,
-      frontend: `npx nyc report --temp-dir .nyc_output -r text -r html --report-dir ${frontendCoverageFolder}/frontend`,
+    }
+
+    if (existsSync(frontendCoverageFolder)) {
+      reportCommands.frontend = `npx nyc report --temp-dir .nyc_output -r text -r html --report-dir ${frontendCoverageFolder}/frontend`
+    } else {
+      console.log('No front-end coverage found')
     }
 
     const reportPromises = Object.entries(reportCommands).map(async ([type, command]) => {
