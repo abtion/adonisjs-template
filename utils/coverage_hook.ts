@@ -1,8 +1,11 @@
 import { existsSync } from 'node:fs'
+import c8Config from '../.c8rc.json' with { type: 'json' }
+import nycConfig from '../.nycrc.json' with { type: 'json' }
 
 const supportedCoverageArguments = [
-  '--coverage', // Collect and report coverage
   '--collect-coverage', // Collect coverage
+  '--coverage-text', // Collect coverage and generate TEXT reports
+  '--coverage-html', // Collect coverage and generate HTML reports
 ]
 
 export default async function coverageHook() {
@@ -12,47 +15,35 @@ export default async function coverageHook() {
   process.argv = process.argv.filter((arg) => !supportedCoverageArguments.includes(arg))
 
   // set NODE_V8_COVERAGE to enable v8 coverage for spawned processes
-  process.env.NODE_V8_COVERAGE = '.v8_coverage'
-  process.env.NYC_COVERAGE = '.nyc_output'
+  process.env.NODE_V8_COVERAGE = c8Config.tempDirectory
+  process.env.NYC_COVERAGE = nycConfig.tempDirectory
 
   // Clear coverage folders
   const { rimrafSync } = await import('rimraf')
-  rimrafSync(process.env.NODE_V8_COVERAGE)
-  rimrafSync(process.env.NYC_COVERAGE)
-  rimrafSync('coverage')
+  rimrafSync([
+    c8Config.tempDirectory,
+    c8Config.reportDir,
+    nycConfig.tempDirectory,
+    nycConfig.reportDir,
+  ])
   let reportsPrinted = false
 
-  // If reports are enabled, show reports when the process exits
-  if (args.includes('--coverage')) {
+  // Generate report args up front, so that we can use them to decide whether or not we need to
+  // generate any reports
+  const reportsArgs = [
+    args.includes('--coverage-text') && '-r text',
+    args.includes('--coverage-html') && '-r html',
+  ].filter(Boolean)
+
+  if (reportsArgs.length) {
     process.on('beforeExit', async () => {
       if (reportsPrinted) return
       reportsPrinted = true
-      reportCoverage({
-        backendCoverageFolder: process.env.NODE_V8_COVERAGE,
-        frontendCoverageFolder: '.nyc_output',
-        reportDir: 'coverage',
-      })
+      reportCoverage()
     })
   }
 
-  type Config = {
-    backendCoverageFolder: string
-    frontendCoverageFolder: string
-    reportDir: string
-  }
-
-  const defaultConfig: Config = {
-    backendCoverageFolder: '.v8-coverage',
-    frontendCoverageFolder: '.nyc_output',
-    reportDir: 'coverage',
-  }
-
-  async function reportCoverage(partialConfig: Partial<Config> = {}) {
-    const { backendCoverageFolder, frontendCoverageFolder, reportDir } = {
-      ...defaultConfig,
-      ...partialConfig,
-    }
-
+  async function reportCoverage() {
     const { exec } = await import('node:child_process')
     const { promisify } = await import('node:util')
 
@@ -60,11 +51,11 @@ export default async function coverageHook() {
     const coverageCommandEnv = { ...process.env, FORCE_COLOR: '3' }
 
     const reportCommands: Record<string, string> = {
-      backend: `npx c8 report --all --temp-dir ${backendCoverageFolder} -r text -r html --reports-dir ${reportDir}/backend`,
+      backend: `npx c8 report ${reportsArgs.join(' ')}`,
     }
 
-    if (existsSync(frontendCoverageFolder)) {
-      reportCommands.frontend = `npx nyc report --temp-dir .nyc_output -r text -r html --report-dir ${reportDir}/frontend`
+    if (existsSync(nycConfig.tempDirectory)) {
+      reportCommands.frontend = `npx nyc report ${reportsArgs.join(' ')}`
     } else {
       console.log('No front-end coverage found')
     }
@@ -91,8 +82,8 @@ export default async function coverageHook() {
         console.log(`Coverage report failed for: ${type}`.toUpperCase())
         console.error(error)
       } else {
-        console.log(`Coverage report: ${type}`.toUpperCase())
-        console.log(output)
+        console.log(`Coverage report generated for: ${type}`.toUpperCase())
+        if (output) console.log(output)
       }
     }
   }

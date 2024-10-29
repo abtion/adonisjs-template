@@ -1,0 +1,11 @@
+{
+  "all": true,
+  "tempDirectory": "coverage/.v8_coverage",
+  "reportDir": "coverage/backend",
+  "include": ["app", "utils"],
+  "exclude": ["utils/coverage_hook.ts", "utils/colors.ts"],
+  "lines": 100,
+  "functions": 100,
+  "branches": 100,
+  "statements": 100
+}

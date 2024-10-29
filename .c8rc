@@ -1,4 +1,0 @@
-{
-  "include": ["app", "utils"],
-  "exclude": ["utils/coverage_hook.ts", "utils/colors.ts"]
-}
