@@ -68,7 +68,7 @@ class FileRenamer {
 
   static getFiles(): string[] {
     const gitOutput = execSync('git ls-tree -r main --name-only').toString().split('\n')
-    const ignoredFiles = ['README.md', 'bin/replace_project_names', '']
+    const ignoredFiles = ['README.md', 'bin/replace_project_names.ts', '']
     return gitOutput.filter(Boolean).filter((file) => !ignoredFiles.includes(file))
   }
 
