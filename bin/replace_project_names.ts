@@ -1,9 +1,10 @@
 #!/usr/bin/env -S node --no-warnings=ExperimentalWarning --loader ts-node/esm
 
-import * as fs from 'node:fs'
+import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import { execSync } from 'node:child_process'
 import readline from 'node:readline/promises'
+import { isUtf8 } from 'node:buffer'
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -57,13 +58,15 @@ class FileRenamer {
     const projectName = await this.getProjectName()
     const files = this.getFiles()
 
-    files.forEach((file) => {
-      this.replaceInFile('project-name-param', projectName.name, file)
-      this.replaceInFile('ProjectNamePascal', projectName.pascalCase(), file)
-      this.replaceInFile('project_name_snake', projectName.snakeCase(), file)
-      this.replaceInFile('Project Name Human', projectName.humanCase(), file)
-      this.replaceInFile('Project-Name-Human', projectName.humanParamCase(), file)
-    })
+    await Promise.all(
+      files.map(async (file) => {
+        await this.replaceInFile('project-name-param', projectName.name, file)
+        await this.replaceInFile('ProjectNamePascal', projectName.pascalCase(), file)
+        await this.replaceInFile('project_name_snake', projectName.snakeCase(), file)
+        await this.replaceInFile('Project Name Human', projectName.humanCase(), file)
+        await this.replaceInFile('Project-Name-Human', projectName.humanParamCase(), file)
+      })
+    )
   }
 
   static getFiles(): string[] {
@@ -91,10 +94,13 @@ class FileRenamer {
     return projectName
   }
 
-  static replaceInFile(initialString: string, replacementString: string, file: string): void {
-    const content = fs.readFileSync(file, 'utf-8')
+  static async replaceInFile(initialString: string, replacementString: string, file: string) {
+    const fileBuffer = await fs.readFile(file)
+    if (!isUtf8(fileBuffer)) return
+
+    const content = fileBuffer.toString('utf8')
     const newContent = content.replace(new RegExp(initialString, 'g'), replacementString)
-    fs.writeFileSync(file, newContent)
+    await fs.writeFile(file, newContent)
   }
 }
 
