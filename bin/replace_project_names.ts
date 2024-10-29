@@ -60,13 +60,33 @@ class FileRenamer {
 
     await Promise.all(
       files.map(async (file) => {
-        await this.replaceInFile('project-name-param', projectName.name, file)
-        await this.replaceInFile('ProjectNamePascal', projectName.pascalCase(), file)
-        await this.replaceInFile('project_name_snake', projectName.snakeCase(), file)
-        await this.replaceInFile('Project Name Human', projectName.humanCase(), file)
-        await this.replaceInFile('Project-Name-Human', projectName.humanParamCase(), file)
+        const replaced = [
+          await this.replaceInFile('project-name-param', projectName.name, file),
+          await this.replaceInFile('ProjectNamePascal', projectName.pascalCase(), file),
+          await this.replaceInFile('project_name_snake', projectName.snakeCase(), file),
+          await this.replaceInFile('Project Name Human', projectName.humanCase(), file),
+          await this.replaceInFile('Project-Name-Human', projectName.humanParamCase(), file),
+        ]
+
+        if (replaced.some(Boolean)) {
+          console.log(`Updated: ${file}`)
+        }
       })
     )
+
+    console.log(`Delete this script?`)
+
+    let confirmed = null
+    while (confirmed === null) {
+      const input = (await rl.question('(y)/n: ')) || 'y'
+      if (input === 'y' || input === '') {
+        confirmed = true
+      } else if (input === 'n') {
+        confirmed = false
+      }
+    }
+
+    if (confirmed) fs.unlink(import.meta.filename)
   }
 
   static getFiles(): string[] {
@@ -100,7 +120,11 @@ class FileRenamer {
 
     const content = fileBuffer.toString('utf8')
     const newContent = content.replace(new RegExp(initialString, 'g'), replacementString)
-    await fs.writeFile(file, newContent)
+
+    if (content !== newContent) {
+      await fs.writeFile(file, newContent)
+      return true
+    }
   }
 }
 
