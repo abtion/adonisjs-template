@@ -35,7 +35,7 @@ export default defineConfig({
 
   server: {
     hmr: {
-      port: env.get('PORT') + 1,
+      port: env.get('PORT', 3000) + 1,
     },
   },
 
