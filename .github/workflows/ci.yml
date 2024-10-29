@@ -84,4 +84,8 @@ jobs:
         run: |
           node ace db:migrate
       - name: tests
-        run: node ace test --coverage
+        run: node ace test --coverage-text
+      - name: check backend coverage
+        run: npx c8 check-coverage
+      - name: check front-end coverage
+        run: npx nyc check-coverage

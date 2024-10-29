@@ -75,6 +75,30 @@ For running the project locally:
 It is also possible to run everything locally, but it requires locally setting up the services specified in the [docker-compose.yml](docker-compose.yml).\
 It will also require changes to the connection string env vars.
 
+#### Running tests
+
+```sh
+node ace test # Run all tests
+node ace test --coverage-text # Print coverage
+node ace test --coverage-html # Generate HTML coverage report (useful alongside `npx http-server coverage`)
+node ace test browser # Run only browser test suite. Other suites are: functional, unit (and more if added)
+node ace test --files [partial_file_name] # Run specific test files
+```
+
+NB: While the test commands might collect coverage (if specified), they do not check that the coverage meets the thresholds.
+
+#### Checking coverage
+
+Coverage thresholds (and other settings) are specified in the backend/frontend coverage configuration files: `.c8rc.json`, `.nycrc.json`.
+
+Coverage is automatically checked in CI.\
+To check locally, run:
+
+```sh
+npx c8 check-coverage # Check backend coverage
+npx nyc check-coverage # Check front-end coverage
+```
+
 #### Available scripts
 
 Contrary to other Abtion projects, not all files under `bin` are executable.\
@@ -135,7 +159,7 @@ Otherwise the following changes where made:
 - Tests
   - Test server port changed to not conflict with development server
   - Automatically run pending migrations
-  - Code coverage has been set up (Use `--coverage` flag when running tests)
+  - Code coverage has been set up (Use `--coverage-text` flag when running tests)
 - Authentication implemented
 - Landing page and simple user management implemented
 
