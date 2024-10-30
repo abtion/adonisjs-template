@@ -1,6 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@layer tailwind-base {
+  @tailwind base;
+}
+
+@layer tailwind-utils {
+  @tailwind components;
+  @tailwind utilities;
+}
 
 @import '~/fonts/inter';
 
