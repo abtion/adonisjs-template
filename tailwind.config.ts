@@ -1,8 +1,7 @@
 import type { Config } from 'tailwindcss'
 
 import colors from './colors.json'
-import { prepareColorVariables } from './utils/colors.js'
-const tailwindColors = prepareColorVariables(colors).tailwindColors
+import { getTailwindColors } from '@abtion-oss/design-system-colors'
 
 export default {
   content: ['./inertia/**/*.tsx', './resources/**/*.edge'],
@@ -16,7 +15,7 @@ export default {
       white: 'white',
       black: 'black',
       current: 'currentColor',
-      ...tailwindColors,
+      ...getTailwindColors(colors),
     },
     fontFamily: {
       sans: ['Inter', 'sans-serif'],
