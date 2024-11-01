@@ -75,7 +75,7 @@
     "vite-plugin-istanbul": "^6.0.2"
   },
   "dependencies": {
-    "@abtion-oss/design-system-colors": "^1.1.0",
+    "@abtion-oss/design-system-colors": "^1.1.1",
     "@adonisjs/auth": "^9.2.3",
     "@adonisjs/bouncer": "^3.1.3",
     "@adonisjs/core": "^6.14.1",
