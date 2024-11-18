@@ -61,7 +61,7 @@
     "istanbul-reports": "^3.1.7",
     "monocart-coverage-reports": "^2.11.1",
     "pino-pretty": "^11.2.1",
-    "playwright": "^1.46.1",
+    "playwright": "^1.49.0",
     "postcss": "^8.4.45",
     "prettier": "^3.3.2",
     "rimraf": "^6.0.1",
