@@ -100,7 +100,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "reflect-metadata": "^0.2.2",
-    "sass-embedded": "^1.78.0",
+    "sass-embedded": "^1.81.0",
     "ts-node-maintained": "^10.9.4",
     "typescript": "^5.4.5",
     "zod": "^3.23.8"
