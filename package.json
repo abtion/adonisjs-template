@@ -55,7 +55,7 @@
     "autoprefixer": "^10.4.20",
     "c8": "^10.1.2",
     "eslint": "^9.9.1",
-    "hot-hook": "^0.3.1",
+    "hot-hook": "^0.4.0",
     "istanbul-lib-coverage": "^3.2.2",
     "istanbul-lib-report": "^3.0.1",
     "istanbul-reports": "^3.1.7",
