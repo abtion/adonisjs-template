@@ -86,7 +86,7 @@
     "@adonisjs/static": "^1.1.1",
     "@adonisjs/tsconfig": "^1.3.0",
     "@adonisjs/vite": "^3.0.0",
-    "@heroicons/react": "^2.1.5",
+    "@heroicons/react": "^2.2.0",
     "@inertiajs/react": "^1.2.0",
     "@playwright/test": "^1.49.0",
     "@tailwindcss/aspect-ratio": "^0.4.2",
