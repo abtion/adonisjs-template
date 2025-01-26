@@ -28,16 +28,8 @@ const inertiaConfig = defineConfig({
       }
       return res
     },
-    errors: (ctx) => {
-      const errors = ctx.session?.flashMessages.get('errors') ?? {}
-      return Object.keys(errors).reduce(
-        (res, key) => ({ ...res, [key]: errors[key].join(', ') }),
-        {}
-      )
-    },
     exceptions: (ctx) => ctx.session?.flashMessages.get('errorsBag') ?? {},
     messages: (ctx) => ctx.session?.flashMessages.all() ?? {},
-    xcrfToken: (ctx) => ctx.request.csrfToken,
   },
 
   /**
