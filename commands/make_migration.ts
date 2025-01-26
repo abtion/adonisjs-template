@@ -1,5 +1,6 @@
 import { BaseCommand, args } from '@adonisjs/core/ace'
 import type { CommandOptions } from '@adonisjs/core/types/ace'
+import StringBuilder from '@poppinss/utils/string_builder'
 
 export default class MakeMigration extends BaseCommand {
   static commandName = 'make:migration'
@@ -11,16 +12,27 @@ export default class MakeMigration extends BaseCommand {
 
   async run() {
     const entity = this.app.generators.createEntity(this.name)
-    const tableName = this.app.generators.tableName(entity.name)
-    const fileName = `${new Date().getTime()}_create_${tableName}_table.ts`
-
+    const name = new StringBuilder(entity.name).snakeCase().toString()
     const codemods = await this.createCodemods()
-    await codemods.makeUsingStub(this.app.commandsPath('stubs'), 'make/migration.stub', {
-      entity,
-      migration: {
-        tableName,
-        fileName,
-      },
-    })
+    const fileName = `${new Date().getTime()}_${name}.ts`
+
+    if (entity.name.startsWith('create_')) {
+      const tableName = this.app.generators.tableName(entity.name.replace(/^create_/, ''))
+      await codemods.makeUsingStub(this.app.commandsPath('stubs'), 'make/create_migration.stub', {
+        entity,
+        migration: {
+          tableName,
+          fileName,
+        },
+      })
+    } else {
+      await codemods.makeUsingStub(this.app.commandsPath('stubs'), 'make/migration.stub', {
+        entity,
+        migration: {
+          entity,
+          fileName,
+        },
+      })
+    }
   }
 }

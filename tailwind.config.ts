@@ -1,7 +1,8 @@
 import type { Config } from 'tailwindcss'
 
-import colors from './colors.json'
+import colors from './colors.json' assert { type: 'json' }
 import { getTailwindColors } from '@abtion-oss/design-system-colors'
+import aspectRatioPlugin from '@tailwindcss/aspect-ratio'
 
 export default {
   content: ['./inertia/**/*.tsx', './resources/**/*.edge'],
@@ -21,5 +22,5 @@ export default {
       sans: ['Inter', 'sans-serif'],
     },
   },
-  plugins: [require('@tailwindcss/aspect-ratio')],
+  plugins: [aspectRatioPlugin],
 } satisfies Config

@@ -14,9 +14,15 @@ import { Env } from '@adonisjs/core/env'
 export const schema = {
   NODE_ENV: Env.schema.enum.optional(['development', 'production', 'test'] as const),
   APP_KEY: Env.schema.string(),
-  HOST: Env.schema.string.optional({ format: 'host' }),
+  HOST: Env.schema.string({ format: 'host' }),
   PORT: Env.schema.number.optional(),
   LOG_LEVEL: Env.schema.string.optional(),
+
+  // Mail sending
+  SMTP_HOST: Env.schema.string.optional({ format: 'host' }),
+  SMTP_PORT: Env.schema.number.optional(),
+  SMTP_USERNAME: Env.schema.string.optional(),
+  SMTP_PASSWORD: Env.schema.string.optional(),
 
   /*
   |----------------------------------------------------------

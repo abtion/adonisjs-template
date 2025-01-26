@@ -1,10 +1,9 @@
 #!/usr/bin/env -S node --no-warnings=ExperimentalWarning --loader ts-node/esm
 
-import * as fs from 'node:fs/promises'
+import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { execSync } from 'node:child_process'
 import readline from 'node:readline/promises'
-import { isUtf8 } from 'node:buffer'
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -58,40 +57,18 @@ class FileRenamer {
     const projectName = await this.getProjectName()
     const files = this.getFiles()
 
-    await Promise.all(
-      files.map(async (file) => {
-        const replaced = [
-          await this.replaceInFile('project-name-param', projectName.name, file),
-          await this.replaceInFile('ProjectNamePascal', projectName.pascalCase(), file),
-          await this.replaceInFile('project_name_snake', projectName.snakeCase(), file),
-          await this.replaceInFile('Project Name Human', projectName.humanCase(), file),
-          await this.replaceInFile('Project-Name-Human', projectName.humanParamCase(), file),
-        ]
-
-        if (replaced.some(Boolean)) {
-          console.log(`Updated: ${file}`)
-        }
-      })
-    )
-
-    console.log(`Delete this script?`)
-
-    let confirmed = null
-    while (confirmed === null) {
-      const input = (await rl.question('(y)/n: ')) || 'y'
-      if (input === 'y' || input === '') {
-        confirmed = true
-      } else if (input === 'n') {
-        confirmed = false
-      }
-    }
-
-    if (confirmed) fs.unlink(import.meta.filename)
+    files.forEach((file) => {
+      this.replaceInFile('dm-greenkeeping-customer-portal', projectName.name, file)
+      this.replaceInFile('DmGreenkeepingCustomerPortal', projectName.pascalCase(), file)
+      this.replaceInFile('dm_greenkeeping_customer_portal', projectName.snakeCase(), file)
+      this.replaceInFile('Dm Greenkeeping Customer Portal', projectName.humanCase(), file)
+      this.replaceInFile('Dm-Greenkeeping-Customer-Portal', projectName.humanParamCase(), file)
+    })
   }
 
   static getFiles(): string[] {
     const gitOutput = execSync('git ls-tree -r main --name-only').toString().split('\n')
-    const ignoredFiles = ['README.md', 'bin/replace_project_names.ts', '']
+    const ignoredFiles = ['README.md', 'bin/replace_project_names', '']
     return gitOutput.filter(Boolean).filter((file) => !ignoredFiles.includes(file))
   }
 
@@ -114,17 +91,10 @@ class FileRenamer {
     return projectName
   }
 
-  static async replaceInFile(initialString: string, replacementString: string, file: string) {
-    const fileBuffer = await fs.readFile(file)
-    if (!isUtf8(fileBuffer)) return
-
-    const content = fileBuffer.toString('utf8')
+  static replaceInFile(initialString: string, replacementString: string, file: string): void {
+    const content = fs.readFileSync(file, 'utf-8')
     const newContent = content.replace(new RegExp(initialString, 'g'), replacementString)
-
-    if (content !== newContent) {
-      await fs.writeFile(file, newContent)
-      return true
-    }
+    fs.writeFileSync(file, newContent)
   }
 }
 

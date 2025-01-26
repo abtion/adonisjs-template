@@ -14,5 +14,15 @@ services:
     ports:
       - '127.0.0.1:6379:6379'
 
+  smtp4dev:
+    image: rnwood/smtp4dev:v3
+    restart: always
+    ports:
+      - '127.0.0.1:5000:80' # Web interface
+      - '127.0.0.1:2525:25' # SMTP server
+    environment:
+      - RelayOptions__Login=user
+      - RelayOptions__Password=pass
+
 volumes:
   pg15:

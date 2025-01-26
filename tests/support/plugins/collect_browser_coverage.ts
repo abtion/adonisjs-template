@@ -1,12 +1,12 @@
 import { ApplicationService } from '@adonisjs/core/types'
 import { Suite } from '@japa/runner/core'
 import { PluginFn } from '@japa/runner/types'
-import path from 'path'
-import { writeFileSync } from 'fs'
-import { randomBytes } from 'crypto'
+import path from 'node:path'
+import { writeFileSync } from 'node:fs'
+import { randomBytes } from 'node:crypto'
 import { BrowserContext } from 'playwright'
 import { rimraf } from 'rimraf'
-import { mkdir } from 'fs/promises'
+import { mkdir } from 'node:fs/promises'
 
 type Config = {
   coverageFolder: string

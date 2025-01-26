@@ -89,6 +89,7 @@ export default class KyselyMigrate extends BaseCommand {
       dialectName: 'postgres',
       outFile: this.app.makePath('database', 'types.d.ts'),
       camelCase: true,
+      schemas: ['public'],
     })
     this.logger.success('Database types updated')
   }

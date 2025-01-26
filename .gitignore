@@ -23,6 +23,4 @@ yarn-error.log
 .DS_Store
 
 # Coverage
-.nyc_output
-.v8_coverage
 coverage

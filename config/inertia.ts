@@ -12,8 +12,12 @@ const inertiaConfig = defineConfig({
    * Data that should be shared with all rendered pages
    */
   sharedData: {
+    locale: (ctx) => ctx.i18n?.locale,
     auth: (ctx) => {
-      const { user, isAuthenticated } = ctx.auth.use('web')
+      const { user, isAuthenticated } = ctx.auth?.use('web') || {
+        user: undefined,
+        isAuthenticated: false,
+      }
       return { isAuthenticated, user }
     },
     policies: async ({ bouncer }) => {
@@ -22,8 +26,8 @@ const inertiaConfig = defineConfig({
       for (let [name, importer] of Object.entries(policies)) {
         const { default: policy } = await importer()
         res[name as keyof typeof policies] = {
-          index: await bouncer.with(policy).allows('index'),
-          create: await bouncer.with(policy).allows('create'),
+          index: (await bouncer.with(policy).allows('index')) || false,
+          create: (await bouncer.with(policy).allows('create')) || false,
         }
       }
       return res

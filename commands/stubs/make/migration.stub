@@ -6,14 +6,15 @@
 import { Kysely } from 'kysely'
 
 export async function up(db: Kysely<any>): Promise<void> {
-  await db.schema
-    .createTable('{{ migration.tableName }}')
-    .addColumn('id', 'integer', (col) => col.primaryKey().notNull())
-    .addColumn('created_at', 'timestamp', (col) => col.notNull())
-    .addColumn('updated_at', 'timestamp', (col) => col.notNull())
-    .execute()
+  // await db.schema
+  //  .alterTable('TABLE_NAME')
+  //  .addColumn('COLUMN_NAME', 'integer', (col) => col.notNull())
+  //  .execute()
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await db.schema.dropTable('{{ migration.tableName }}').execute()
+  // await db.schema
+  //  .alterTable('TABLE_NAME')
+  //  .dropColumn('COLUMN_NAME')
+  //  .execute()
 }

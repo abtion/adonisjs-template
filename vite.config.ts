@@ -34,7 +34,7 @@ export default defineConfig({
   },
 
   server: {
-    hmr: {
+    hmr: process.env.NODE_ENV === 'development' && {
       port: env.get('PORT', 3000) + 1,
     },
   },

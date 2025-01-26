@@ -3,6 +3,7 @@
   "tempDirectory": "coverage/.nyc_output",
   "reportDir": "coverage/frontend",
   "include": ["inertia"],
+  "exclude": ["inertia/app/app.tsx"],
   "lines": 60,
   "functions": 60,
   "branches": 60,
