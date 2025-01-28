@@ -2,7 +2,7 @@ import app from '@adonisjs/core/services/app'
 import { defineConfig, formatters, loaders } from '@adonisjs/i18n'
 
 const i18nConfig = defineConfig({
-  defaultLocale: app.inTest ? 'dev' : 'da',
+  defaultLocale: app.inTest ? 'dev' : 'en',
   formatter: formatters.icu(),
 
   loaders: [
