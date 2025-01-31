@@ -4,7 +4,6 @@ import inertia from '@adonisjs/inertia/client'
 import react from '@vitejs/plugin-react'
 import adonisjs from '@adonisjs/vite/client'
 import istanbulPluginUntyped, { IstanbulPluginOptions } from 'vite-plugin-istanbul'
-import ViteYaml from '@modyfi/vite-plugin-yaml'
 import env from '#start/env'
 
 //  The types for the default export of 'vite-plugin-istanbul' are not working correctly
@@ -14,7 +13,6 @@ export default defineConfig({
   plugins: [
     inertia({ ssr: { enabled: true, entrypoint: 'inertia/app/ssr.tsx' } }),
     react(),
-    ViteYaml(),
     adonisjs({
       entrypoints: ['inertia/app/app.tsx'],
       reload: ['resources/views/**/*.edge'],
