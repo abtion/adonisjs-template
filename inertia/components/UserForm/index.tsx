@@ -66,7 +66,7 @@ export default function UserForm(props: UserFormProps) {
 
       <div className="mt-5">
         <Button size="md" variant="primary" disabled={processing} type="submit">
-          {isEdit ? 'Save' : 'Create'}
+          {isEdit ? t('common.save') : t('common.create')}
         </Button>
       </div>
     </form>

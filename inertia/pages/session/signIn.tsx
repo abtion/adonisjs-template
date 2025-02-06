@@ -86,7 +86,7 @@ export default function SignIn() {
 
         {exceptions['E_INVALID_CREDENTIALS'] && (
           <Alert variant="danger" className="mt-2">
-            {exceptions['E_INVALID_CREDENTIALS']}
+            {t(`pages.session.signIn.${exceptions['E_INVALID_CREDENTIALS']}`)}
           </Alert>
         )}
 

@@ -4,7 +4,7 @@ import en from '../../resources/lang/en.json'
 const i18nextOptions: Partial<InitOptions> = {
   // Use same interpolation syntax as AdonisJS to provide some interoperability
   interpolation: { prefix: '{', suffix: '}' },
-  fallbackLng: 'en',
+  fallbackLng: process.env.NODE_ENV === 'test' ? 'dev' : 'en',
   resources: {
     en: { translation: en },
   },

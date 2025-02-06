@@ -33,7 +33,7 @@ export default class SessionController {
 
     const [verifiedUser] = await Promise.all([findAndVerifyUser(), setTimeout(50)])
 
-    if (!verifiedUser) throw new errors.E_INVALID_CREDENTIALS('Invalid credentials')
+    if (!verifiedUser) throw new errors.E_INVALID_CREDENTIALS('invalidCredentials')
 
     await auth.use('web').login(verifiedUser)
 

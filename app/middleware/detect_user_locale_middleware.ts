@@ -3,8 +3,14 @@ import i18nManager from '@adonisjs/i18n/services/main'
 import type { NextFn } from '@adonisjs/core/types/http'
 import { type HttpContext, RequestValidator } from '@adonisjs/core/http'
 import type { FieldContext, MessagesProviderContact } from '@vinejs/vine/types'
-import string from '@poppinss/utils/string'
+import app from '@adonisjs/core/services/app'
 
+// This messages provider is a clone of the default messages provider from `I18n.createMessagesProvider`.
+// The *only* difference is that we look for field names and error messages respectively under:
+// - `fields` (instead of `translator.shared.fields`)
+// - `validation` (instead of `translator.shared.messages`)
+//
+// The purpose is to have the field names in one place, used by both form templates and vine validations
 class ValidatorMessagesProvider implements MessagesProviderContact {
   messagesPrefix
   fieldsPrefix
@@ -17,13 +23,15 @@ class ValidatorMessagesProvider implements MessagesProviderContact {
   }
 
   getMessage(
-    defaultMessage: string,
+    _defaultMessage: string,
     rule: string,
     field: FieldContext,
     meta?: Record<string, any>
   ) {
     let fieldName = field.name
     const translatedFieldName = this.i18n.resolveIdentifier(`${this.fieldsPrefix}.${field.name}`)
+
+    /* v8 ignore start: Our tests run without a locale, so this code is not reached */
     if (translatedFieldName) {
       fieldName = this.i18n.formatRawMessage(translatedFieldName.message)
     }
@@ -39,8 +47,14 @@ class ValidatorMessagesProvider implements MessagesProviderContact {
     if (ruleMessage) {
       return this.i18n.formatRawMessage(ruleMessage.message, { field: fieldName, ...meta })
     }
+    /* v8 ignore end */
 
-    return string.interpolate(defaultMessage, { field: fieldName, ...meta })
+    // Do not fall back to default messages. We want all keys to exist in the project translations
+    const dynamicValues = { field: fieldName, ...meta }
+    const formattedValues = Object.entries(dynamicValues)
+      .map(([k, v]) => `${k}:"${v}"`)
+      .join(',')
+    return `${this.messagesPrefix}.${rule} (${formattedValues})`
   }
 }
 
@@ -72,7 +86,7 @@ export default class DetectUserLocaleMiddleware {
   }
 
   async handle(ctx: HttpContext, next: NextFn) {
-    const language = this.getRequestLocale(ctx)
+    const language = app.inTest ? 'dev' : this.getRequestLocale(ctx)
 
     ctx.i18n = i18nManager.locale(language || i18nManager.defaultLocale)
 

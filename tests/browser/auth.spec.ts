@@ -8,42 +8,42 @@ test.group('Auth', (group) => {
   group.each.setup(() => withGlobalTransaction())
 
   test('sign in / out', async ({ visit }) => {
-    await createUser({
-      email: 'admin@example.com',
-      password: await hash.make('secret-password'),
-    })
+    await createUser({ email: 'admin@example.com', password: await hash.make('secret-password') })
 
     const page = await visit('/')
 
-    await page.getByRole('link', { name: 'Sign in' }).click()
-    await expect(page.locator('h2', { hasText: 'Sign in' })).toBeVisible()
+    await page.getByRole('link', { name: 'components.nav.signIn' }).click()
+    await expect(page.locator('h2', { hasText: 'pages.session.signIn.heading' })).toBeVisible()
 
-    await page.getByLabel('Email').fill('admin@example.com')
-    await page.getByLabel('Password').fill('secret-password')
-    await page.getByRole('button', { name: 'Sign in' }).click()
-    await expect(page.getByText('Sign out')).toBeVisible()
+    await page.getByLabel('fields.email').fill('admin@example.com')
+    await page.getByLabel('fields.password').fill('secret-password')
+    await page.getByRole('button', { name: 'pages.session.signIn.signIn' }).click()
+    await expect(page.getByText('components.nav.signOut')).toBeVisible()
 
-    await page.getByRole('button', { name: 'Sign out' }).click()
-    await expect(page.getByText('Sign in')).toBeVisible()
+    await page.getByRole('button', { name: 'components.nav.signOut' }).click()
+    await expect(page.getByText('components.nav.signIn')).toBeVisible()
   })
 
   test('failed sign in', async ({ visit }) => {
-    await createUser({
-      email: 'admin@example.com',
-      password: await hash.make('password'),
-    })
+    await createUser({ email: 'admin@example.com', password: await hash.make('password') })
 
     const page = await visit('/sign-in')
 
-    await page.getByLabel('Email').fill('incorrect@user.com')
-    await page.getByLabel('Password').fill('incorrect password')
-    await page.getByRole('button', { name: 'Sign in' }).click()
+    // First attempt to log in without filling in the fields
+    await page.getByRole('button', { name: 'pages.session.signIn.signIn' }).click()
+    await expect(page.getByText('validation.required (field:"email")')).toBeVisible()
+    await expect(page.getByText('validation.required (field:"password")')).toBeVisible()
 
-    await page.getByLabel('Email').fill('admin@example.com')
-    await page.getByLabel('Password').fill('incorrect password')
-    await page.getByRole('button', { name: 'Sign in' }).click()
+    // Then fill in invalid credentials
+    await page.getByLabel('fields.email').fill('incorrect@user.com')
+    await page.getByLabel('fields.password').fill('incorrect password')
+    await page.getByRole('button', { name: 'pages.session.signIn.signIn' }).click()
 
-    await expect(page.getByText('Invalid credentials')).toBeVisible()
+    await page.getByLabel('fields.email').fill('admin@example.com')
+    await page.getByLabel('fields.password').fill('incorrect password')
+    await page.getByRole('button', { name: 'pages.session.signIn.signIn' }).click()
+
+    await expect(page.getByText('pages.session.signIn.invalidCredentials')).toBeVisible()
   })
 
   test('already signed in users are redirected await from sign-in page', async ({

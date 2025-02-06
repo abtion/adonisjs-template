@@ -14,40 +14,35 @@ test.group('Users', (group) => {
     const page = await visit('/users')
 
     // Create
-    await expect(page.getByText('List of users')).toBeVisible()
-    await page.getByRole('link', { name: 'New' }).click()
+    await expect(page.getByText('pages.users.index.heading')).toBeVisible()
+    await page.getByRole('link', { name: 'common.new' }).click()
 
-    await expect(page.getByText('New user')).toBeVisible()
-    await page.getByLabel('Name').fill('User Userson')
+    await expect(page.getByText('pages.users.create.heading')).toBeVisible()
+    await page.getByLabel('fields.name').fill('User Userson')
+    await page.getByLabel('fields.email').fill('user@userson.com')
+    await page.getByLabel('fields.password').fill('password')
 
-    await expect(page.getByText('Email')).toBeVisible()
-    await page.getByLabel('Email').fill('user@userson.com')
-
-    await expect(page.getByText('Password')).toBeVisible()
-    await page.getByLabel('Password').fill('password')
-
-    await page.getByRole('button', { name: 'Create' }).click()
-    await expect(page.getByText('List of users')).toBeVisible()
+    await page.getByRole('button', { name: 'common.create' }).click()
+    await expect(page.getByText('pages.users.index.heading')).toBeVisible()
 
     // Read
     page.getByText('user@userson.com').click()
-    await expect(page.locator('h1', { hasText: 'User Userson' })).toBeVisible()
+    await expect(page.locator('h1', { hasText: 'pages.users.show.heading' })).toBeVisible()
 
     // Update
-    page.getByText('Edit').click()
-    await expect(page.locator('h1', { hasText: 'Edit User Userson' })).toBeVisible()
-    await expect(page.getByText('Email')).toBeVisible()
-    await page.getByLabel('Email').fill('user@userson.eu')
-    await page.getByRole('button', { name: 'Save' }).click()
+    page.getByText('common.edit').click()
+    await expect(page.locator('h1', { hasText: 'pages.users.edit.heading' })).toBeVisible()
+    await page.getByLabel('fields.email').fill('user@userson.eu')
+    await page.getByRole('button', { name: 'common.save' }).click()
 
-    await expect(page.getByText('List of users')).toBeVisible()
+    await expect(page.getByText('pages.users.index.heading')).toBeVisible()
     await expect(page.getByText('user@userson.eu')).toBeVisible()
 
     // Delete
     const userNameElement = page.getByText('User Userson')
     const userRowElement = userNameElement.locator('..')
     const userDeleteButton = userRowElement.getByRole('button', {
-      name: 'Delete',
+      name: 'common.delete',
     })
 
     page.on('dialog', (dialog) => dialog.accept())

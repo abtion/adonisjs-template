@@ -3,7 +3,9 @@
   "common": {
     "back": "Back",
     "new": "New",
+    "create": "Create",
     "edit": "Edit",
+    "save": "Save",
     "delete": "Delete",
     "areYouSure": "Are you sure?"
   },
