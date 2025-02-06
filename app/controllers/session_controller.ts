@@ -1,7 +1,7 @@
 import { db } from '#services/db'
 import { createSessionValidator } from '#validators/session_validator'
 import hash from '@adonisjs/core/services/hash'
-import { setTimeout } from 'timers/promises'
+import { setTimeout } from 'node:timers/promises'
 import { errors } from '@adonisjs/auth'
 import type { HttpContext } from '@adonisjs/core/http'
 
