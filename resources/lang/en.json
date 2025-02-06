@@ -35,7 +35,8 @@
         "title": "Sign in",
         "heading": "Sign in",
         "emailPlaceholder": "Enter email",
-        "passwordPlaceholder": "Enter password"
+        "passwordPlaceholder": "Enter password",
+        "signIn": "Sign in"
       }
     },
     "users": {
@@ -53,8 +54,7 @@
       },
       "show": {
         "title": "{name}",
-        "heading": "{name}",
-        "signIn": "Sign in"
+        "heading": "{name}"
       }
     }
   },

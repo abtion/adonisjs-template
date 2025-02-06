@@ -15,7 +15,7 @@ test.group('Users', (group) => {
 
     // Create
     await expect(page.getByText('List of users')).toBeVisible()
-    await page.getByRole('link', { name: 'Create user' }).click()
+    await page.getByRole('link', { name: 'New' }).click()
 
     await expect(page.getByText('New user')).toBeVisible()
     await page.getByLabel('Name').fill('User Userson')
@@ -31,7 +31,7 @@ test.group('Users', (group) => {
 
     // Read
     page.getByText('user@userson.com').click()
-    await expect(page.locator('h1', { hasText: 'user@userson.com' })).toBeVisible()
+    await expect(page.locator('h1', { hasText: 'User Userson' })).toBeVisible()
 
     // Update
     page.getByText('Edit').click()

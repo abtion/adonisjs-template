@@ -16,16 +16,14 @@ test.group('Auth', (group) => {
     const page = await visit('/')
 
     await page.getByRole('link', { name: 'Sign in' }).click()
-
     await expect(page.locator('h2', { hasText: 'Sign in' })).toBeVisible()
 
     await page.getByLabel('Email').fill('admin@example.com')
     await page.getByLabel('Password').fill('secret-password')
     await page.getByRole('button', { name: 'Sign in' }).click()
-
     await expect(page.getByText('Sign out')).toBeVisible()
-    await page.getByRole('button', { name: 'Sign out' }).click()
 
+    await page.getByRole('button', { name: 'Sign out' }).click()
     await expect(page.getByText('Sign in')).toBeVisible()
   })
 
