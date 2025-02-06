@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node --no-warnings=ExperimentalWarning --loader ts-node/esm
+#!/usr/bin/env -S node --no-warnings=ExperimentalWarning --loader ts-node-maintained/esm
 
 import * as fs from 'node:fs'
 import * as path from 'node:path'
