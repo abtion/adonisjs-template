@@ -97,7 +97,7 @@
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@vinejs/vine": "^2.1.0",
     "classnames": "^2.5.1",
-    "edge.js": "^6.0.2",
+    "edge.js": "^6.2.0",
     "i18next": "^24.2.2",
     "kysely": "^0.27.5",
     "kysely-codegen": "^0.17.0",
