@@ -1,4 +1,5 @@
 @use 'sass:meta';
+
 @layer tailwind-base {
   @tailwind base;
 }
@@ -8,7 +9,7 @@
   @tailwind utilities;
 }
 
-@include meta.load-css('../fonts/inter');
+@include meta.load-css('~/fonts/inter');
 
 :root,
 body,
