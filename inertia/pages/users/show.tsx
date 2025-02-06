@@ -1,16 +1,23 @@
 import UsersController from '#controllers/users_controller'
 import { InferPageProps } from '@adonisjs/inertia/types'
-import { Link } from '@inertiajs/react'
+import { Head, Link } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import Button from '~/components/Button'
 import ButtonClear from '~/components/ButtonClear'
 import MainLayout from '~/layouts/main'
 
 export default function UserShow({ user, policies }: InferPageProps<UsersController, 'show'>) {
+  const { t } = useTranslation()
+
   return (
     <MainLayout>
+      <Head title={t('pages.users.show.title', { name: user.name })} />
+
       <div className="container mx-auto my-20 max-w-3xl">
         <div className="flex items-center">
-          <h1 className="text-3xl flex-grow">{user.email}</h1>
+          <h1 className="text-3xl flex-grow">
+            {t('pages.users.show.heading', { name: user.name })}
+          </h1>
           {policies.UserPolicy.index && (
             <Link
               href="/users/"
@@ -23,7 +30,7 @@ export default function UserShow({ user, policies }: InferPageProps<UsersControl
                 'mr-2'
               )}
             >
-              Back
+              {t('common.back')}
             </Link>
           )}
           {user.permissions.edit && (
@@ -38,7 +45,7 @@ export default function UserShow({ user, policies }: InferPageProps<UsersControl
                 'mr-2'
               )}
             >
-              Edit
+              {t('common.edit')}
             </Link>
           )}
           {user.permissions.destroy && (
@@ -46,11 +53,11 @@ export default function UserShow({ user, policies }: InferPageProps<UsersControl
               href={`/users/${user.id}`}
               className={Button.cn({ size: 'sm', variant: 'danger' })}
               disabled={!user.permissions.destroy}
-              onBefore={() => confirm('Are you sure?')}
+              onBefore={() => confirm(t('common.areYouSure'))}
               as="button"
               method="delete"
             >
-              Delete
+              {t('common.delete')}
             </Link>
           )}
         </div>
@@ -60,7 +67,7 @@ export default function UserShow({ user, policies }: InferPageProps<UsersControl
             <tbody>
               <tr className="even:bg-neutral-50 odd:bg-white">
                 <th className="text-left text-neutral-500 text-xs uppercase font-medium px-6 py-3">
-                  Email
+                  {t('fields.email')}
                 </th>
                 <td className="text-sm text-neutral-800 font-medium px-3 py-2 whitespace-nowrap">
                   {user.email}
@@ -69,7 +76,7 @@ export default function UserShow({ user, policies }: InferPageProps<UsersControl
 
               <tr className="even:bg-neutral-50 odd:bg-white">
                 <th className="text-left text-neutral-500 text-xs uppercase font-medium px-6 py-3">
-                  Name
+                  {t('fields.name')}
                 </th>
                 <td className="text-sm text-neutral-800 font-medium px-3 py-2 whitespace-nowrap">
                   {user.name}
@@ -78,7 +85,7 @@ export default function UserShow({ user, policies }: InferPageProps<UsersControl
 
               <tr className="even:bg-neutral-50 odd:bg-white">
                 <th className="text-left text-neutral-500 text-xs uppercase font-medium px-6 py-3">
-                  Created at
+                  {t('fields.createdAt')}
                 </th>
                 <td className="text-sm text-neutral-800 font-medium px-3 py-2 whitespace-nowrap">
                   {new Date(user.createdAt).toLocaleDateString()}

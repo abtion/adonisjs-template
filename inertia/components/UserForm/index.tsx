@@ -2,6 +2,7 @@ import React, { ChangeEvent } from 'react'
 import Field from '../Field'
 import Input from '../Input'
 import Button from '../Button'
+import { useTranslation } from 'react-i18next'
 
 type FieldName = 'name' | 'email' | 'password'
 
@@ -14,12 +15,13 @@ type UserFormProps = Omit<React.HTMLProps<HTMLFormElement>, 'data' | 'onChange'>
 }
 
 export default function UserForm(props: UserFormProps) {
+  const { t } = useTranslation()
   const { errors, data, onChange, processing, isEdit, ...forwardProps } = props
 
   return (
     <form {...forwardProps}>
       <div className="w-80 flex flex-col gap-4">
-        <Field label="Name" error={errors.name}>
+        <Field label={t('fields.name')} error={errors.name}>
           <Input
             className="w-full mt-2"
             autoComplete="off"
@@ -29,11 +31,11 @@ export default function UserForm(props: UserFormProps) {
             variant={errors.name ? 'error' : 'default'}
             value={data.name}
             onChange={onChange}
-            placeholder="The name of the user"
+            placeholder={t('components.userForm.namePlaceholder')}
           />
         </Field>
 
-        <Field label="Email" error={errors.email}>
+        <Field label={t('fields.email')} error={errors.email}>
           <Input
             className="w-full mt-2"
             autoComplete="off"
@@ -43,11 +45,11 @@ export default function UserForm(props: UserFormProps) {
             variant={errors.email ? 'error' : 'default'}
             value={data.email}
             onChange={onChange}
-            placeholder="The user's email"
+            placeholder={t('components.userForm.emailPlaceholder')}
           />
         </Field>
 
-        <Field label="Password" error={errors.password}>
+        <Field label={t('fields.password')} error={errors.password}>
           <Input
             className="w-full mt-2"
             autoComplete="new-password"
@@ -57,7 +59,7 @@ export default function UserForm(props: UserFormProps) {
             variant={errors.password ? 'error' : 'default'}
             value={data.password}
             onChange={onChange}
-            placeholder="Password - can be changed later"
+            placeholder={t('components.userForm.passwordPlaceholder')}
           />
         </Field>
       </div>

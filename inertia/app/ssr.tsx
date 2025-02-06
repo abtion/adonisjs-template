@@ -2,8 +2,8 @@ import ReactDOMServer from 'react-dom/server'
 import { createInertiaApp } from '@inertiajs/react'
 
 import i18next from 'i18next'
-import en from '../../resources/lang/en.json'
 import { I18nextProvider } from 'react-i18next'
+import i18nextConfig from '../config/i18next_config'
 
 export default function render(page: any) {
   return createInertiaApp({
@@ -16,11 +16,8 @@ export default function render(page: any) {
     },
     setup: ({ App, props }) => {
       const i18n = i18next.createInstance({
+        ...i18nextConfig,
         lng: page.props.locale,
-        fallbackLng: 'en',
-        resources: {
-          en: { translation: en },
-        },
       })
       i18n.init()
 

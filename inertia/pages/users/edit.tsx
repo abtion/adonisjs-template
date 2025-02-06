@@ -5,8 +5,11 @@ import MainLayout from '~/layouts/main'
 import UserForm from '~/components/UserForm'
 import UsersController from '#controllers/users_controller'
 import { InferPageProps } from '@adonisjs/inertia/types'
+import { useTranslation } from 'react-i18next'
 
 export default function UsersEdit({ user }: InferPageProps<UsersController, 'edit'>) {
+  const { t } = useTranslation()
+
   const { data, setData, put, processing, errors } = useForm({
     name: user.name,
     email: user.email,
@@ -24,10 +27,10 @@ export default function UsersEdit({ user }: InferPageProps<UsersController, 'edi
 
   return (
     <MainLayout>
-      <Head title="New user" />
+      <Head title={t('pages.users.edit.title')} />
 
       <div className="container my-10">
-        <h1 className="text-2xl">Edit {user.name}</h1>
+        <h1 className="text-2xl">{t('pages.users.edit.heading', { name: user.name })}</h1>
 
         <UserForm
           isEdit

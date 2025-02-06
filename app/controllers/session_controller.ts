@@ -10,7 +10,7 @@ export default class SessionController {
    * Sign-in form
    */
   async show({ inertia }: HttpContext) {
-    return inertia.render('sign-in')
+    return inertia.render('session/signIn')
   }
 
   /**

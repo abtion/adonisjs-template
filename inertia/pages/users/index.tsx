@@ -4,19 +4,22 @@ import Button from '~/components/Button'
 import ButtonClear from '~/components/ButtonClear'
 import { InferPageProps } from '@adonisjs/inertia/types'
 import MainLayout from '~/layouts/main'
+import { useTranslation } from 'react-i18next'
 
 export default function UsersIndex({ users, policies }: InferPageProps<UsersController, 'index'>) {
+  const { t } = useTranslation()
+
   return (
     <MainLayout>
-      <Head title="List of users" />
+      <Head title={t('pages.users.index.title')} />
 
       <div className="container mx-auto my-20">
         <div className="flex items-center">
-          <h1 className="text-3xl flex-grow">List of users</h1>
+          <h1 className="text-3xl flex-grow">{t('pages.users.index.heading')}</h1>
 
           {policies.UserPolicy.create && (
             <Link href="/users/create" className={Button.cn({ size: 'sm', variant: 'primary' })}>
-              Create user
+              {t('common.new')}
             </Link>
           )}
         </div>
@@ -26,13 +29,13 @@ export default function UsersIndex({ users, policies }: InferPageProps<UsersCont
             <thead className="border-b border-b-neutral-200">
               <tr className="bg-neutral-50">
                 <th className="text-left text-neutral-500 text-xs uppercase font-medium px-6 py-3">
-                  Email
+                  {t('fields.email')}
                 </th>
                 <th className="text-left text-neutral-500 text-xs uppercase font-medium px-6 py-3">
-                  Name
+                  {t('fields.name')}
                 </th>
                 <th className="text-left text-neutral-500 text-xs uppercase font-medium px-6 py-3">
-                  Created at
+                  {t('fields.createdAt')}
                 </th>
                 <th></th>
               </tr>
@@ -67,20 +70,17 @@ export default function UsersIndex({ users, policies }: InferPageProps<UsersCont
                         disabled: !user.permissions.edit,
                       })}
                     >
-                      Edit
+                      {t('common.edit')}
                     </Link>
                     <Link
                       href={`/users/${user.id}`}
                       method="delete"
                       as="button"
                       disabled={!user.permissions.destroy}
-                      onBefore={() => confirm('Are you sure?')}
-                      className={ButtonClear.cn({
-                        size: 'sm',
-                        variant: 'danger',
-                      })}
+                      onBefore={() => confirm(t('common.areYouSure'))}
+                      className={ButtonClear.cn({ size: 'sm', variant: 'danger' })}
                     >
-                      Delete
+                      {t('common.delete')}
                     </Link>
                   </td>
                 </tr>

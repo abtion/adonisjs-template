@@ -1,5 +1,73 @@
 {
+  "projectName": "Project Name Human",
+  "common": {
+    "back": "Back",
+    "new": "New",
+    "edit": "Edit",
+    "delete": "Delete",
+    "areYouSure": "Are you sure?"
+  },
+  "validation": {
+    "required": "{field} is required",
+    "minLength": "{field} must be at least {min} characters long",
+    "email": "Must be a valid email address"
+  },
+  "fields": {
+    "createdAt": "Created at",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password"
+  },
   "pages": {
-    "test": "test"
+    "errors": {
+      "notFound": {
+        "title": "Not found",
+        "heading": "Page not found",
+        "description": "This page does not exist"
+      },
+      "serverError": {
+        "title": "Server Error",
+        "heading": "Internal server error"
+      }
+    },
+    "session": {
+      "signIn": {
+        "title": "Sign in",
+        "heading": "Sign in",
+        "emailPlaceholder": "Enter email",
+        "passwordPlaceholder": "Enter password"
+      }
+    },
+    "users": {
+      "index": {
+        "title": "Users",
+        "heading": "List of users"
+      },
+      "create": {
+        "title": "New user",
+        "heading": "Create new user"
+      },
+      "edit": {
+        "title": "New user",
+        "heading": "Edit {name}"
+      },
+      "show": {
+        "title": "{name}",
+        "heading": "{name}",
+        "signIn": "Sign in"
+      }
+    }
+  },
+  "components": {
+    "nav": {
+      "users": "Users",
+      "signIn": "Sign in",
+      "signOut": "Sign out"
+    },
+    "userForm": {
+      "namePlaceholder": "Full name of the user",
+      "emailPlaceholder": "User's email address",
+      "passwordPlaceholder": "Password - can be changed later"
+    }
   }
 }

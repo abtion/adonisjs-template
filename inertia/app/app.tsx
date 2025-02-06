@@ -7,9 +7,9 @@ import { createInertiaApp } from '@inertiajs/react'
 import { resolvePageComponent } from '@adonisjs/inertia/helpers'
 import i18next from 'i18next'
 import colors from '../../colors.json'
-import en from '../../resources/lang/en.json'
 import { I18nextProvider } from 'react-i18next'
 import { SharedProps } from '@adonisjs/inertia/types'
+import i18nextConfig from '../config/i18next_config'
 
 createInertiaApp<SharedProps>({
   progress: { color: colors.primary.DEFAULT },
@@ -21,11 +21,8 @@ createInertiaApp<SharedProps>({
 
   setup({ el, App, props }) {
     const i18n = i18next.createInstance({
+      ...i18nextConfig,
       lng: props.initialPage.props.locale,
-      fallbackLng: 'en',
-      resources: {
-        en: { translation: en },
-      },
     })
     i18n.init()
 

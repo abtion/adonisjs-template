@@ -4,8 +4,11 @@ import Logo from '../Logo'
 import { Link, usePage } from '@inertiajs/react'
 import { SharedProps } from '@adonisjs/inertia/types'
 import NavLink from './NavLink'
+import { useTranslation } from 'react-i18next'
 
 export default function Nav() {
+  const { t } = useTranslation()
+
   const [open, setOpen] = useState(false)
   const {
     props: { auth, policies },
@@ -51,7 +54,7 @@ export default function Nav() {
                 {policies.UserPolicy.index && (
                   <li>
                     <NavLink href="/users" active={component.startsWith('users')}>
-                      Users
+                      {t('components.nav.users')}
                     </NavLink>
                   </li>
                 )}
@@ -62,10 +65,10 @@ export default function Nav() {
             <li>
               {auth.isAuthenticated ? (
                 <NavLink href="/session" method="delete" as="button">
-                  Sign out
+                  {t('components.nav.signOut')}
                 </NavLink>
               ) : (
-                <NavLink href="/sign-in">Sign in</NavLink>
+                <NavLink href="/sign-in">{t('components.nav.signIn')}</NavLink>
               )}
             </li>
           </ul>

@@ -3,8 +3,11 @@ import { ChangeEvent, FormEvent } from 'react'
 import { useForm } from '@inertiajs/react'
 import MainLayout from '~/layouts/main'
 import UserForm from '~/components/UserForm'
+import { useTranslation } from 'react-i18next'
 
 export default function UsersCreate() {
+  const { t } = useTranslation()
+
   const { data, setData, post, processing, errors } = useForm({
     name: '',
     email: '',
@@ -22,10 +25,10 @@ export default function UsersCreate() {
 
   return (
     <MainLayout>
-      <Head title="New user" />
+      <Head title={t('pages.users.create.title')} />
 
       <div className="container my-10">
-        <h1 className="text-2xl">Create new user</h1>
+        <h1 className="text-2xl">{t('pages.users.create.heading')}</h1>
 
         <UserForm
           data={data}

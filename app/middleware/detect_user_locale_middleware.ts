@@ -2,6 +2,47 @@ import { I18n } from '@adonisjs/i18n'
 import i18nManager from '@adonisjs/i18n/services/main'
 import type { NextFn } from '@adonisjs/core/types/http'
 import { type HttpContext, RequestValidator } from '@adonisjs/core/http'
+import type { FieldContext, MessagesProviderContact } from '@vinejs/vine/types'
+import string from '@poppinss/utils/string'
+
+class ValidatorMessagesProvider implements MessagesProviderContact {
+  messagesPrefix
+  fieldsPrefix
+  i18n
+
+  constructor(i18n: I18n) {
+    this.fieldsPrefix = `fields`
+    this.messagesPrefix = `validation`
+    this.i18n = i18n
+  }
+
+  getMessage(
+    defaultMessage: string,
+    rule: string,
+    field: FieldContext,
+    meta?: Record<string, any>
+  ) {
+    let fieldName = field.name
+    const translatedFieldName = this.i18n.resolveIdentifier(`${this.fieldsPrefix}.${field.name}`)
+    if (translatedFieldName) {
+      fieldName = this.i18n.formatRawMessage(translatedFieldName.message)
+    }
+
+    const fieldMessage = this.i18n.resolveIdentifier(
+      `${this.messagesPrefix}.${field.wildCardPath}.${rule}`
+    )
+    if (fieldMessage) {
+      return this.i18n.formatRawMessage(fieldMessage.message, { field: fieldName, ...meta })
+    }
+
+    const ruleMessage = this.i18n.resolveIdentifier(`${this.messagesPrefix}.${rule}`)
+    if (ruleMessage) {
+      return this.i18n.formatRawMessage(ruleMessage.message, { field: fieldName, ...meta })
+    }
+
+    return string.interpolate(defaultMessage, { field: fieldName, ...meta })
+  }
+}
 
 /**
  * The "DetectUserLocaleMiddleware" middleware uses i18n service to share
@@ -14,7 +55,7 @@ export default class DetectUserLocaleMiddleware {
    */
   static {
     RequestValidator.messagesProvider = (ctx) => {
-      return ctx.i18n.createMessagesProvider()
+      return new ValidatorMessagesProvider(ctx.i18n)
     }
   }
 

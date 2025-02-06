@@ -12,7 +12,7 @@ export default function Field(props: FieldProps) {
   return (
     <div {...forwardProps}>
       <label>
-        <p className="font-medium text-lg">{label}</p>
+        <p className="font-medium text-lg capitalize">{label}</p>
         {children}
       </label>
 
