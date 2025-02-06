@@ -95,7 +95,7 @@
     "@inertiajs/react": "^2.0.3",
     "@playwright/test": "^1.50.0",
     "@tailwindcss/aspect-ratio": "^0.4.2",
-    "@vinejs/vine": "^2.1.0",
+    "@vinejs/vine": "^3.0.0",
     "classnames": "^2.5.1",
     "edge.js": "^6.2.0",
     "i18next": "^24.2.2",
