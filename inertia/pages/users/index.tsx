@@ -15,7 +15,7 @@ export default function UsersIndex({ users, policies }: InferPageProps<UsersCont
 
       <div className="container mx-auto my-20">
         <div className="flex items-center">
-          <h1 className="text-3xl flex-grow">{t('pages.users.index.heading')}</h1>
+          <h1 className="text-3xl grow">{t('pages.users.index.heading')}</h1>
 
           {policies.UserPolicy.create && (
             <Link href="/users/create" className={Button.cn({ size: 'sm', variant: 'primary' })}>
@@ -24,7 +24,7 @@ export default function UsersIndex({ users, policies }: InferPageProps<UsersCont
           )}
         </div>
 
-        <div className="overflow-hidden rounded border border-neutral-200 shadow-sm mt-10">
+        <div className="overflow-hidden rounded-sm border border-neutral-200 shadow-xs mt-10">
           <table className="min-w-full">
             <thead className="border-b border-b-neutral-200">
               <tr className="bg-neutral-50">

@@ -15,7 +15,7 @@ export default function UserShow({ user, policies }: InferPageProps<UsersControl
 
       <div className="container mx-auto my-20 max-w-3xl">
         <div className="flex items-center">
-          <h1 className="text-3xl flex-grow">
+          <h1 className="text-3xl grow">
             {t('pages.users.show.heading', { name: user.name })}
           </h1>
           {policies.UserPolicy.index && (
@@ -62,7 +62,7 @@ export default function UserShow({ user, policies }: InferPageProps<UsersControl
           )}
         </div>
 
-        <div className="overflow-hidden rounded border border-neutral-200 shadow-sm mt-10">
+        <div className="overflow-hidden rounded-sm border border-neutral-200 shadow-xs mt-10">
           <table className="min-w-full">
             <tbody>
               <tr className="even:bg-neutral-50 odd:bg-white">

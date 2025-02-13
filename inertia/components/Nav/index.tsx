@@ -16,7 +16,7 @@ export default function Nav() {
   } = usePage<SharedProps>()
 
   return (
-    <nav className="bg-white shadow-sm sticky inset-x-0">
+    <nav className="bg-white shadow-xs sticky inset-x-0">
       <div className="container mx-auto">
         <div className="flex justify-between flex-wrap">
           <div className="flex">
@@ -26,7 +26,7 @@ export default function Nav() {
           </div>
 
           <div className="md:hidden flex items-center">
-            <button className="focus:outline-none py-4 px-4" onClick={() => setOpen(!open)}>
+            <button className="focus:outline-hidden py-4 px-4" onClick={() => setOpen(!open)}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6"
@@ -45,7 +45,7 @@ export default function Nav() {
           </div>
 
           <ul
-            className={cn('w-full md:w-auto md:flex-grow md:flex items-center md:space-x-5', {
+            className={cn('w-full md:w-auto md:grow md:flex items-center md:space-x-5', {
               hidden: !open,
             })}
           >
@@ -61,7 +61,7 @@ export default function Nav() {
               </>
             )}
 
-            <li className="md:flex-grow"></li>
+            <li className="md:grow"></li>
             <li>
               {auth.isAuthenticated ? (
                 <NavLink href="/session" method="delete" as="button">

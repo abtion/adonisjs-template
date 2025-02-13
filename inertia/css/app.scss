@@ -1,12 +1,161 @@
 @use 'sass:meta';
 
-@layer tailwind-base {
-  @tailwind base;
+@import 'tailwindcss';
+
+@theme {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-white: white;
+  --color-black: black;
+  --color-current: currentColor;
+  --color-dark: rgb(var(--color-dark));
+  --color-light: rgb(var(--color-light));
+
+  --color-neutral-50: rgb(var(--color-neutral-50));
+  --color-neutral-100: rgb(var(--color-neutral-100));
+  --color-neutral-200: rgb(var(--color-neutral-200));
+  --color-neutral-300: rgb(var(--color-neutral-300));
+  --color-neutral-400: rgb(var(--color-neutral-400));
+  --color-neutral-500: rgb(var(--color-neutral-500));
+  --color-neutral-600: rgb(var(--color-neutral-600));
+  --color-neutral-700: rgb(var(--color-neutral-700));
+  --color-neutral-800: rgb(var(--color-neutral-800));
+  --color-neutral-900: rgb(var(--color-neutral-900));
+  --color-neutral-50-contrast: rgb(var(--color-neutral-50-contrast));
+  --color-neutral-100-contrast: rgb(var(--color-neutral-100-contrast));
+  --color-neutral-200-contrast: rgb(var(--color-neutral-200-contrast));
+  --color-neutral-300-contrast: rgb(var(--color-neutral-300-contrast));
+  --color-neutral-400-contrast: rgb(var(--color-neutral-400-contrast));
+  --color-neutral-500-contrast: rgb(var(--color-neutral-500-contrast));
+  --color-neutral-600-contrast: rgb(var(--color-neutral-600-contrast));
+  --color-neutral-700-contrast: rgb(var(--color-neutral-700-contrast));
+  --color-neutral-800-contrast: rgb(var(--color-neutral-800-contrast));
+  --color-neutral-900-contrast: rgb(var(--color-neutral-900-contrast));
+  --color-neutral: rgb(var(--color-neutral));
+  --color-neutral-contrast: rgb(var(--color-neutral-contrast));
+
+  --color-primary-50: rgb(var(--color-primary-50));
+  --color-primary-100: rgb(var(--color-primary-100));
+  --color-primary-200: rgb(var(--color-primary-200));
+  --color-primary-300: rgb(var(--color-primary-300));
+  --color-primary-400: rgb(var(--color-primary-400));
+  --color-primary-500: rgb(var(--color-primary-500));
+  --color-primary-600: rgb(var(--color-primary-600));
+  --color-primary-700: rgb(var(--color-primary-700));
+  --color-primary-800: rgb(var(--color-primary-800));
+  --color-primary-900: rgb(var(--color-primary-900));
+  --color-primary-50-contrast: rgb(var(--color-primary-50-contrast));
+  --color-primary-100-contrast: rgb(var(--color-primary-100-contrast));
+  --color-primary-200-contrast: rgb(var(--color-primary-200-contrast));
+  --color-primary-300-contrast: rgb(var(--color-primary-300-contrast));
+  --color-primary-400-contrast: rgb(var(--color-primary-400-contrast));
+  --color-primary-500-contrast: rgb(var(--color-primary-500-contrast));
+  --color-primary-600-contrast: rgb(var(--color-primary-600-contrast));
+  --color-primary-700-contrast: rgb(var(--color-primary-700-contrast));
+  --color-primary-800-contrast: rgb(var(--color-primary-800-contrast));
+  --color-primary-900-contrast: rgb(var(--color-primary-900-contrast));
+  --color-primary: rgb(var(--color-primary));
+  --color-primary-contrast: rgb(var(--color-primary-contrast));
+
+  --color-success-50: rgb(var(--color-success-50));
+  --color-success-100: rgb(var(--color-success-100));
+  --color-success-200: rgb(var(--color-success-200));
+  --color-success-300: rgb(var(--color-success-300));
+  --color-success-400: rgb(var(--color-success-400));
+  --color-success-500: rgb(var(--color-success-500));
+  --color-success-600: rgb(var(--color-success-600));
+  --color-success-700: rgb(var(--color-success-700));
+  --color-success-800: rgb(var(--color-success-800));
+  --color-success-900: rgb(var(--color-success-900));
+  --color-success-50-contrast: rgb(var(--color-success-50-contrast));
+  --color-success-100-contrast: rgb(var(--color-success-100-contrast));
+  --color-success-200-contrast: rgb(var(--color-success-200-contrast));
+  --color-success-300-contrast: rgb(var(--color-success-300-contrast));
+  --color-success-400-contrast: rgb(var(--color-success-400-contrast));
+  --color-success-500-contrast: rgb(var(--color-success-500-contrast));
+  --color-success-600-contrast: rgb(var(--color-success-600-contrast));
+  --color-success-700-contrast: rgb(var(--color-success-700-contrast));
+  --color-success-800-contrast: rgb(var(--color-success-800-contrast));
+  --color-success-900-contrast: rgb(var(--color-success-900-contrast));
+  --color-success: rgb(var(--color-success));
+  --color-success-contrast: rgb(var(--color-success-contrast));
+
+  --color-danger-50: rgb(var(--color-danger-50));
+  --color-danger-100: rgb(var(--color-danger-100));
+  --color-danger-200: rgb(var(--color-danger-200));
+  --color-danger-300: rgb(var(--color-danger-300));
+  --color-danger-400: rgb(var(--color-danger-400));
+  --color-danger-500: rgb(var(--color-danger-500));
+  --color-danger-600: rgb(var(--color-danger-600));
+  --color-danger-700: rgb(var(--color-danger-700));
+  --color-danger-800: rgb(var(--color-danger-800));
+  --color-danger-900: rgb(var(--color-danger-900));
+  --color-danger-50-contrast: rgb(var(--color-danger-50-contrast));
+  --color-danger-100-contrast: rgb(var(--color-danger-100-contrast));
+  --color-danger-200-contrast: rgb(var(--color-danger-200-contrast));
+  --color-danger-300-contrast: rgb(var(--color-danger-300-contrast));
+  --color-danger-400-contrast: rgb(var(--color-danger-400-contrast));
+  --color-danger-500-contrast: rgb(var(--color-danger-500-contrast));
+  --color-danger-600-contrast: rgb(var(--color-danger-600-contrast));
+  --color-danger-700-contrast: rgb(var(--color-danger-700-contrast));
+  --color-danger-800-contrast: rgb(var(--color-danger-800-contrast));
+  --color-danger-900-contrast: rgb(var(--color-danger-900-contrast));
+  --color-danger: rgb(var(--color-danger));
+  --color-danger-contrast: rgb(var(--color-danger-contrast));
+
+  --color-warning-50: rgb(var(--color-warning-50));
+  --color-warning-100: rgb(var(--color-warning-100));
+  --color-warning-200: rgb(var(--color-warning-200));
+  --color-warning-300: rgb(var(--color-warning-300));
+  --color-warning-400: rgb(var(--color-warning-400));
+  --color-warning-500: rgb(var(--color-warning-500));
+  --color-warning-600: rgb(var(--color-warning-600));
+  --color-warning-700: rgb(var(--color-warning-700));
+  --color-warning-800: rgb(var(--color-warning-800));
+  --color-warning-900: rgb(var(--color-warning-900));
+  --color-warning-50-contrast: rgb(var(--color-warning-50-contrast));
+  --color-warning-100-contrast: rgb(var(--color-warning-100-contrast));
+  --color-warning-200-contrast: rgb(var(--color-warning-200-contrast));
+  --color-warning-300-contrast: rgb(var(--color-warning-300-contrast));
+  --color-warning-400-contrast: rgb(var(--color-warning-400-contrast));
+  --color-warning-500-contrast: rgb(var(--color-warning-500-contrast));
+  --color-warning-600-contrast: rgb(var(--color-warning-600-contrast));
+  --color-warning-700-contrast: rgb(var(--color-warning-700-contrast));
+  --color-warning-800-contrast: rgb(var(--color-warning-800-contrast));
+  --color-warning-900-contrast: rgb(var(--color-warning-900-contrast));
+  --color-warning: rgb(var(--color-warning));
+  --color-warning-contrast: rgb(var(--color-warning-contrast));
+
+  --color-info-50: rgb(var(--color-info-50));
+  --color-info-100: rgb(var(--color-info-100));
+  --color-info-200: rgb(var(--color-info-200));
+  --color-info-300: rgb(var(--color-info-300));
+  --color-info-400: rgb(var(--color-info-400));
+  --color-info-500: rgb(var(--color-info-500));
+  --color-info-600: rgb(var(--color-info-600));
+  --color-info-700: rgb(var(--color-info-700));
+  --color-info-800: rgb(var(--color-info-800));
+  --color-info-900: rgb(var(--color-info-900));
+  --color-info-50-contrast: rgb(var(--color-info-50-contrast));
+  --color-info-100-contrast: rgb(var(--color-info-100-contrast));
+  --color-info-200-contrast: rgb(var(--color-info-200-contrast));
+  --color-info-300-contrast: rgb(var(--color-info-300-contrast));
+  --color-info-400-contrast: rgb(var(--color-info-400-contrast));
+  --color-info-500-contrast: rgb(var(--color-info-500-contrast));
+  --color-info-600-contrast: rgb(var(--color-info-600-contrast));
+  --color-info-700-contrast: rgb(var(--color-info-700-contrast));
+  --color-info-800-contrast: rgb(var(--color-info-800-contrast));
+  --color-info-900-contrast: rgb(var(--color-info-900-contrast));
+  --color-info: rgb(var(--color-info));
+  --color-info-contrast: rgb(var(--color-info-contrast));
+
+  --font-*: initial;
+  --font-sans: Inter, sans-serif;
 }
 
-@layer tailwind-utils {
-  @tailwind components;
-  @tailwind utilities;
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1rem;
 }
 
 @include meta.load-css('~/fonts/inter');
