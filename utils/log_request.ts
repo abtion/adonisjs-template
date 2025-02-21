@@ -1,3 +1,4 @@
+/* v8 ignore start */
 import { HttpContext } from '@adonisjs/core/http'
 import { Logger } from '@adonisjs/core/logger'
 import onFinised from 'on-finished'
@@ -28,6 +29,8 @@ const log = (
 }
 
 export default function logRequest(ctx: HttpContext, startTime?: bigint) {
+  if (process.env.NODE_ENV === 'test') return
+
   const { logger, request, response } = ctx
   const res = response.response
   const url = request.url()
@@ -37,3 +40,4 @@ export default function logRequest(ctx: HttpContext, startTime?: bigint) {
     log(logger, url, method, res.statusCode, startTime)
   })
 }
+/* v8 ignore end */
