@@ -11,7 +11,9 @@ export default function NotFound({ requestId }: { requestId: any }) {
       <div className="container space-y-4 py-4">
         <h1 className="text-4xl">{t('pages.errors.notFound.heading')}</h1>
         <p>{t('pages.errors.notFound.description')}</p>
-        <p className="text-xs text-info-500">{t('pages.errors.notFound.requestId', { requestId })}</p>
+        <p className="text-xs text-info-500">
+          {t('pages.errors.notFound.requestId', { requestId })}
+        </p>
       </div>
     </MainLayout>
   )
