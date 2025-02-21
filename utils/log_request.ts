@@ -1,14 +1,15 @@
-/* v8 ignore start */
 import { HttpContext } from '@adonisjs/core/http'
 import { Logger } from '@adonisjs/core/logger'
 import onFinised from 'on-finished'
 
+/* v8 ignore start */
 const getLogLevel = (statusCode: number) => {
   if (statusCode < 400) return 'info'
   if (statusCode >= 400 && statusCode < 500) return 'warn'
-
+  
   return 'error'
 }
+/* v8 ignore end */
 
 const log = (
   logger: Logger,
@@ -25,12 +26,13 @@ const log = (
     strings.push(`${ms.toFixed(1)}ms`)
   }
 
-  logger[logLevel](strings.join(' '))
+  const message = strings.join(' ')
+
+  /* v8 ignore next */
+  if (process.env.NODE_ENV !== 'test') logger[logLevel](message)
 }
 
 export default function logRequest(ctx: HttpContext, startTime?: bigint) {
-  if (process.env.NODE_ENV === 'test') return
-
   const { logger, request, response } = ctx
   const res = response.response
   const url = request.url()
@@ -40,4 +42,3 @@ export default function logRequest(ctx: HttpContext, startTime?: bigint) {
     log(logger, url, method, res.statusCode, startTime)
   })
 }
-/* v8 ignore end */
