@@ -6,7 +6,7 @@ import onFinised from 'on-finished'
 const getLogLevel = (statusCode: number) => {
   if (statusCode < 400) return 'info'
   if (statusCode >= 400 && statusCode < 500) return 'warn'
-  
+
   return 'error'
 }
 /* v8 ignore end */
