@@ -25,11 +25,13 @@
       "notFound": {
         "title": "Not found",
         "heading": "Page not found",
-        "description": "This page does not exist"
+        "description": "This page does not exist",
+        "requestId": "Request id: {requestId}"
       },
       "serverError": {
         "title": "Server Error",
-        "heading": "Internal server error"
+        "heading": "Internal server error",
+        "requestId": "Request id: {requestId}"
       }
     },
     "session": {
