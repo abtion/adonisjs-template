@@ -1,8 +1,9 @@
 import app from '@adonisjs/core/services/app'
-import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
+import { HttpContext, ExceptionHandler, errors } from '@adonisjs/core/http'
 import type { StatusPageRange, StatusPageRenderer } from '@adonisjs/core/types/http'
 import { errors as bouncerErrors } from '@adonisjs/bouncer'
 import logRequest from '#utils/log_request'
+import * as Kysely from 'kysely'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -46,6 +47,10 @@ export default class HttpExceptionHandler extends ExceptionHandler {
         ctx.response.status(error.status).send(error.message)
       }
       return
+    }
+
+    if (error instanceof Kysely.NoResultError) {
+      error = new errors.E_HTTP_EXCEPTION('Not found', { status: 404 })
     }
 
     return super.handle(error, ctx)
