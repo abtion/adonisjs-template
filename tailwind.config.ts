@@ -1,6 +1,6 @@
 import type { Config } from 'tailwindcss'
 
-import colors from './colors.json' assert { type: 'json' }
+import colors from './colors.json' with { type: 'json' }
 import { getTailwindColors } from '@abtion-oss/design-system-colors'
 import aspectRatioPlugin from '@tailwindcss/aspect-ratio'
 
