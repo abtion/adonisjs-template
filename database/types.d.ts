@@ -11,6 +11,16 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
+export interface AccessTokens {
+  createdAt: Timestamp;
+  expiresAt: Timestamp;
+  hash: string;
+  id: Generated<string>;
+  lastUsedAt: Timestamp | null;
+  updatedAt: Timestamp;
+  userId: number;
+}
+
 export interface Users {
   admin: Generated<boolean>;
   createdAt: Timestamp;
@@ -22,5 +32,6 @@ export interface Users {
 }
 
 export interface DB {
+  accessTokens: AccessTokens;
   users: Users;
 }

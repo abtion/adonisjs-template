@@ -1,4 +1,5 @@
 import { defineConfig } from '@adonisjs/auth'
+import { tokensGuard } from '@adonisjs/auth/access_tokens'
 import { sessionGuard } from '@adonisjs/auth/session'
 import type { InferAuthEvents, Authenticators } from '@adonisjs/auth/types'
 import { configProvider } from '@adonisjs/core'
@@ -13,6 +14,14 @@ const authConfig = defineConfig({
           '../app/auth_providers/session_user_provider.js'
         )
         return new SessionKyselyUserProvider()
+      }),
+    }),
+    api: tokensGuard({
+      provider: configProvider.create(async () => {
+        const { AccessTokenKyselyUserProvider } = await import(
+          '../app/auth_providers/access_token_user_provider.js'
+        )
+        return new AccessTokenKyselyUserProvider()
       }),
     }),
   },

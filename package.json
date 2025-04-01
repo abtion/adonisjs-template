@@ -78,7 +78,7 @@
   },
   "dependencies": {
     "@abtion-oss/design-system-colors": "^1.1.1",
-    "@adonisjs/auth": "^9.3.1",
+    "@adonisjs/auth": "^9.4.0",
     "@adonisjs/bouncer": "^3.1.5",
     "@adonisjs/core": "^6.17.1",
     "@adonisjs/cors": "^2.2.1",
