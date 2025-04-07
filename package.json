@@ -52,7 +52,7 @@
     "@types/pg": "^8.11.11",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
-    "@types/sinon": "^17.0.3",
+    "@types/sinon": "^17.0.4",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "c8": "^10.1.3",
