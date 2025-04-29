@@ -100,7 +100,7 @@
     "classnames": "^2.5.1",
     "edge.js": "^6.2.0",
     "i18next": "^24.2.3",
-    "kysely": "^0.27.5",
+    "kysely": "^0.28.2",
     "kysely-codegen": "^0.17.0",
     "luxon": "^3.5.0",
     "nock": "^14.0.0",
