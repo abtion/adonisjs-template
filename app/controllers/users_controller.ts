@@ -37,12 +37,12 @@ export default class UsersController {
     await bouncer.with(UserPolicy).authorize('create')
 
     const data = await request.validateUsing(createUserValidator)
+    if (data.password) data.password = await hash.make(data.password)
 
     await db()
       .insertInto('users')
       .values({
         ...data,
-        password: await hash.make(data.password),
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -98,6 +98,7 @@ export default class UsersController {
     await bouncer.with(UserPolicy).authorize('edit', user)
 
     const data = await request.validateUsing(updateUserValidator)
+    if (data.password) data.password = await hash.make(data.password)
 
     await db()
       .updateTable('users')
