@@ -1,6 +1,6 @@
 import { HttpContext } from '@adonisjs/core/http'
 import { Logger } from '@adonisjs/core/logger'
-import onFinised from 'on-finished'
+import onFinished from 'on-finished'
 
 /* v8 ignore start */
 const getLogLevel = (statusCode: number) => {
@@ -38,7 +38,7 @@ export default function logRequest(ctx: HttpContext, startTime?: bigint) {
   const url = request.url()
   const method = request.method()
 
-  onFinised(res, () => {
+  onFinished(res, () => {
     log(logger, url, method, res.statusCode, startTime)
   })
 }
