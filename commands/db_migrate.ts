@@ -86,10 +86,10 @@ export default class KyselyMigrate extends BaseCommand {
 
     await new kyselyCodegenCli().generate({
       url,
-      dialectName: 'postgres',
+      dialect: 'postgres',
       outFile: this.app.makePath('database', 'types.d.ts'),
       camelCase: true,
-      schemas: ['public'],
+      defaultSchemas: ['public'],
     })
     this.logger.success('Database types updated')
   }
