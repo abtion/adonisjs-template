@@ -55,6 +55,8 @@ test.group('Auth', (group) => {
 
     const page = await visit('/sign-in')
 
+    await page.pause()
+
     await expect(page).toHaveURL('/')
   })
 })
