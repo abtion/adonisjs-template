@@ -111,7 +111,7 @@
     "reflect-metadata": "^0.2.2",
     "sass-embedded": "^1.86.0",
     "ts-node-maintained": "^10.9.5",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "hotHook": {
     "boundaries": [
