@@ -80,7 +80,7 @@
     "@abtion-oss/design-system-colors": "^1.1.1",
     "@adonisjs/auth": "^9.4.0",
     "@adonisjs/bouncer": "^3.1.5",
-    "@adonisjs/core": "^6.17.1",
+    "@adonisjs/core": "^6.19.0",
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/i18n": "2.2.0",
     "@adonisjs/inertia": "^3.1.1",
