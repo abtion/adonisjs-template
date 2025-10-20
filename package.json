@@ -95,7 +95,7 @@
     "@swc/core": "^1.13.5",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@types/on-finished": "^2.3.5",
-    "@vinejs/vine": "^3.0.1",
+    "@vinejs/vine": "^4.0.0",
     "classnames": "^2.5.1",
     "edge.js": "^6.3.0",
     "i18next": "^25.5.2",
