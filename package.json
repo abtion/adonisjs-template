@@ -99,7 +99,7 @@
     "classnames": "^2.5.1",
     "edge.js": "^6.3.0",
     "i18next": "^25.5.2",
-    "kysely": "^0.28.2",
+    "kysely": "^0.28.8",
     "kysely-codegen": "^0.18.5",
     "luxon": "^3.7.2",
     "nock": "^14.0.10",
