@@ -46,7 +46,7 @@
     "@japa/browser-client": "^2.1.1",
     "@japa/plugin-adonisjs": "^4.0.0",
     "@japa/runner": "^4.4.0",
-    "@playwright/test": "^1.55.0",
+    "@playwright/test": "^1.56.1",
     "@types/color-string": "^1.5.5",
     "@types/luxon": "^3.7.1",
     "@types/node": "^24.3.1",
