@@ -9,6 +9,7 @@ import {
   parseRecoveryCodes,
 } from '#services/two_factor'
 import { getRpId, getOrigin, fromBase64Url } from '#services/webauthn_service'
+import { confirmSecurityValidator } from '#validators/profile_validator'
 import twoFactorAuth from '@nulix/adonis-2fa/services/main'
 import { db } from '#services/db'
 import { sql } from 'kysely'
@@ -50,13 +51,19 @@ export default class ProfileController {
 
   async confirmSecurity({ auth, request, session, response }: HttpContext) {
     const user = await loadUserWithTwoFactor(auth.user!.id)
-    const password = request.input('password') as string | undefined
-    const assertion = request.input('assertion') as AuthenticationResponseJSON | undefined
-    const expectedChallenge = session.get(SECURITY_CONFIRMATION_CHALLENGE_KEY) as string | undefined
+    const data = await request.validateUsing(confirmSecurityValidator)
+    const expectedChallengeValue = session.get(SECURITY_CONFIRMATION_CHALLENGE_KEY)
+    const expectedChallenge =
+      typeof expectedChallengeValue === 'string' ? expectedChallengeValue : undefined
+
+    // Ensure at least one authentication method is provided
+    if (!data.password && !data.assertion) {
+      return response.badRequest({ message: 'Password or passkey assertion required' })
+    }
 
     // Verify password
-    if (password) {
-      const isPasswordValid = await hash.verify(user.password, password)
+    if (data.password) {
+      const isPasswordValid = await hash.verify(user.password, data.password)
       if (!isPasswordValid) {
         return response.unauthorized({ message: 'Invalid password' })
       }
@@ -65,7 +72,9 @@ export default class ProfileController {
     }
 
     // Verify passkey
-    if (assertion && expectedChallenge) {
+    if (data.assertion && expectedChallenge) {
+      // Type is validated by confirmSecurityValidator
+      const assertion: AuthenticationResponseJSON = data.assertion as AuthenticationResponseJSON
       const credential = await db()
         .selectFrom('webauthnCredentials')
         .selectAll()
@@ -107,6 +116,11 @@ export default class ProfileController {
       markSecurityConfirmed(session)
       session.forget(SECURITY_CONFIRMATION_CHALLENGE_KEY)
       return response.ok({ confirmed: true })
+    }
+
+    // If assertion provided but no challenge in session
+    if (data.assertion && !expectedChallenge) {
+      return response.badRequest({ message: 'Security confirmation challenge not found' })
     }
 
     return response.badRequest({ message: 'Password or passkey assertion required' })
@@ -173,17 +187,21 @@ export default class ProfileController {
       })
     }
 
-    const credentialId = request.param('id')
-
-    if (!credentialId) {
+    const credentialIdParam = request.param('id')
+    if (!credentialIdParam) {
       return response.badRequest({ message: 'Credential ID is required' })
+    }
+
+    const credentialId = Number(credentialIdParam)
+    if (Number.isNaN(credentialId) || credentialId <= 0) {
+      return response.badRequest({ message: 'Invalid credential ID' })
     }
 
     // Verify the credential belongs to the user
     const credential = await db()
       .selectFrom('webauthnCredentials')
       .select(['id', 'userId'])
-      .where('id', '=', Number(credentialId))
+      .where('id', '=', credentialId)
       .where('userId', '=', user.id)
       .executeTakeFirst()
 
@@ -193,7 +211,7 @@ export default class ProfileController {
 
     await db()
       .deleteFrom('webauthnCredentials')
-      .where('id', '=', Number(credentialId))
+      .where('id', '=', credentialId)
       .where('userId', '=', user.id)
       .execute()
 
