@@ -88,7 +88,7 @@ export default function Passkeys({ initialPasskeys, hasPasskeys }: PasskeysProps
       await postJson('/2fa/webauthn/register/verify', { attestation })
       setStatus('Passkey registered successfully.')
       // Reload to get updated passkeys list
-      window.location.reload()
+      router.reload({ only: ['passkeys'] })
     })
 
   const removePasskey = (id: number) =>
