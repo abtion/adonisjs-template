@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { router } from '@inertiajs/react'
 import Button from '~/components/Button'
 import Input from '~/components/Input'
 import SecurityConfirmation from '~/components/SecurityConfirmation'
@@ -112,6 +113,8 @@ export default function TwoFactor({
       setEnabled(true)
       setSetupMode(false)
       setStatus('Two-factor authentication enabled successfully.')
+      // Reload to get updated server state (recovery codes count, etc.)
+      router.reload({ only: ['twoFactor'] })
     })
 
   const generateRecovery = () =>
@@ -120,6 +123,8 @@ export default function TwoFactor({
       setRecoveryCodes(data.recoveryCodes)
       setShowRecoveryCodes(true)
       setStatus('New recovery codes generated. Store them safely.')
+      // Reload to get updated recovery codes count from server
+      router.reload({ only: ['twoFactor'] })
     })
 
   const disableTotp = () =>
@@ -130,6 +135,8 @@ export default function TwoFactor({
       setSecret(null)
       setRecoveryCodes(null)
       setStatus('Two-factor authentication disabled.')
+      // Reload to get updated server state
+      router.reload({ only: ['twoFactor'] })
     })
 
   return (
