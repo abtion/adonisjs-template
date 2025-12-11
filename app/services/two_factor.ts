@@ -118,7 +118,7 @@ export async function getUserAuthInfo(email: string) {
   }
 }
 
-export const requiresTwoFactor = async (_userId: number, isTwoFactorEnabled: boolean) => {
+export const requiresTwoFactor = async (isTwoFactorEnabled: boolean) => {
   // Only OTP requires 2FA challenge - passkeys are handled separately
   return isTwoFactorEnabled
 }
