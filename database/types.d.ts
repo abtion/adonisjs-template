@@ -9,6 +9,18 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
 
+export type Json = JsonValue;
+
+export type JsonArray = JsonValue[];
+
+export type JsonObject = {
+  [x: string]: JsonValue | undefined;
+};
+
+export type JsonPrimitive = boolean | number | string | null;
+
+export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
+
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 export interface Users {
@@ -16,11 +28,29 @@ export interface Users {
   createdAt: Timestamp;
   email: string;
   id: Generated<number>;
+  isTwoFactorEnabled: Generated<boolean>;
   name: string;
   password: string;
+  twoFactorRecoveryCodes: Generated<Json>;
+  twoFactorSecret: Json | null;
   updatedAt: Timestamp;
+}
+
+export interface WebauthnCredentials {
+  backedUp: Generated<boolean>;
+  counter: Generated<number>;
+  createdAt: Generated<Timestamp>;
+  credentialId: string;
+  deviceType: string | null;
+  friendlyName: string | null;
+  id: Generated<number>;
+  publicKey: string;
+  transports: Generated<Json>;
+  updatedAt: Generated<Timestamp>;
+  userId: number;
 }
 
 export interface DB {
   users: Users;
+  webauthnCredentials: WebauthnCredentials;
 }
