@@ -10,10 +10,7 @@ import twoFactorAuth from '@nulix/adonis-2fa/services/main'
 import { db } from '#services/db'
 import { sql } from 'kysely'
 import hash from '@adonisjs/core/services/hash'
-import {
-  generateAuthenticationOptions,
-  verifyAuthenticationResponse,
-} from '@simplewebauthn/server'
+import { generateAuthenticationOptions, verifyAuthenticationResponse } from '@simplewebauthn/server'
 import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
 import env from '#start/env'
 

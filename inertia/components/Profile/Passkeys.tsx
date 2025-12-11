@@ -111,56 +111,59 @@ export default function Passkeys({ initialPasskeys, hasPasskeys }: PasskeysProps
       />
       <section className="rounded-md border border-neutral-300 p-4">
         <h2 className="mb-2 text-xl font-semibold">Passkeys</h2>
-      <p className="text-gray-600 mb-4 text-sm">
-        Use passkeys for passwordless sign-in. Works with Touch ID, Face ID, Windows Hello, or
-        security keys.
-      </p>
+        <p className="text-gray-600 mb-4 text-sm">
+          Use passkeys for passwordless sign-in. Works with Touch ID, Face ID, Windows Hello, or
+          security keys.
+        </p>
 
-      {passkeys.length === 0 ? (
-        <div>
-          <p className="text-gray-700 mb-4 text-sm">No passkeys registered.</p>
-          <Button onClick={registerPasskey} disabled={busy} variant="primary" size="md">
-            Register Passkey
-          </Button>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <ul className="space-y-2">
-            {passkeys.map((passkey) => (
-              <li key={passkey.id} className="flex items-center justify-between rounded border border-neutral-300 p-3">
-                <div>
-                  <p className="font-medium">{passkey.friendlyName || `Passkey ${passkey.id}`}</p>
-                  <p className="text-gray-500 text-sm">
-                    Registered: {new Date(passkey.createdAt).toLocaleDateString()}
-                    {passkey.lastUsed &&
-                      ` | Last Used: ${new Date(passkey.lastUsed).toLocaleDateString()}`}
-                  </p>
-                </div>
-                <Button
-                  onClick={() => removePasskey(passkey.id)}
-                  disabled={busy}
-                  variant="danger"
-                  size="sm"
+        {passkeys.length === 0 ? (
+          <div>
+            <p className="text-gray-700 mb-4 text-sm">No passkeys registered.</p>
+            <Button onClick={registerPasskey} disabled={busy} variant="primary" size="md">
+              Register Passkey
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <ul className="space-y-2">
+              {passkeys.map((passkey) => (
+                <li
+                  key={passkey.id}
+                  className="flex items-center justify-between rounded border border-neutral-300 p-3"
                 >
-                  Remove
-                </Button>
-              </li>
-            ))}
-          </ul>
-          <Button onClick={registerPasskey} disabled={busy} variant="secondary" size="md">
-            Register Another Passkey
-          </Button>
-        </div>
-      )}
+                  <div>
+                    <p className="font-medium">{passkey.friendlyName || `Passkey ${passkey.id}`}</p>
+                    <p className="text-gray-500 text-sm">
+                      Registered: {new Date(passkey.createdAt).toLocaleDateString()}
+                      {passkey.lastUsed &&
+                        ` | Last Used: ${new Date(passkey.lastUsed).toLocaleDateString()}`}
+                    </p>
+                  </div>
+                  <Button
+                    onClick={() => removePasskey(passkey.id)}
+                    disabled={busy}
+                    variant="danger"
+                    size="sm"
+                  >
+                    Remove
+                  </Button>
+                </li>
+              ))}
+            </ul>
+            <Button onClick={registerPasskey} disabled={busy} variant="secondary" size="md">
+              Register Another Passkey
+            </Button>
+          </div>
+        )}
 
-      {(status || error) && (
-        <div
-          className={`mt-4 rounded p-3 ${error ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}
-        >
-          {error || status}
-        </div>
-      )}
-    </section>
+        {(status || error) && (
+          <div
+            className={`mt-4 rounded p-3 ${error ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}
+          >
+            {error || status}
+          </div>
+        )}
+      </section>
     </>
   )
 }

@@ -170,9 +170,7 @@ export default function SecurityConfirmation({
           </div>
         )}
 
-        {error && (
-          <div className="bg-red-50 text-red-700 mt-4 rounded p-3 text-sm">{error}</div>
-        )}
+        {error && <div className="bg-red-50 text-red-700 mt-4 rounded p-3 text-sm">{error}</div>}
       </div>
     </div>
   )
