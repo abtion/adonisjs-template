@@ -17,6 +17,7 @@ import {
   loadUserWithTwoFactor,
   markTwoFactorPassed,
   isSecurityConfirmed,
+  parseTransports,
 } from '#services/two_factor'
 
 const fallbackOrigin = `http://${env.get('HOST', 'localhost')}:${env.get('PORT', 3333)}`
@@ -145,7 +146,7 @@ export default class WebauthnController {
       allowCredentials: credentials.map((credential) => ({
         id: credential.credentialId,
         type: 'public-key' as const,
-        transports: credential.transports as any,
+        transports: parseTransports(credential.transports),
       })),
     })
 
@@ -183,7 +184,7 @@ export default class WebauthnController {
         id: credential.credentialId,
         publicKey: fromBase64Url(credential.publicKey),
         counter: credential.counter,
-        transports: credential.transports as any,
+        transports: parseTransports(credential.transports),
       },
       requireUserVerification: true,
     })

@@ -10,6 +10,7 @@ import {
   requiresTwoFactor,
   getUserAuthInfo,
   resetSecurityConfirmation,
+  parseTransports,
 } from '#services/two_factor'
 import { generateAuthenticationOptions, verifyAuthenticationResponse } from '@simplewebauthn/server'
 import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
@@ -122,7 +123,7 @@ export default class SessionController {
       allowCredentials: credentials.map((credential) => ({
         id: credential.credentialId,
         type: 'public-key' as const,
-        transports: credential.transports as any,
+        transports: parseTransports(credential.transports),
       })),
     })
 
@@ -162,7 +163,7 @@ export default class SessionController {
         id: credential.credentialId,
         publicKey: fromBase64Url(credential.publicKey),
         counter: credential.counter,
-        transports: credential.transports as any,
+        transports: parseTransports(credential.transports),
       },
       requireUserVerification: true,
     })

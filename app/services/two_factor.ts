@@ -2,8 +2,43 @@ import { db } from '#services/db'
 import type { HttpContext } from '@adonisjs/core/http'
 import { Selectable } from 'kysely'
 import type { Users } from '#database/types'
+import type { AuthenticatorTransport } from '@simplewebauthn/types'
 
 type SessionStore = HttpContext['session']
+
+/**
+ * Valid AuthenticatorTransport values according to WebAuthn specification
+ */
+const VALID_TRANSPORTS: readonly AuthenticatorTransport[] = [
+  'usb',
+  'nfc',
+  'ble',
+  'hybrid',
+  'internal',
+] as const
+
+/**
+ * Type guard to check if a value is a valid AuthenticatorTransport
+ */
+function isValidTransport(value: unknown): value is AuthenticatorTransport {
+  return typeof value === 'string' && VALID_TRANSPORTS.includes(value as AuthenticatorTransport)
+}
+
+/**
+ * Safely parse and validate transports from database (JSONB) to AuthenticatorTransport[]
+ * Returns an empty array if the value is invalid, null, or undefined
+ */
+export function parseTransports(transports: unknown): AuthenticatorTransport[] {
+  if (!transports) {
+    return []
+  }
+
+  if (!Array.isArray(transports)) {
+    return []
+  }
+
+  return transports.filter(isValidTransport)
+}
 
 export const TWO_FACTOR_SESSION_KEY = 'twoFactorPassed'
 export const WEBAUTHN_REG_CHALLENGE_KEY = 'webauthnRegistrationChallenge'

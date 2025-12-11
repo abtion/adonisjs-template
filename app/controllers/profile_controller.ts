@@ -5,6 +5,7 @@ import {
   markSecurityConfirmed,
   isSecurityConfirmed,
   SECURITY_CONFIRMATION_CHALLENGE_KEY,
+  parseTransports,
 } from '#services/two_factor'
 import twoFactorAuth from '@nulix/adonis-2fa/services/main'
 import { db } from '#services/db'
@@ -102,7 +103,7 @@ export default class ProfileController {
           id: credential.credentialId,
           publicKey: fromBase64Url(credential.publicKey),
           counter: credential.counter,
-          transports: credential.transports as any,
+          transports: parseTransports(credential.transports),
         },
         requireUserVerification: true,
       })
@@ -142,7 +143,7 @@ export default class ProfileController {
       allowCredentials: credentials.map((credential) => ({
         id: credential.credentialId,
         type: 'public-key' as const,
-        transports: credential.transports as any,
+        transports: parseTransports(credential.transports),
       })),
     })
 
