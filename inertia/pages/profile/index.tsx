@@ -28,11 +28,12 @@ export default function ProfilePage({
           </p>
         </div>
 
-        <Passkeys initialPasskeys={passkeys || []} />
+        <Passkeys initialPasskeys={passkeys || []} hasPasskeys={twoFactor.hasWebauthn} />
 
         <TwoFactor
           initialEnabled={twoFactor.enabled}
           recoveryCodesCount={twoFactor.recoveryCodesCount}
+          hasPasskeys={twoFactor.hasWebauthn}
         />
       </div>
     </MainLayout>

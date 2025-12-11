@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { startRegistration } from '@simplewebauthn/browser'
 import Button from '~/components/Button'
+import SecurityConfirmation from '~/components/SecurityConfirmation'
 
 type Passkey = {
   id: number
@@ -11,6 +12,7 @@ type Passkey = {
 
 type PasskeysProps = {
   initialPasskeys: Passkey[]
+  hasPasskeys: boolean
 }
 
 const getCsrfToken = () => {
@@ -42,11 +44,13 @@ async function postJson<T = any>(
   return data as T
 }
 
-export default function Passkeys({ initialPasskeys }: PasskeysProps) {
+export default function Passkeys({ initialPasskeys, hasPasskeys }: PasskeysProps) {
   const [passkeys, setPasskeys] = useState<Passkey[]>(initialPasskeys)
   const [status, setStatus] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [pendingAction, setPendingAction] = useState<(() => Promise<void>) | null>(null)
 
   const handle = async (fn: () => Promise<void>) => {
     setBusy(true)
@@ -55,9 +59,25 @@ export default function Passkeys({ initialPasskeys }: PasskeysProps) {
     try {
       await fn()
     } catch (err) {
-      setError((err as Error).message)
+      const errorMessage = (err as Error).message
+      // Check if error is about security confirmation
+      if (errorMessage.includes('Security confirmation required')) {
+        setError(null)
+        setPendingAction(() => fn)
+        setShowConfirmation(true)
+        setBusy(false)
+        return
+      }
+      setError(errorMessage)
     } finally {
       setBusy(false)
+    }
+  }
+
+  const handleConfirmed = () => {
+    if (pendingAction) {
+      pendingAction()
+      setPendingAction(null)
     }
   }
 
@@ -79,8 +99,18 @@ export default function Passkeys({ initialPasskeys }: PasskeysProps) {
     })
 
   return (
-    <section className="rounded-md border border-neutral-300 p-4">
-      <h2 className="mb-2 text-xl font-semibold">Passkeys</h2>
+    <>
+      <SecurityConfirmation
+        isOpen={showConfirmation}
+        onClose={() => {
+          setShowConfirmation(false)
+          setPendingAction(null)
+        }}
+        onConfirmed={handleConfirmed}
+        hasPasskeys={hasPasskeys}
+      />
+      <section className="rounded-md border border-neutral-300 p-4">
+        <h2 className="mb-2 text-xl font-semibold">Passkeys</h2>
       <p className="text-gray-600 mb-4 text-sm">
         Use passkeys for passwordless sign-in. Works with Touch ID, Face ID, Windows Hello, or
         security keys.
@@ -131,5 +161,6 @@ export default function Passkeys({ initialPasskeys }: PasskeysProps) {
         </div>
       )}
     </section>
+    </>
   )
 }

@@ -7,6 +7,7 @@ import {
   loadUserWithTwoFactor,
   markTwoFactorPassed,
   resetTwoFactorSession,
+  isSecurityConfirmed,
 } from '#services/two_factor'
 import { verifyOtpValidator } from '#validators/verify_otp'
 import { sql } from 'kysely'
@@ -45,6 +46,12 @@ export default class TwoFactorController {
 
   async generate({ auth, response, session }: HttpContext) {
     const user = await loadUserWithTwoFactor(auth.user!.id)
+
+    if (!isSecurityConfirmed(session)) {
+      return response.unauthorized({
+        message: 'Security confirmation required to modify 2FA settings',
+      })
+    }
 
     if (user.isTwoFactorEnabled && !isTwoFactorPassed(session)) {
       return response.unauthorized({
@@ -113,6 +120,12 @@ export default class TwoFactorController {
       return response.badRequest({ message: 'User without 2FA active' })
     }
 
+    if (!isSecurityConfirmed(session)) {
+      return response.unauthorized({
+        message: 'Security confirmation required to modify 2FA settings',
+      })
+    }
+
     if (!isTwoFactorPassed(session)) {
       return response.unauthorized({
         message: 'Two-factor authentication required to rotate recovery codes',
@@ -135,6 +148,12 @@ export default class TwoFactorController {
 
     if (!user.isTwoFactorEnabled) {
       return response.badRequest({ message: 'User without 2FA active' })
+    }
+
+    if (!isSecurityConfirmed(session)) {
+      return response.unauthorized({
+        message: 'Security confirmation required to modify 2FA settings',
+      })
     }
 
     if (!isTwoFactorPassed(session)) {

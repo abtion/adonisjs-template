@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import Button from '~/components/Button'
 import Input from '~/components/Input'
+import SecurityConfirmation from '~/components/SecurityConfirmation'
 
 type TwoFactorSecret = { secret: string; uri: string; qr: string }
 
 type TwoFactorProps = {
   initialEnabled: boolean
   recoveryCodesCount: number
+  hasPasskeys: boolean
 }
 
 const getCsrfToken = () => {
@@ -47,7 +49,11 @@ const downloadRecoveryCodes = (codes: string[]) => {
   URL.revokeObjectURL(url)
 }
 
-export default function TwoFactor({ initialEnabled, recoveryCodesCount }: TwoFactorProps) {
+export default function TwoFactor({
+  initialEnabled,
+  recoveryCodesCount,
+  hasPasskeys,
+}: TwoFactorProps) {
   const [enabled, setEnabled] = useState(initialEnabled)
   const [setupMode, setSetupMode] = useState(false)
   const [secret, setSecret] = useState<TwoFactorSecret | null>(null)
@@ -57,6 +63,8 @@ export default function TwoFactor({ initialEnabled, recoveryCodesCount }: TwoFac
   const [status, setStatus] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [pendingAction, setPendingAction] = useState<(() => Promise<void>) | null>(null)
 
   const handle = async (fn: () => Promise<void>) => {
     setBusy(true)
@@ -65,9 +73,25 @@ export default function TwoFactor({ initialEnabled, recoveryCodesCount }: TwoFac
     try {
       await fn()
     } catch (err) {
-      setError((err as Error).message)
+      const errorMessage = (err as Error).message
+      // Check if error is about security confirmation
+      if (errorMessage.includes('Security confirmation required')) {
+        setError(null)
+        setPendingAction(() => fn)
+        setShowConfirmation(true)
+        setBusy(false)
+        return
+      }
+      setError(errorMessage)
     } finally {
       setBusy(false)
+    }
+  }
+
+  const handleConfirmed = () => {
+    if (pendingAction) {
+      pendingAction()
+      setPendingAction(null)
     }
   }
 
@@ -109,8 +133,18 @@ export default function TwoFactor({ initialEnabled, recoveryCodesCount }: TwoFac
     })
 
   return (
-    <section className="mb-10 rounded-md border border-neutral-300 p-4">
-      <h2 className="mb-2 text-xl font-semibold">Two-Factor Authentication (OTP)</h2>
+    <>
+      <SecurityConfirmation
+        isOpen={showConfirmation}
+        onClose={() => {
+          setShowConfirmation(false)
+          setPendingAction(null)
+        }}
+        onConfirmed={handleConfirmed}
+        hasPasskeys={hasPasskeys}
+      />
+      <section className="mb-10 rounded-md border border-neutral-300 p-4">
+        <h2 className="mb-2 text-xl font-semibold">Two-Factor Authentication (OTP)</h2>
       <p className="text-gray-600 mb-4 text-sm">
         Use an authenticator app to generate one-time codes for an extra layer of security.
       </p>
@@ -250,5 +284,6 @@ export default function TwoFactor({ initialEnabled, recoveryCodesCount }: TwoFac
         </div>
       )}
     </section>
+    </>
   )
 }

@@ -37,6 +37,12 @@ router
 router.delete('session', [SessionController, 'destroy']).use(middleware.auth())
 
 router.get('profile', [ProfileController, 'show']).use(middleware.auth())
+router
+  .post('profile/confirm-security/options', [ProfileController, 'confirmSecurityOptions'])
+  .use(middleware.auth())
+router
+  .post('profile/confirm-security', [ProfileController, 'confirmSecurity'])
+  .use(middleware.auth())
 router.post('profile/enable-mfa', [ProfileController, 'enable']).use(middleware.auth())
 router.delete('profile/passkeys/:id', [ProfileController, 'removePasskey']).use(middleware.auth())
 

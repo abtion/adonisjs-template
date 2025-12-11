@@ -16,6 +16,7 @@ import {
   isTwoFactorPassed,
   loadUserWithTwoFactor,
   markTwoFactorPassed,
+  isSecurityConfirmed,
 } from '#services/two_factor'
 
 const fallbackOrigin = `http://${env.get('HOST', 'localhost')}:${env.get('PORT', 3333)}`
@@ -30,6 +31,12 @@ const toBase64Url = (value: Uint8Array | Uint8Array<ArrayBuffer> | ArrayBuffer |
 export default class WebauthnController {
   async registerOptions({ auth, session, response }: HttpContext) {
     const user = await loadUserWithTwoFactor(auth.user!.id)
+
+    if (!isSecurityConfirmed(session)) {
+      return response.unauthorized({
+        message: 'Security confirmation required to add passkeys',
+      })
+    }
 
     if (user.isTwoFactorEnabled && !isTwoFactorPassed(session)) {
       return response.unauthorized({
@@ -66,6 +73,13 @@ export default class WebauthnController {
 
   async verifyRegistration({ auth, request, session, response }: HttpContext) {
     const user = await loadUserWithTwoFactor(auth.user!.id)
+
+    if (!isSecurityConfirmed(session)) {
+      return response.unauthorized({
+        message: 'Security confirmation required to add passkeys',
+      })
+    }
+
     const attestation = request.input('attestation') as RegistrationResponseJSON | undefined
     const friendlyName = request.input('friendlyName') as string | undefined
     const expectedChallenge = session.get(WEBAUTHN_REG_CHALLENGE_KEY) as string | undefined

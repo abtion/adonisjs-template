@@ -8,6 +8,8 @@ type SessionStore = HttpContext['session']
 export const TWO_FACTOR_SESSION_KEY = 'twoFactorPassed'
 export const WEBAUTHN_REG_CHALLENGE_KEY = 'webauthnRegistrationChallenge'
 export const WEBAUTHN_AUTH_CHALLENGE_KEY = 'webauthnAuthenticationChallenge'
+export const SECURITY_CONFIRMATION_KEY = 'securityConfirmation'
+export const SECURITY_CONFIRMATION_CHALLENGE_KEY = 'securityConfirmationChallenge'
 
 export const markTwoFactorPassed = (session: SessionStore) => {
   session.put(TWO_FACTOR_SESSION_KEY, true)
@@ -21,6 +23,19 @@ export const resetTwoFactorSession = (session: SessionStore) => {
   session.forget(TWO_FACTOR_SESSION_KEY)
   session.forget(WEBAUTHN_REG_CHALLENGE_KEY)
   session.forget(WEBAUTHN_AUTH_CHALLENGE_KEY)
+}
+
+export const markSecurityConfirmed = (session: SessionStore) => {
+  session.put(SECURITY_CONFIRMATION_KEY, true)
+}
+
+export const isSecurityConfirmed = (session: SessionStore) => {
+  return session.get(SECURITY_CONFIRMATION_KEY, false)
+}
+
+export const resetSecurityConfirmation = (session: SessionStore) => {
+  session.forget(SECURITY_CONFIRMATION_KEY)
+  session.forget(SECURITY_CONFIRMATION_CHALLENGE_KEY)
 }
 
 export async function loadUserWithTwoFactor(userId: number): Promise<Selectable<Users>> {

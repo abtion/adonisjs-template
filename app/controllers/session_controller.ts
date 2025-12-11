@@ -9,6 +9,7 @@ import {
   resetTwoFactorSession,
   requiresTwoFactor,
   getUserAuthInfo,
+  resetSecurityConfirmation,
 } from '#services/two_factor'
 import { generateAuthenticationOptions, verifyAuthenticationResponse } from '@simplewebauthn/server'
 import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
@@ -207,6 +208,7 @@ export default class SessionController {
   async destroy({ response, auth, session }: HttpContext) {
     await auth.use('web').logout()
     resetTwoFactorSession(session)
+    resetSecurityConfirmation(session)
     return response.redirect('/')
   }
 }
