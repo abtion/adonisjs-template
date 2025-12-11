@@ -97,17 +97,6 @@ export async function userHasWebauthnCredentials(userId: number): Promise<boolea
   return Boolean(credential)
 }
 
-export async function userHasWebauthnCredentialsByEmail(email: string): Promise<boolean> {
-  const credential = await db()
-    .selectFrom('webauthnCredentials')
-    .innerJoin('users', 'users.id', 'webauthnCredentials.userId')
-    .select(['webauthnCredentials.id'])
-    .where('users.email', '=', email)
-    .executeTakeFirst()
-
-  return Boolean(credential)
-}
-
 export async function getUserAuthInfo(email: string) {
   const user = await db()
     .selectFrom('users')
