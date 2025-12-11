@@ -70,7 +70,7 @@ export default class SessionController {
 
     await auth.use('web').login(verifiedUser)
 
-    const needsTwoFactor = await requiresTwoFactor(verifiedUser.id, verifiedUser.isTwoFactorEnabled)
+    const needsTwoFactor = await requiresTwoFactor(verifiedUser.isTwoFactorEnabled)
 
     if (needsTwoFactor) {
       session.put('twoFactorPassed', false)
