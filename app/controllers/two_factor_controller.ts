@@ -8,21 +8,10 @@ import {
   markTwoFactorPassed,
   resetTwoFactorSession,
   isSecurityConfirmed,
+  parseRecoveryCodes,
 } from '#services/two_factor'
 import { verifyOtpValidator } from '#validators/verify_otp'
 import { sql } from 'kysely'
-
-const parseRecoveryCodes = (codes: unknown): string[] => {
-  if (Array.isArray(codes)) return codes as string[]
-  if (typeof codes === 'string') {
-    try {
-      return JSON.parse(codes)
-    } catch {
-      return []
-    }
-  }
-  return []
-}
 
 export default class TwoFactorController {
   async challenge({ auth, session, inertia, response }: HttpContext) {

@@ -9,7 +9,6 @@ import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simp
 
 import { db } from '#services/db'
 import { sql } from 'kysely'
-import env from '#start/env'
 import {
   WEBAUTHN_AUTH_CHALLENGE_KEY,
   WEBAUTHN_REG_CHALLENGE_KEY,
@@ -19,15 +18,13 @@ import {
   isSecurityConfirmed,
   parseTransports,
 } from '#services/two_factor'
-
-const fallbackOrigin = `http://${env.get('HOST', 'localhost')}:${env.get('PORT', 3333)}`
-const rpId = env.get('WEBAUTHN_RP_ID', new URL(env.get('WEBAUTHN_ORIGIN', fallbackOrigin)).hostname)
-const origin = env.get('WEBAUTHN_ORIGIN', fallbackOrigin)
-const rpName = env.get('WEBAUTHN_RP_NAME', env.get('APP_ISSUER', 'Adonis'))
-
-const fromBase64Url = (value: string) => Buffer.from(value, 'base64url')
-const toBase64Url = (value: Uint8Array | Uint8Array<ArrayBuffer> | ArrayBuffer | Buffer) =>
-  Buffer.from(value instanceof ArrayBuffer ? new Uint8Array(value) : value).toString('base64url')
+import {
+  getRpId,
+  getOrigin,
+  getRpName,
+  fromBase64Url,
+  toBase64Url,
+} from '#services/webauthn_service'
 
 export default class WebauthnController {
   async registerOptions({ auth, session, response }: HttpContext) {
@@ -52,8 +49,8 @@ export default class WebauthnController {
       .execute()
 
     const options = await generateRegistrationOptions({
-      rpName,
-      rpID: rpId,
+      rpName: getRpName(),
+      rpID: getRpId(),
       userID: Buffer.from(String(user.id)),
       userName: user.email,
       userDisplayName: user.name,
@@ -92,8 +89,8 @@ export default class WebauthnController {
     const verification = await verifyRegistrationResponse({
       response: attestation,
       expectedChallenge,
-      expectedOrigin: origin,
-      expectedRPID: rpId,
+      expectedOrigin: getOrigin(),
+      expectedRPID: getRpId(),
       requireUserVerification: true,
     })
 
@@ -141,7 +138,7 @@ export default class WebauthnController {
     }
 
     const options = await generateAuthenticationOptions({
-      rpID: rpId,
+      rpID: getRpId(),
       userVerification: 'preferred',
       allowCredentials: credentials.map((credential) => ({
         id: credential.credentialId,
@@ -178,8 +175,8 @@ export default class WebauthnController {
     const verification = await verifyAuthenticationResponse({
       response: assertion,
       expectedChallenge,
-      expectedOrigin: origin,
-      expectedRPID: rpId,
+      expectedOrigin: getOrigin(),
+      expectedRPID: getRpId(),
       credential: {
         id: credential.credentialId,
         publicKey: fromBase64Url(credential.publicKey),

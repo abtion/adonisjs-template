@@ -6,32 +6,15 @@ import {
   isSecurityConfirmed,
   SECURITY_CONFIRMATION_CHALLENGE_KEY,
   parseTransports,
+  parseRecoveryCodes,
 } from '#services/two_factor'
+import { getRpId, getOrigin, fromBase64Url } from '#services/webauthn_service'
 import twoFactorAuth from '@nulix/adonis-2fa/services/main'
 import { db } from '#services/db'
 import { sql } from 'kysely'
 import hash from '@adonisjs/core/services/hash'
 import { generateAuthenticationOptions, verifyAuthenticationResponse } from '@simplewebauthn/server'
 import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
-import env from '#start/env'
-
-const fallbackOrigin = `http://${env.get('HOST', 'localhost')}:${env.get('PORT', 3333)}`
-const rpId = env.get('WEBAUTHN_RP_ID', new URL(env.get('WEBAUTHN_ORIGIN', fallbackOrigin)).hostname)
-const origin = env.get('WEBAUTHN_ORIGIN', fallbackOrigin)
-
-const fromBase64Url = (value: string) => Buffer.from(value, 'base64url')
-
-const parseRecoveryCodes = (codes: unknown): string[] => {
-  if (Array.isArray(codes)) return codes as string[]
-  if (typeof codes === 'string') {
-    try {
-      return JSON.parse(codes)
-    } catch {
-      return []
-    }
-  }
-  return []
-}
 
 export default class ProfileController {
   async show({ auth, inertia }: HttpContext) {
@@ -97,8 +80,8 @@ export default class ProfileController {
       const verification = await verifyAuthenticationResponse({
         response: assertion,
         expectedChallenge,
-        expectedOrigin: origin,
-        expectedRPID: rpId,
+        expectedOrigin: getOrigin(),
+        expectedRPID: getRpId(),
         credential: {
           id: credential.credentialId,
           publicKey: fromBase64Url(credential.publicKey),
@@ -138,7 +121,7 @@ export default class ProfileController {
       .execute()
 
     const options = await generateAuthenticationOptions({
-      rpID: rpId,
+      rpID: getRpId(),
       userVerification: 'preferred',
       allowCredentials: credentials.map((credential) => ({
         id: credential.credentialId,

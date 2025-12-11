@@ -133,3 +133,19 @@ export const requiresTwoFactor = async (_userId: number, isTwoFactorEnabled: boo
   // Only OTP requires 2FA challenge - passkeys are handled separately
   return isTwoFactorEnabled
 }
+
+/**
+ * Parse recovery codes from database (JSONB) to string array
+ * Handles various formats: array, JSON string, or invalid values
+ */
+export function parseRecoveryCodes(codes: unknown): string[] {
+  if (Array.isArray(codes)) return codes as string[]
+  if (typeof codes === 'string') {
+    try {
+      return JSON.parse(codes)
+    } catch {
+      return []
+    }
+  }
+  return []
+}

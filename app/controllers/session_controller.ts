@@ -12,15 +12,9 @@ import {
   resetSecurityConfirmation,
   parseTransports,
 } from '#services/two_factor'
+import { getRpId, getOrigin, fromBase64Url } from '#services/webauthn_service'
 import { generateAuthenticationOptions, verifyAuthenticationResponse } from '@simplewebauthn/server'
 import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
-import env from '#start/env'
-
-const fallbackOrigin = `http://${env.get('HOST', 'localhost')}:${env.get('PORT', 3333)}`
-const rpId = env.get('WEBAUTHN_RP_ID', new URL(env.get('WEBAUTHN_ORIGIN', fallbackOrigin)).hostname)
-const origin = env.get('WEBAUTHN_ORIGIN', fallbackOrigin)
-
-const fromBase64Url = (value: string) => Buffer.from(value, 'base64url')
 
 export default class SessionController {
   /**
@@ -118,7 +112,7 @@ export default class SessionController {
     }
 
     const options = await generateAuthenticationOptions({
-      rpID: rpId,
+      rpID: getRpId(),
       userVerification: 'preferred',
       allowCredentials: credentials.map((credential) => ({
         id: credential.credentialId,
@@ -157,8 +151,8 @@ export default class SessionController {
     const verification = await verifyAuthenticationResponse({
       response: assertion,
       expectedChallenge,
-      expectedOrigin: origin,
-      expectedRPID: rpId,
+      expectedOrigin: getOrigin(),
+      expectedRPID: getRpId(),
       credential: {
         id: credential.credentialId,
         publicKey: fromBase64Url(credential.publicKey),
