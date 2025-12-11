@@ -57,6 +57,7 @@ test.group('Two factor authentication', (group) => {
     const response = await client
       .post('/2fa/webauthn/register/options')
       .loginAs(user)
+      .withSession({ securityConfirmation: true })
       .withCsrfToken()
 
     response.assertStatus(200)

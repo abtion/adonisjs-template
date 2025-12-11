@@ -15,7 +15,12 @@ test.group('Auth', (group) => {
     await page.getByRole('link', { name: 'components.nav.signIn' }).click()
     await expect(page.locator('h2', { hasText: 'pages.session.signIn.heading' })).toBeVisible()
 
+    // Fill email and submit to check for passkeys
     await page.getByLabel('fields.email').fill('admin@example.com')
+    await page.getByRole('button', { name: 'Continue' }).click()
+
+    // Wait for password field to appear (since user has no passkeys)
+    await expect(page.getByLabel('fields.password')).toBeVisible()
     await page.getByLabel('fields.password').fill('secret-password')
     await page.getByRole('button', { name: 'pages.session.signIn.signIn' }).click()
     await expect(page.getByText('components.nav.signOut')).toBeVisible()
@@ -29,17 +34,24 @@ test.group('Auth', (group) => {
 
     const page = await visit('/sign-in')
 
-    // First attempt to log in without filling in the fields
+    // First attempt to log in without filling in the email field
+    await page.getByRole('button', { name: 'Continue' }).click()
+    // The check-email endpoint returns an error when email is empty
+    await expect(page.getByText('Email is required')).toBeVisible()
+
+    // Fill email and continue to show password field
+    await page.getByLabel('fields.email').fill('admin@example.com')
+    await page.getByRole('button', { name: 'Continue' }).click()
+
+    // Wait for password field to appear
+    await expect(page.getByLabel('fields.password')).toBeVisible()
+
+    // Try to submit without password
     await page.getByRole('button', { name: 'pages.session.signIn.signIn' }).click()
-    await expect(page.getByText('validation.required (field:"email")')).toBeVisible()
+    // Password validation error should appear
     await expect(page.getByText('validation.required (field:"password")')).toBeVisible()
 
-    // Then fill in invalid credentials
-    await page.getByLabel('fields.email').fill('incorrect@user.com')
-    await page.getByLabel('fields.password').fill('incorrect password')
-    await page.getByRole('button', { name: 'pages.session.signIn.signIn' }).click()
-
-    await page.getByLabel('fields.email').fill('admin@example.com')
+    // Try with wrong password
     await page.getByLabel('fields.password').fill('incorrect password')
     await page.getByRole('button', { name: 'pages.session.signIn.signIn' }).click()
 
