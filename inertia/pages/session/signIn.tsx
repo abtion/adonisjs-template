@@ -7,31 +7,7 @@ import Alert from '~/components/Alert'
 import Button from '~/components/Button'
 import Input from '~/components/Input'
 import SessionLayout from '~/layouts/session'
-
-const getCsrfToken = () => {
-  const match = document.cookie.match(new RegExp('(^| )XSRF-TOKEN=([^;]+)'))
-  return match ? decodeURIComponent(match[2]) : ''
-}
-
-async function postJson<T = any>(url: string, payload?: Record<string, unknown>) {
-  const csrf = getCsrfToken()
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-XSRF-TOKEN': csrf,
-    },
-    body: payload ? JSON.stringify(payload) : undefined,
-  })
-
-  const data = await res.json().catch(() => ({}))
-
-  if (!res.ok) {
-    throw new Error((data as any).message || 'Request failed')
-  }
-
-  return data as T
-}
+import { postJson, getCsrfToken } from '~/lib/api'
 
 export default function SignIn() {
   const { t } = useTranslation()

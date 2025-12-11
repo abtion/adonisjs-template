@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { startRegistration } from '@simplewebauthn/browser'
 import Button from '~/components/Button'
 import SecurityConfirmation from '~/components/SecurityConfirmation'
+import { postJson } from '~/lib/api'
 
 type Passkey = {
   id: number
@@ -13,35 +14,6 @@ type Passkey = {
 type PasskeysProps = {
   initialPasskeys: Passkey[]
   hasPasskeys: boolean
-}
-
-const getCsrfToken = () => {
-  const match = document.cookie.match(new RegExp('(^| )XSRF-TOKEN=([^;]+)'))
-  return match ? decodeURIComponent(match[2]) : ''
-}
-
-async function postJson<T = any>(
-  url: string,
-  payload?: Record<string, unknown>,
-  method: string = 'POST'
-) {
-  const csrf = getCsrfToken()
-  const res = await fetch(url, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      'X-XSRF-TOKEN': csrf,
-    },
-    body: payload ? JSON.stringify(payload) : undefined,
-  })
-
-  const data = await res.json().catch(() => ({}))
-
-  if (!res.ok) {
-    throw new Error((data as any).message || 'Request failed')
-  }
-
-  return data as T
 }
 
 export default function Passkeys({ initialPasskeys, hasPasskeys }: PasskeysProps) {
