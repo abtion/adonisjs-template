@@ -5,7 +5,16 @@ import { symbols } from '@adonisjs/auth'
 import { SessionGuardUser, SessionUserProviderContract } from '@adonisjs/auth/types/session'
 import { db } from '#services/db'
 
-export type SessionUser = Pick<Selectable<Users>, 'id' | 'email' | 'name' | 'admin'>
+export type SessionUser = Pick<
+  Selectable<Users>,
+  | 'id'
+  | 'email'
+  | 'name'
+  | 'admin'
+  | 'isTwoFactorEnabled'
+  | 'twoFactorSecret'
+  | 'twoFactorRecoveryCodes'
+>
 
 export class SessionKyselyUserProvider implements SessionUserProviderContract<SessionUser> {
   declare [symbols.PROVIDER_REAL_USER]: SessionUser
@@ -24,7 +33,15 @@ export class SessionKyselyUserProvider implements SessionUserProviderContract<Se
   async findById(identifier: number): Promise<SessionGuardUser<SessionUser> | null> {
     const user = await db()
       .selectFrom('users')
-      .select(['id', 'email', 'name', 'admin'])
+      .select([
+        'id',
+        'email',
+        'name',
+        'admin',
+        'isTwoFactorEnabled',
+        'twoFactorSecret',
+        'twoFactorRecoveryCodes',
+      ])
       .where('id', '=', identifier)
       .executeTakeFirst()
 
