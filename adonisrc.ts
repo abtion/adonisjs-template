@@ -44,6 +44,7 @@ export default defineConfig({
     () => import('@adonisjs/bouncer/bouncer_provider'),
     () => import('@adonisjs/i18n/i18n_provider'),
     () => import('@adonisjs/mail/mail_provider'),
+    () => import('@nulix/adonis-2fa/two_factor_auth_provider'),
   ],
 
   /*
