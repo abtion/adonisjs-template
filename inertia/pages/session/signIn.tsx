@@ -73,12 +73,9 @@ export default function SignIn() {
         requiresOtp?: boolean
       }>('/sign-in/check-email', { email: data.email })
 
-      if (!info.exists) {
-        setPasskeyError('No account found with this email')
-        setCheckingEmail(false)
-        return
-      }
-
+      // Always proceed to password entry to prevent user enumeration
+      // Server always returns exists: true to prevent enumeration
+      // If account doesn't exist, authentication will fail with generic error on server side
       setAuthInfo({
         hasPasskeys: info.hasPasskeys || false,
         requiresOtp: info.requiresOtp || false,
@@ -89,12 +86,18 @@ export default function SignIn() {
       if (info.hasPasskeys) {
         await handlePasskey()
       } else {
-        // No passkeys, show password field
+        // No passkeys or account doesn't exist, show password field
+        // Server-side authentication will handle invalid credentials generically
         setShowPasswordFallback(true)
       }
     } catch (err) {
-      setPasskeyError((err as Error).message)
-      // On error, show password fallback
+      const errorMessage = (err as Error).message
+      // Show validation errors (like "Email is required") but proceed to password entry
+      // Don't reveal account existence errors to prevent enumeration
+      if (errorMessage.includes('Email is required') || errorMessage.includes('required')) {
+        setPasskeyError(errorMessage)
+      }
+      // Always show password fallback to allow authentication attempt
       setShowPasswordFallback(true)
     } finally {
       setCheckingEmail(false)
@@ -211,7 +214,7 @@ export default function SignIn() {
 
           {/* Show passkey status */}
           {passkeyBusy && !showPasswordFallback && (
-            <div className="mb-6 text-center text-sm text-gray-600">Waiting for passkey...</div>
+            <div className="text-gray-600 mb-6 text-center text-sm">Waiting for passkey...</div>
           )}
 
           {/* Error messages */}
@@ -252,7 +255,7 @@ export default function SignIn() {
               <button
                 type="button"
                 onClick={() => setShowPasswordFallback(true)}
-                className="text-sm text-primary-600 hover:text-primary-700 underline"
+                className="text-sm text-primary-600 underline hover:text-primary-700"
               >
                 Use password instead
               </button>

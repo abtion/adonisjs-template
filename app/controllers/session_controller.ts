@@ -33,6 +33,7 @@ export default class SessionController {
 
   /**
    * Check email and return auth info
+   * Always returns the same structure to prevent user enumeration attacks
    */
   async checkEmail({ request, response }: HttpContext) {
     const email = request.input('email') as string | undefined
@@ -43,14 +44,10 @@ export default class SessionController {
 
     const authInfo = await getUserAuthInfo(email)
 
-    if (!authInfo) {
-      return response.ok({ exists: false })
-    }
-
+    // Authentication will fail with generic error on server side if credentials are invalid
     return response.ok({
-      exists: true,
-      hasPasskeys: authInfo.hasPasskeys,
-      requiresOtp: authInfo.requiresOtp,
+      hasPasskeys: authInfo?.hasPasskeys || false,
+      requiresOtp: authInfo?.requiresOtp || false,
     })
   }
 
