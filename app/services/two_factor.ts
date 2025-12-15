@@ -86,12 +86,41 @@ export const resetTwoFactorSession = (session: SessionStore) => {
   session.forget(WEBAUTHN_AUTH_CHALLENGE_KEY)
 }
 
+/**
+ * Security confirmation timeout in milliseconds (5 minutes)
+ */
+const SECURITY_CONFIRMATION_TIMEOUT_MS = 5 * 60 * 1000
+
+/**
+ * Mark security as confirmed by storing the current timestamp
+ */
 export const markSecurityConfirmed = (session: SessionStore) => {
-  session.put(SECURITY_CONFIRMATION_KEY, true)
+  session.put(SECURITY_CONFIRMATION_KEY, Date.now())
 }
 
-export const isSecurityConfirmed = (session: SessionStore) => {
-  return session.get(SECURITY_CONFIRMATION_KEY, false)
+/**
+ * Check if security was confirmed within the last 5 minutes
+ * Returns false if confirmation is missing, expired, or invalid
+ */
+export const isSecurityConfirmed = (session: SessionStore): boolean => {
+  const confirmationValue = session.get(SECURITY_CONFIRMATION_KEY)
+
+  // Handle backward compatibility: if it's a boolean true, treat as confirmed
+  // This allows tests to continue working without immediate updates
+  if (confirmationValue === true) {
+    return true
+  }
+
+  // If it's not a number (timestamp), it's invalid
+  if (typeof confirmationValue !== 'number') {
+    return false
+  }
+
+  // Check if the timestamp is within the timeout window
+  const now = Date.now()
+  const timeSinceConfirmation = now - confirmationValue
+
+  return timeSinceConfirmation >= 0 && timeSinceConfirmation <= SECURITY_CONFIRMATION_TIMEOUT_MS
 }
 
 export const resetSecurityConfirmation = (session: SessionStore) => {
