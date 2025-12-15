@@ -1,5 +1,5 @@
 import { SharedProps } from '@adonisjs/inertia/types'
-import { Head, useForm, usePage } from '@inertiajs/react'
+import { Head, router, useForm, usePage } from '@inertiajs/react'
 import { ChangeEvent, FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { startAuthentication } from '@simplewebauthn/browser'
@@ -7,7 +7,7 @@ import Alert from '~/components/Alert'
 import Button from '~/components/Button'
 import Input from '~/components/Input'
 import SessionLayout from '~/layouts/session'
-import { postJson, getCsrfToken } from '~/lib/api'
+import { postJson } from '~/lib/api'
 
 export default function SignIn() {
   const { t } = useTranslation()
@@ -107,21 +107,23 @@ export default function SignIn() {
         email: data.email,
       })
       const assertion = await startAuthentication(options)
-      const res = await fetch('/passwordless/verify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getCsrfToken(),
-        },
-        body: JSON.stringify({ assertion }),
-        redirect: 'follow',
+      // Use Inertia router to maintain SPA flow
+      await new Promise<void>((resolve, reject) => {
+        router.post(
+          '/passwordless/verify',
+          { assertion: assertion as any },
+          {
+            onSuccess: () => {
+              // Inertia will automatically follow the redirect from the server
+              resolve()
+            },
+            onError: (errors) => {
+              const errorMessage = (errors as any).message || 'Authentication failed'
+              reject(new Error(errorMessage))
+            },
+          }
+        )
       })
-      if (res.ok || res.redirected) {
-        window.location.href = res.url || '/'
-      } else {
-        const data = await res.json().catch(() => ({}))
-        throw new Error((data as any).message || 'Authentication failed')
-      }
     } catch (err) {
       setPasskeyError((err as Error).message)
       setPasskeyBusy(false)
