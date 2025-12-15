@@ -7,6 +7,8 @@ import Alert from '~/components/Alert'
 import TwoFactorController from '#controllers/two_factor_controller'
 import { InferPageProps } from '@adonisjs/inertia/types'
 import { postJson } from '~/lib/api'
+import { router } from '@inertiajs/react'
+
 
 export default function TwoFactorChallenge({
   methods,
