@@ -1,10 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import {
-  generateAuthenticationOptions,
-  generateRegistrationOptions,
-  verifyAuthenticationResponse,
-  verifyRegistrationResponse,
-} from '@simplewebauthn/server'
+import { webauthnServer } from '#services/webauthn_server'
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/types'
 
 import { db } from '#services/db'
@@ -48,7 +43,7 @@ export default class WebauthnController {
       .where('webauthnCredentials.userId', '=', user.id)
       .execute()
 
-    const options = await generateRegistrationOptions({
+    const options = await webauthnServer.generateRegistrationOptions({
       rpName: getRpName(),
       rpID: getRpId(),
       userID: Buffer.from(String(user.id)),
@@ -86,7 +81,7 @@ export default class WebauthnController {
       return response.badRequest({ message: 'Missing registration payload' })
     }
 
-    const verification = await verifyRegistrationResponse({
+    const verification = await webauthnServer.verifyRegistrationResponse({
       response: attestation,
       expectedChallenge,
       expectedOrigin: getOrigin(),
@@ -137,7 +132,7 @@ export default class WebauthnController {
       return response.badRequest({ message: 'No security keys registered' })
     }
 
-    const options = await generateAuthenticationOptions({
+    const options = await webauthnServer.generateAuthenticationOptions({
       rpID: getRpId(),
       userVerification: 'preferred',
       allowCredentials: credentials.map((credential) => ({
@@ -172,7 +167,7 @@ export default class WebauthnController {
       return response.badRequest({ message: 'Credential not found' })
     }
 
-    const verification = await verifyAuthenticationResponse({
+    const verification = await webauthnServer.verifyAuthenticationResponse({
       response: assertion,
       expectedChallenge,
       expectedOrigin: getOrigin(),
