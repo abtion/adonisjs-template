@@ -379,6 +379,14 @@ test.group('Profile controller', (group) => {
       session: {
         get: (key: string) => (key === SECURITY_CONFIRMATION_KEY ? true : undefined),
       },
+      i18n: {
+        formatMessage: (key: string) => {
+          const messages: Record<string, string> = {
+            'errors.credentialIdRequired': 'Credential ID is required',
+          }
+          return messages[key] || key
+        },
+      },
     } as unknown as HttpContext
 
     await controller.removePasskey(ctx)

@@ -34,18 +34,18 @@ export default class TwoFactorController {
     })
   }
 
-  async generate({ auth, response, session }: HttpContext) {
+  async generate({ auth, response, session, i18n }: HttpContext) {
     const user = await loadUserWithTwoFactor(auth.user!.id)
 
     if (!isSecurityConfirmed(session)) {
       return response.unauthorized({
-        message: 'Security confirmation required to modify 2FA settings',
+        message: i18n.formatMessage('errors.securityConfirmationRequired'),
       })
     }
 
     if (user.isTwoFactorEnabled && !isTwoFactorPassed(session)) {
       return response.unauthorized({
-        message: 'Two-factor authentication required to modify settings',
+        message: i18n.formatMessage('errors.twoFactorRequiredModifySettings'),
       })
     }
 
@@ -65,7 +65,7 @@ export default class TwoFactorController {
     return response.ok({ secret, recoveryCodes })
   }
 
-  async verify({ auth, request, response, session }: HttpContext) {
+  async verify({ auth, request, response, session, i18n }: HttpContext) {
     const { otp } = await request.validateUsing(verifyOtpValidator)
 
     const user = await loadUserWithTwoFactor(auth.user!.id)
@@ -76,13 +76,15 @@ export default class TwoFactorController {
     const recoveryCodes = parseRecoveryCodes(user.twoFactorRecoveryCodes)
 
     if (!secret) {
-      return response.badRequest({ message: 'Two-factor secret not generated' })
+      return response.badRequest({
+        message: i18n.formatMessage('errors.twoFactorSecretNotGenerated'),
+      })
     }
 
     const isValid = twoFactorAuth.verifyToken(secret, otp, recoveryCodes)
 
     if (!isValid) {
-      return response.badRequest({ message: 'OTP invalid' })
+      return response.badRequest({ message: i18n.formatMessage('errors.otpInvalid') })
     }
 
     const updatedRecoveryCodes = recoveryCodes.filter((code) => code !== otp)
@@ -98,25 +100,25 @@ export default class TwoFactorController {
 
     markTwoFactorPassed(session)
 
-    return response.ok({ message: 'OTP valid' })
+    return response.ok({ message: i18n.formatMessage('errors.otpValid') })
   }
 
-  async generateRecoveryCodes({ auth, response, session }: HttpContext) {
+  async generateRecoveryCodes({ auth, response, session, i18n }: HttpContext) {
     const user = await loadUserWithTwoFactor(auth.user!.id)
 
     if (!user.isTwoFactorEnabled) {
-      return response.badRequest({ message: 'User without 2FA active' })
+      return response.badRequest({ message: i18n.formatMessage('errors.userWithout2FAActive') })
     }
 
     if (!isSecurityConfirmed(session)) {
       return response.unauthorized({
-        message: 'Security confirmation required to modify 2FA settings',
+        message: i18n.formatMessage('errors.securityConfirmationRequired'),
       })
     }
 
     if (!isTwoFactorPassed(session)) {
       return response.unauthorized({
-        message: 'Two-factor authentication required to rotate recovery codes',
+        message: i18n.formatMessage('errors.twoFactorRequiredRotateRecoveryCodes'),
       })
     }
 
@@ -131,21 +133,23 @@ export default class TwoFactorController {
     return { recoveryCodes }
   }
 
-  async disable({ auth, response, session }: HttpContext) {
+  async disable({ auth, response, session, i18n }: HttpContext) {
     const user = await loadUserWithTwoFactor(auth.user!.id)
 
     if (!user.isTwoFactorEnabled) {
-      return response.badRequest({ message: 'User without 2FA active' })
+      return response.badRequest({ message: i18n.formatMessage('errors.userWithout2FAActive') })
     }
 
     if (!isSecurityConfirmed(session)) {
       return response.unauthorized({
-        message: 'Security confirmation required to modify 2FA settings',
+        message: i18n.formatMessage('errors.securityConfirmationRequired'),
       })
     }
 
     if (!isTwoFactorPassed(session)) {
-      return response.unauthorized({ message: 'Two-factor authentication required to disable' })
+      return response.unauthorized({
+        message: i18n.formatMessage('errors.twoFactorRequiredDisable'),
+      })
     }
 
     await db()

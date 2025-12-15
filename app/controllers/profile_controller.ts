@@ -49,7 +49,7 @@ export default class ProfileController {
     })
   }
 
-  async confirmSecurity({ auth, request, session, response }: HttpContext) {
+  async confirmSecurity({ auth, request, session, response, i18n }: HttpContext) {
     const user = await loadUserWithTwoFactor(auth.user!.id)
     const data = await request.validateUsing(confirmSecurityValidator)
     const expectedChallengeValue = session.get(SECURITY_CONFIRMATION_CHALLENGE_KEY)
@@ -58,14 +58,16 @@ export default class ProfileController {
 
     // Ensure at least one authentication method is provided
     if (!data.password && !data.assertion) {
-      return response.badRequest({ message: 'Password or passkey assertion required' })
+      return response.badRequest({
+        message: i18n.formatMessage('errors.passwordOrPasskeyRequired'),
+      })
     }
 
     // Verify password
     if (data.password) {
       const isPasswordValid = await hash.verify(user.password, data.password)
       if (!isPasswordValid) {
-        return response.unauthorized({ message: 'Invalid password' })
+        return response.unauthorized({ message: i18n.formatMessage('errors.invalidPassword') })
       }
       markSecurityConfirmed(session)
       session.forget(SECURITY_CONFIRMATION_CHALLENGE_KEY)
@@ -84,7 +86,7 @@ export default class ProfileController {
         .executeTakeFirst()
 
       if (!credential) {
-        return response.badRequest({ message: 'Credential not found' })
+        return response.badRequest({ message: i18n.formatMessage('errors.credentialNotFound') })
       }
 
       const verification = await webauthnServer.verifyAuthenticationResponse({
@@ -102,7 +104,9 @@ export default class ProfileController {
       })
 
       if (!verification.verified || !verification.authenticationInfo) {
-        return response.badRequest({ message: 'Passkey verification failed' })
+        return response.badRequest({
+          message: i18n.formatMessage('errors.passkeyVerificationFailed'),
+        })
       }
 
       await db()
@@ -121,7 +125,9 @@ export default class ProfileController {
 
     // If assertion provided but no challenge in session
     if (data.assertion && !expectedChallenge) {
-      return response.badRequest({ message: 'Security confirmation challenge not found' })
+      return response.badRequest({
+        message: i18n.formatMessage('errors.securityConfirmationChallengeNotFound'),
+      })
     }
   }
 
@@ -148,17 +154,19 @@ export default class ProfileController {
     return response.ok({ options, hasPasskeys: credentials.length > 0 })
   }
 
-  async enable({ auth, response, session }: HttpContext) {
+  async enable({ auth, response, session, i18n }: HttpContext) {
     const user = await loadUserWithTwoFactor(auth.user!.id)
 
     if (!isSecurityConfirmed(session)) {
       return response.unauthorized({
-        message: 'Security confirmation required to modify 2FA settings',
+        message: i18n.formatMessage('errors.securityConfirmationRequired'),
       })
     }
 
     if (user.isTwoFactorEnabled) {
-      return response.badRequest({ message: 'Two-factor authentication is already enabled' })
+      return response.badRequest({
+        message: i18n.formatMessage('errors.twoFactorAlreadyEnabled'),
+      })
     }
 
     const secret = await twoFactorAuth.generateSecret(user.email)
@@ -177,23 +185,23 @@ export default class ProfileController {
     return response.ok({ secret, recoveryCodes })
   }
 
-  async removePasskey({ auth, request, response, session }: HttpContext) {
+  async removePasskey({ auth, request, response, session, i18n }: HttpContext) {
     const user = await loadUserWithTwoFactor(auth.user!.id)
 
     if (!isSecurityConfirmed(session)) {
       return response.unauthorized({
-        message: 'Security confirmation required to remove passkeys',
+        message: i18n.formatMessage('errors.securityConfirmationRequiredRemovePasskeys'),
       })
     }
 
     const credentialIdParam = request.param('id')
     if (!credentialIdParam) {
-      return response.badRequest({ message: 'Credential ID is required' })
+      return response.badRequest({ message: i18n.formatMessage('errors.credentialIdRequired') })
     }
 
     const credentialId = Number(credentialIdParam)
     if (!Number.isInteger(credentialId) || credentialId <= 0) {
-      return response.badRequest({ message: 'Invalid credential ID' })
+      return response.badRequest({ message: i18n.formatMessage('errors.invalidCredentialId') })
     }
 
     // Verify the credential belongs to the user
@@ -205,7 +213,7 @@ export default class ProfileController {
       .executeTakeFirst()
 
     if (!credential) {
-      return response.notFound({ message: 'Passkey not found' })
+      return response.notFound({ message: i18n.formatMessage('errors.passkeyNotFound') })
     }
 
     await db()
@@ -214,6 +222,6 @@ export default class ProfileController {
       .where('userId', '=', user.id)
       .execute()
 
-    return response.ok({ message: 'Passkey removed successfully' })
+    return response.ok({ message: i18n.formatMessage('errors.passkeyRemovedSuccessfully') })
   }
 }

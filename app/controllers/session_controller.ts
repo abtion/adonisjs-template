@@ -30,11 +30,11 @@ export default class SessionController {
    * Check email and return auth info
    * Always returns the same structure to prevent user enumeration attacks
    */
-  async checkEmail({ request, response }: HttpContext) {
+  async checkEmail({ request, response, i18n }: HttpContext) {
     const email = request.input('email') as string | undefined
 
     if (!email) {
-      return response.badRequest({ message: 'Email is required' })
+      return response.badRequest({ message: i18n.formatMessage('errors.emailRequired') })
     }
 
     const authInfo = await getUserAuthInfo(email)
@@ -84,11 +84,11 @@ export default class SessionController {
   /**
    * Passwordless WebAuthn authentication options for a specific email
    */
-  async passwordlessOptions({ request, session, response }: HttpContext) {
+  async passwordlessOptions({ request, session, response, i18n }: HttpContext) {
     const email = request.input('email') as string | undefined
 
     if (!email) {
-      return response.badRequest({ message: 'Email is required' })
+      return response.badRequest({ message: i18n.formatMessage('errors.emailRequired') })
     }
 
     const user = await db()
@@ -129,12 +129,14 @@ export default class SessionController {
   /**
    * Verify passwordless WebAuthn authentication and log in
    */
-  async passwordlessVerify({ request, response, auth, session }: HttpContext) {
+  async passwordlessVerify({ request, response, auth, session, i18n }: HttpContext) {
     const assertion = request.input('assertion') as AuthenticationResponseJSON | undefined
     const expectedChallenge = session.get('passwordlessChallenge') as string | undefined
 
     if (!assertion || !expectedChallenge) {
-      return response.badRequest({ message: 'Missing authentication payload' })
+      return response.badRequest({
+        message: i18n.formatMessage('errors.missingAuthenticationPayload'),
+      })
     }
 
     const credential = await db()
@@ -144,7 +146,7 @@ export default class SessionController {
       .executeTakeFirst()
 
     if (!credential) {
-      return response.badRequest({ message: 'Credential not found' })
+      return response.badRequest({ message: i18n.formatMessage('errors.credentialNotFound') })
     }
 
     const verification = await webauthnServer.verifyAuthenticationResponse({
@@ -162,7 +164,9 @@ export default class SessionController {
     })
 
     if (!verification.verified || !verification.authenticationInfo) {
-      return response.badRequest({ message: 'WebAuthn verification failed' })
+      return response.badRequest({
+        message: i18n.formatMessage('errors.webauthnVerificationFailed'),
+      })
     }
 
     await db()
@@ -181,7 +185,7 @@ export default class SessionController {
       .executeTakeFirst()
 
     /* v8 ignore next */
-    if (!user) return response.badRequest({ message: 'User not found' })
+    if (!user) return response.badRequest({ message: i18n.formatMessage('errors.userNotFound') })
 
     await auth.use('web').login(user)
 

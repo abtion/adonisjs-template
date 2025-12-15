@@ -22,18 +22,18 @@ import {
 } from '#services/webauthn_service'
 
 export default class WebauthnController {
-  async registerOptions({ auth, session, response }: HttpContext) {
+  async registerOptions({ auth, session, response, i18n }: HttpContext) {
     const user = await loadUserWithTwoFactor(auth.user!.id)
 
     if (!isSecurityConfirmed(session)) {
       return response.unauthorized({
-        message: 'Security confirmation required to add passkeys',
+        message: i18n.formatMessage('errors.securityConfirmationRequiredAddPasskeys'),
       })
     }
 
     if (user.isTwoFactorEnabled && !isTwoFactorPassed(session)) {
       return response.unauthorized({
-        message: 'Two-factor authentication required to add WebAuthn',
+        message: i18n.formatMessage('errors.twoFactorRequiredAddWebauthn'),
       })
     }
 
@@ -64,12 +64,12 @@ export default class WebauthnController {
     return { options }
   }
 
-  async verifyRegistration({ auth, request, session, response }: HttpContext) {
+  async verifyRegistration({ auth, request, session, response, i18n }: HttpContext) {
     const user = await loadUserWithTwoFactor(auth.user!.id)
 
     if (!isSecurityConfirmed(session)) {
       return response.unauthorized({
-        message: 'Security confirmation required to add passkeys',
+        message: i18n.formatMessage('errors.securityConfirmationRequiredAddPasskeys'),
       })
     }
 
@@ -78,7 +78,9 @@ export default class WebauthnController {
     const expectedChallenge = session.get(WEBAUTHN_REG_CHALLENGE_KEY) as string | undefined
 
     if (!attestation || !expectedChallenge) {
-      return response.badRequest({ message: 'Missing registration payload' })
+      return response.badRequest({
+        message: i18n.formatMessage('errors.missingRegistrationPayload'),
+      })
     }
 
     const verification = await webauthnServer.verifyRegistrationResponse({
@@ -90,7 +92,9 @@ export default class WebauthnController {
     })
 
     if (!verification.verified || !verification.registrationInfo) {
-      return response.badRequest({ message: 'WebAuthn verification failed' })
+      return response.badRequest({
+        message: i18n.formatMessage('errors.webauthnVerificationFailed'),
+      })
     }
 
     const { credential, credentialDeviceType, credentialBackedUp } = verification.registrationInfo
@@ -120,7 +124,7 @@ export default class WebauthnController {
     return response.ok({ verified: verification.verified })
   }
 
-  async authenticationOptions({ auth, session, response }: HttpContext) {
+  async authenticationOptions({ auth, session, response, i18n }: HttpContext) {
     const user = await loadUserWithTwoFactor(auth.user!.id)
     const credentials = await db()
       .selectFrom('webauthnCredentials')
@@ -129,7 +133,9 @@ export default class WebauthnController {
       .execute()
 
     if (!credentials.length) {
-      return response.badRequest({ message: 'No security keys registered' })
+      return response.badRequest({
+        message: i18n.formatMessage('errors.noSecurityKeysRegistered'),
+      })
     }
 
     const options = await webauthnServer.generateAuthenticationOptions({
@@ -147,13 +153,15 @@ export default class WebauthnController {
     return { options }
   }
 
-  async verifyAuthentication({ auth, request, session, response }: HttpContext) {
+  async verifyAuthentication({ auth, request, session, response, i18n }: HttpContext) {
     const user = await loadUserWithTwoFactor(auth.user!.id)
     const assertion = request.input('assertion') as AuthenticationResponseJSON | undefined
     const expectedChallenge = session.get(WEBAUTHN_AUTH_CHALLENGE_KEY) as string | undefined
 
     if (!assertion || !expectedChallenge) {
-      return response.badRequest({ message: 'Missing authentication payload' })
+      return response.badRequest({
+        message: i18n.formatMessage('errors.missingAuthenticationPayload'),
+      })
     }
 
     const credential = await db()
@@ -164,7 +172,7 @@ export default class WebauthnController {
       .executeTakeFirst()
 
     if (!credential) {
-      return response.badRequest({ message: 'Credential not found' })
+      return response.badRequest({ message: i18n.formatMessage('errors.credentialNotFound') })
     }
 
     const verification = await webauthnServer.verifyAuthenticationResponse({
@@ -182,7 +190,9 @@ export default class WebauthnController {
     })
 
     if (!verification.verified || !verification.authenticationInfo) {
-      return response.badRequest({ message: 'WebAuthn verification failed' })
+      return response.badRequest({
+        message: i18n.formatMessage('errors.webauthnVerificationFailed'),
+      })
     }
 
     await db()
