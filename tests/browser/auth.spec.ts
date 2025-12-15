@@ -73,8 +73,8 @@ test.group('Auth', (group) => {
 
     // Try to submit without password
     await page.getByRole('button', { name: 'pages.session.signIn.signIn' }).click()
-    // Password validation error should appear
-    await expect(page.getByText('validation.required (field:"password")')).toBeVisible()
+
+    await expect(page.getByText('Password is required')).toBeVisible()
 
     // Try with wrong password
     await page.getByLabel('fields.password').fill('incorrect password')
