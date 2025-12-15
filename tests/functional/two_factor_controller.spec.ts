@@ -62,10 +62,15 @@ test.group('TwoFactorController', (group) => {
     })
   })
 
-  test('generate returns secret and stores pending state', async ({ client, assert }) => {
+  test('generate returns secret and recovery codes and stores pending state', async ({
+    client,
+    assert,
+  }) => {
     const user = await createUser({ email: 'gen-success@example.com', isTwoFactorEnabled: false })
     const secret = { secret: 'SECRET', uri: 'otpauth://secret', qr: '' }
+    const recoveryCodes = ['RC1', 'RC2', 'RC3']
     sinon.stub(twoFactorAuth, 'generateSecret').resolves(secret as any)
+    sinon.stub(twoFactorAuth, 'generateRecoveryCodes').returns(recoveryCodes)
 
     const response = await client
       .post('/2fa/totp/generate')
@@ -74,7 +79,7 @@ test.group('TwoFactorController', (group) => {
       .withCsrfToken()
 
     response.assertStatus(200)
-    response.assertBodyContains({ secret })
+    response.assertBodyContains({ secret, recoveryCodes })
 
     const stored = await db()
       .selectFrom('users')
@@ -84,7 +89,7 @@ test.group('TwoFactorController', (group) => {
 
     assert.deepEqual(stored.twoFactorSecret, secret)
     assert.isFalse(stored.isTwoFactorEnabled)
-    assert.deepEqual(stored.twoFactorRecoveryCodes, [])
+    assert.deepEqual(stored.twoFactorRecoveryCodes, recoveryCodes)
   })
 
   test('verify fails when secret missing', async ({ client }) => {

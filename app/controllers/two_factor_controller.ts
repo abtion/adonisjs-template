@@ -50,18 +50,19 @@ export default class TwoFactorController {
     }
 
     const secret = await twoFactorAuth.generateSecret(user.email)
+    const recoveryCodes = twoFactorAuth.generateRecoveryCodes()
 
     await db()
       .updateTable('users')
       .set({
         twoFactorSecret: sql`cast(${JSON.stringify(secret)} as jsonb)`,
         isTwoFactorEnabled: false,
-        twoFactorRecoveryCodes: sql`cast('[]' as jsonb)`,
+        twoFactorRecoveryCodes: sql`cast(${JSON.stringify(recoveryCodes)} as jsonb)`,
       })
       .where('users.id', '=', user.id)
       .execute()
 
-    return response.ok({ secret })
+    return response.ok({ secret, recoveryCodes })
   }
 
   async verify({ auth, request, response, session }: HttpContext) {
