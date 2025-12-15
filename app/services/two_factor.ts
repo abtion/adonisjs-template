@@ -152,10 +152,15 @@ export const requiresTwoFactor = async (isTwoFactorEnabled: boolean) => {
  * Handles various formats: array, JSON string, or invalid values
  */
 export function parseRecoveryCodes(codes: unknown): string[] {
-  if (Array.isArray(codes)) return codes as string[]
+  if (Array.isArray(codes)) {
+    return codes.filter((code): code is string => typeof code === 'string')
+  }
   if (typeof codes === 'string') {
     try {
-      return JSON.parse(codes)
+      const parsed = JSON.parse(codes)
+      if (Array.isArray(parsed)) {
+        return parsed.filter((code): code is string => typeof code === 'string')
+      }
     } catch {
       return []
     }
