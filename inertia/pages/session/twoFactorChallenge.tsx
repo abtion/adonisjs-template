@@ -9,7 +9,6 @@ import { InferPageProps } from '@adonisjs/inertia/types'
 import { postJson } from '~/lib/api'
 import { router } from '@inertiajs/react'
 
-
 export default function TwoFactorChallenge({
   methods,
 }: InferPageProps<TwoFactorController, 'challenge'>) {
