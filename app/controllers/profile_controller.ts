@@ -192,7 +192,7 @@ export default class ProfileController {
     }
 
     const credentialId = Number(credentialIdParam)
-    if (Number.isNaN(credentialId) || credentialId <= 0) {
+    if (!Number.isInteger(credentialId) || credentialId <= 0) {
       return response.badRequest({ message: 'Invalid credential ID' })
     }
 
