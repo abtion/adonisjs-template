@@ -54,26 +54,45 @@ test.group('Session controller - passwordless', (group) => {
     response.assertBodyContains({ message: 'Email is required' })
   })
 
-  test('passwordlessOptions returns bad request when user missing', async ({ client }) => {
+  test('passwordlessOptions returns options when user missing (no enumeration)', async ({
+    client,
+    assert,
+  }) => {
+    const fakeOptions = { challenge: 'opt-missing', allowCredentials: [] }
+    sinon.stub(webauthnServer, 'generateAuthenticationOptions').resolves(fakeOptions as any)
+
     const response = await client
       .post('/passwordless/options')
       .withCsrfToken()
       .json({ email: 'missing@example.com' })
 
-    response.assertStatus(400)
-    response.assertBodyContains({ message: 'User not found' })
+    response.assertStatus(200)
+    response.assertBodyContains({ options: fakeOptions })
+    assert.deepEqual(response.body().options.allowCredentials, [])
+    sinon.assert.calledWithMatch(webauthnServer.generateAuthenticationOptions as any, {
+      allowCredentials: [],
+    })
   })
 
-  test('passwordlessOptions rejects when user has no passkeys', async ({ client }) => {
+  test('passwordlessOptions returns options when user has no passkeys', async ({
+    client,
+    assert,
+  }) => {
     const user = await createUser({ email: 'nopasskey@example.com' })
+    const fakeOptions = { challenge: 'opt-nopass', allowCredentials: [] }
+    sinon.stub(webauthnServer, 'generateAuthenticationOptions').resolves(fakeOptions as any)
 
     const response = await client
       .post('/passwordless/options')
       .withCsrfToken()
       .json({ email: user.email })
 
-    response.assertStatus(400)
-    response.assertBodyContains({ message: 'No passkeys registered for this user' })
+    response.assertStatus(200)
+    response.assertBodyContains({ options: fakeOptions })
+    assert.deepEqual(response.body().options.allowCredentials, [])
+    sinon.assert.calledWithMatch(webauthnServer.generateAuthenticationOptions as any, {
+      allowCredentials: [],
+    })
   })
 
   test('passwordlessOptions returns options and sets challenge', async ({ client, assert }) => {

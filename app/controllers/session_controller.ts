@@ -97,28 +97,27 @@ export default class SessionController {
       .where('users.email', '=', email)
       .executeTakeFirst()
 
-    if (!user) {
-      return response.badRequest({ message: 'User not found' })
-    }
+    const credentials =
+      user &&
+      (await db()
+        .selectFrom('webauthnCredentials')
+        .selectAll()
+        .where('webauthnCredentials.userId', '=', user.id)
+        .execute())
 
-    const credentials = await db()
-      .selectFrom('webauthnCredentials')
-      .selectAll()
-      .where('webauthnCredentials.userId', '=', user.id)
-      .execute()
-
-    if (!credentials.length) {
-      return response.badRequest({ message: 'No passkeys registered for this user' })
-    }
+    const allowCredentials =
+      credentials && credentials.length
+        ? credentials.map((credential) => ({
+            id: credential.credentialId,
+            type: 'public-key' as const,
+            transports: parseTransports(credential.transports),
+          }))
+        : []
 
     const options = await webauthnServer.generateAuthenticationOptions({
       rpID: getRpId(),
       userVerification: 'preferred',
-      allowCredentials: credentials.map((credential) => ({
-        id: credential.credentialId,
-        type: 'public-key' as const,
-        transports: parseTransports(credential.transports),
-      })),
+      allowCredentials,
     })
 
     session.put('passwordlessChallenge', options.challenge)
