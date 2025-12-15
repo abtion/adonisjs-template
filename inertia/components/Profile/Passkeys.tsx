@@ -34,7 +34,7 @@ export default function Passkeys({ initialPasskeys, hasPasskeys }: PasskeysProps
     } catch (err) {
       const errorMessage = (err as Error).message
       // Check if error is about security confirmation
-      if (errorMessage.includes('Security confirmation required')) {
+      if (err instanceof ApiError && err.status === 401) {
         setError(null)
         setPendingAction(() => fn)
         setShowConfirmation(true)
