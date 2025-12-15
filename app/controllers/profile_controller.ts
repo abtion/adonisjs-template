@@ -14,7 +14,7 @@ import twoFactorAuth from '@nulix/adonis-2fa/services/main'
 import { db } from '#services/db'
 import { sql } from 'kysely'
 import hash from '@adonisjs/core/services/hash'
-import { generateAuthenticationOptions, verifyAuthenticationResponse } from '@simplewebauthn/server'
+import { webauthnServer } from '#services/webauthn_server'
 import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
 
 export default class ProfileController {
@@ -86,7 +86,7 @@ export default class ProfileController {
         return response.badRequest({ message: 'Credential not found' })
       }
 
-      const verification = await verifyAuthenticationResponse({
+      const verification = await webauthnServer.verifyAuthenticationResponse({
         response: assertion,
         expectedChallenge,
         expectedOrigin: getOrigin(),
@@ -122,8 +122,6 @@ export default class ProfileController {
     if (data.assertion && !expectedChallenge) {
       return response.badRequest({ message: 'Security confirmation challenge not found' })
     }
-
-    return response.badRequest({ message: 'Password or passkey assertion required' })
   }
 
   async confirmSecurityOptions({ auth, session, response }: HttpContext) {
@@ -134,7 +132,7 @@ export default class ProfileController {
       .where('webauthnCredentials.userId', '=', user.id)
       .execute()
 
-    const options = await generateAuthenticationOptions({
+    const options = await webauthnServer.generateAuthenticationOptions({
       rpID: getRpId(),
       userVerification: 'preferred',
       allowCredentials: credentials.map((credential) => ({
