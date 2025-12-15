@@ -9,6 +9,7 @@ import {
   resetTwoFactorSession,
   isSecurityConfirmed,
   parseRecoveryCodes,
+  parseTwoFactorSecret,
 } from '#services/two_factor'
 import { verifyOtpValidator } from '#validators/verify_otp'
 import { sql } from 'kysely'
@@ -68,10 +69,7 @@ export default class TwoFactorController {
 
     const user = await loadUserWithTwoFactor(auth.user!.id)
 
-    const userSecret =
-      typeof user.twoFactorSecret === 'string'
-        ? JSON.parse(user.twoFactorSecret)
-        : user.twoFactorSecret
+    const userSecret = parseTwoFactorSecret(user.twoFactorSecret)
 
     const secret = userSecret?.secret
     const recoveryCodes = parseRecoveryCodes(user.twoFactorRecoveryCodes)

@@ -40,6 +40,30 @@ export function parseTransports(transports: unknown): AuthenticatorTransport[] {
   return transports.filter(isValidTransport)
 }
 
+export type TwoFactorSecret = {
+  secret?: string
+  uri?: string
+  qr?: string
+}
+
+function safeParseJson(value: string): unknown {
+  try {
+    return JSON.parse(value)
+  } catch {
+    return null
+  }
+}
+
+export function parseTwoFactorSecret(value: unknown): TwoFactorSecret | null {
+  const parsed = typeof value === 'string' ? safeParseJson(value) : value
+
+  if (parsed && typeof parsed === 'object') {
+    return parsed as TwoFactorSecret
+  }
+
+  return null
+}
+
 export const TWO_FACTOR_SESSION_KEY = 'twoFactorPassed'
 export const WEBAUTHN_REG_CHALLENGE_KEY = 'webauthnRegistrationChallenge'
 export const WEBAUTHN_AUTH_CHALLENGE_KEY = 'webauthnAuthenticationChallenge'
