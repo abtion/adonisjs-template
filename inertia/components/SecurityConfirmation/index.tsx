@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { startAuthentication } from '@simplewebauthn/browser'
 import Button from '~/components/Button'
 import Input from '~/components/Input'
-import { postJson, getCsrfToken } from '~/lib/api'
+import { postJson } from '~/lib/api'
 
 type SecurityConfirmationProps = {
   isOpen: boolean
