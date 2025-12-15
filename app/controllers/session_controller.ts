@@ -7,7 +7,6 @@ import type { HttpContext } from '@adonisjs/core/http'
 import {
   markTwoFactorPassed,
   resetTwoFactorSession,
-  requiresTwoFactor,
   getUserAuthInfo,
   resetSecurityConfirmation,
   parseTransports,
@@ -70,7 +69,7 @@ export default class SessionController {
 
     await auth.use('web').login(verifiedUser)
 
-    const needsTwoFactor = await requiresTwoFactor(verifiedUser.isTwoFactorEnabled)
+    const needsTwoFactor = verifiedUser.isTwoFactorEnabled
 
     if (needsTwoFactor) {
       session.put('twoFactorPassed', false)

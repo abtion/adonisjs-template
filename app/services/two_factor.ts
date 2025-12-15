@@ -167,11 +167,6 @@ export async function getUserAuthInfo(email: string) {
   }
 }
 
-export const requiresTwoFactor = async (isTwoFactorEnabled: boolean) => {
-  // Only OTP requires 2FA challenge - passkeys are handled separately
-  return isTwoFactorEnabled
-}
-
 /**
  * Parse recovery codes from database (JSONB) to string array
  * Handles various formats: array, JSON string, or invalid values
