@@ -97,22 +97,19 @@ export default class SessionController {
       .where('users.email', '=', email)
       .executeTakeFirst()
 
-    const credentials =
-      user &&
-      (await db()
-        .selectFrom('webauthnCredentials')
-        .selectAll()
-        .where('webauthnCredentials.userId', '=', user.id)
-        .execute())
+    const credentials = user
+      ? await db()
+          .selectFrom('webauthnCredentials')
+          .selectAll()
+          .where('webauthnCredentials.userId', '=', user.id)
+          .execute()
+      : []
 
-    const allowCredentials =
-      credentials && credentials.length
-        ? credentials.map((credential) => ({
-            id: credential.credentialId,
-            type: 'public-key' as const,
-            transports: parseTransports(credential.transports),
-          }))
-        : []
+    const allowCredentials = credentials.map((credential) => ({
+      id: credential.credentialId,
+      type: 'public-key' as const,
+      transports: parseTransports(credential.transports),
+    }))
 
     const options = await webauthnServer.generateAuthenticationOptions({
       rpID: getRpId(),
