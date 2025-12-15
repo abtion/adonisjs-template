@@ -187,7 +187,7 @@ export default class ProfileController {
       return response.badRequest({ message: i18n.formatMessage('errors.credentialIdRequired') })
     }
 
-    const credentialId = parseInt(credentialIdParam, 10)
+    const credentialId = Number.parseInt(credentialIdParam, 10)
     if (!Number.isInteger(credentialId) || credentialId <= 0) {
       return response.badRequest({ message: i18n.formatMessage('errors.invalidCredentialId') })
     }

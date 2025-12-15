@@ -5,6 +5,9 @@ import { createUser } from '#tests/support/factories/user'
 import twoFactorAuth from '@nulix/adonis-2fa/services/main'
 import { sql } from 'kysely'
 
+// Helper to create a valid security confirmation timestamp for tests
+const validSecurityConfirmation = () => Date.now()
+
 test.group('TwoFactorController', (group) => {
   group.each.setup(() => withGlobalTransaction())
   group.each.teardown(() => sinon.restore())
@@ -53,7 +56,7 @@ test.group('TwoFactorController', (group) => {
     const response = await client
       .post('/2fa/totp/generate')
       .loginAs(user)
-      .withSession({ securityConfirmation: true, twoFactorPassed: false })
+      .withSession({ securityConfirmation: validSecurityConfirmation(), twoFactorPassed: false })
       .withCsrfToken()
 
     response.assertStatus(401)
@@ -75,7 +78,7 @@ test.group('TwoFactorController', (group) => {
     const response = await client
       .post('/2fa/totp/generate')
       .loginAs(user)
-      .withSession({ securityConfirmation: true, twoFactorPassed: true })
+      .withSession({ securityConfirmation: validSecurityConfirmation(), twoFactorPassed: true })
       .withCsrfToken()
 
     response.assertStatus(200)
@@ -202,7 +205,7 @@ test.group('TwoFactorController', (group) => {
     const response = await client
       .post('/2fa/recovery-codes')
       .loginAs(user)
-      .withSession({ securityConfirmation: true, twoFactorPassed: true })
+      .withSession({ securityConfirmation: validSecurityConfirmation(), twoFactorPassed: true })
       .withCsrfToken()
 
     response.assertStatus(400)
@@ -227,7 +230,7 @@ test.group('TwoFactorController', (group) => {
     const noPass = await client
       .post('/2fa/recovery-codes')
       .loginAs(user)
-      .withSession({ securityConfirmation: true, twoFactorPassed: false })
+      .withSession({ securityConfirmation: validSecurityConfirmation(), twoFactorPassed: false })
       .withCsrfToken()
     noPass.assertStatus(401)
   })
@@ -243,7 +246,7 @@ test.group('TwoFactorController', (group) => {
     const response = await client
       .post('/2fa/recovery-codes')
       .loginAs(user)
-      .withSession({ securityConfirmation: true, twoFactorPassed: true })
+      .withSession({ securityConfirmation: validSecurityConfirmation(), twoFactorPassed: true })
       .withCsrfToken()
 
     response.assertStatus(200)
@@ -263,7 +266,7 @@ test.group('TwoFactorController', (group) => {
     const notEnabled = await client
       .post('/2fa/disable')
       .loginAs(user)
-      .withSession({ securityConfirmation: true, twoFactorPassed: true })
+      .withSession({ securityConfirmation: validSecurityConfirmation(), twoFactorPassed: true })
       .withCsrfToken()
     notEnabled.assertStatus(400)
 
@@ -282,7 +285,7 @@ test.group('TwoFactorController', (group) => {
     const noPass = await client
       .post('/2fa/disable')
       .loginAs(enabledUser)
-      .withSession({ securityConfirmation: true, twoFactorPassed: false })
+      .withSession({ securityConfirmation: validSecurityConfirmation(), twoFactorPassed: false })
       .withCsrfToken()
     noPass.assertStatus(401)
   })
@@ -298,7 +301,7 @@ test.group('TwoFactorController', (group) => {
     const response = await client
       .post('/2fa/disable')
       .loginAs(user)
-      .withSession({ securityConfirmation: true, twoFactorPassed: true })
+      .withSession({ securityConfirmation: validSecurityConfirmation(), twoFactorPassed: true })
       .withCsrfToken()
 
     response.assertStatus(204)

@@ -105,12 +105,6 @@ export const markSecurityConfirmed = (session: SessionStore) => {
 export const isSecurityConfirmed = (session: SessionStore): boolean => {
   const confirmationValue = session.get(SECURITY_CONFIRMATION_KEY)
 
-  // Handle backward compatibility: if it's a boolean true, treat as confirmed
-  // This allows tests to continue working without immediate updates
-  if (confirmationValue === true) {
-    return true
-  }
-
   // If it's not a number (timestamp), it's invalid
   if (typeof confirmationValue !== 'number') {
     return false

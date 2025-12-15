@@ -127,7 +127,7 @@ test.group('two_factor utils', (group) => {
     assert.isFalse(isSecurityConfirmed(session))
   })
 
-  test('isSecurityConfirmed maintains backward compatibility with boolean true', ({ assert }) => {
+  test('isSecurityConfirmed returns false for boolean true (no longer supported)', ({ assert }) => {
     const session = {
       data: {} as Record<string, any>,
       get(key: string) {
@@ -136,6 +136,6 @@ test.group('two_factor utils', (group) => {
     } as any
 
     session.data[SECURITY_CONFIRMATION_KEY] = true
-    assert.isTrue(isSecurityConfirmed(session))
+    assert.isFalse(isSecurityConfirmed(session))
   })
 })

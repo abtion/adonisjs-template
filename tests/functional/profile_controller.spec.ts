@@ -13,6 +13,9 @@ import type { WebauthnCredentials } from '#database/types'
 import { HttpContext } from '@adonisjs/core/http'
 import { Insertable } from 'kysely'
 
+// Helper to create a valid security confirmation timestamp for tests
+const validSecurityConfirmation = () => Date.now()
+
 async function createPasskey(
   userId: number,
   overrides: Partial<Insertable<WebauthnCredentials>> = {}
@@ -274,7 +277,7 @@ test.group('Profile controller', (group) => {
       .post('/profile/enable-mfa')
       .loginAs(user)
       .withSession({
-        [SECURITY_CONFIRMATION_KEY]: true,
+        [SECURITY_CONFIRMATION_KEY]: validSecurityConfirmation(),
         twoFactorPassed: true,
       })
       .withCsrfToken()
@@ -293,7 +296,7 @@ test.group('Profile controller', (group) => {
     const response = await client
       .post('/profile/enable-mfa')
       .loginAs(user)
-      .withSession({ [SECURITY_CONFIRMATION_KEY]: true })
+      .withSession({ [SECURITY_CONFIRMATION_KEY]: validSecurityConfirmation() })
       .withCsrfToken()
 
     response.assertStatus(200)
@@ -326,7 +329,7 @@ test.group('Profile controller', (group) => {
     const response = await client
       .delete('/profile/passkeys/not-a-number')
       .loginAs(user)
-      .withSession({ [SECURITY_CONFIRMATION_KEY]: true })
+      .withSession({ [SECURITY_CONFIRMATION_KEY]: validSecurityConfirmation() })
       .withCsrfToken()
 
     response.assertStatus(400)
@@ -339,7 +342,7 @@ test.group('Profile controller', (group) => {
     const response = await client
       .delete('/profile/passkeys/9999')
       .loginAs(user)
-      .withSession({ [SECURITY_CONFIRMATION_KEY]: true })
+      .withSession({ [SECURITY_CONFIRMATION_KEY]: validSecurityConfirmation() })
       .withCsrfToken()
 
     response.assertStatus(404)
@@ -353,7 +356,7 @@ test.group('Profile controller', (group) => {
     const response = await client
       .delete(`/profile/passkeys/${credential.id}`)
       .loginAs(user)
-      .withSession({ [SECURITY_CONFIRMATION_KEY]: true })
+      .withSession({ [SECURITY_CONFIRMATION_KEY]: validSecurityConfirmation() })
       .withCsrfToken()
 
     response.assertStatus(200)
@@ -377,7 +380,8 @@ test.group('Profile controller', (group) => {
       request: { param: () => undefined },
       response: { badRequest },
       session: {
-        get: (key: string) => (key === SECURITY_CONFIRMATION_KEY ? true : undefined),
+        get: (key: string) =>
+          key === SECURITY_CONFIRMATION_KEY ? validSecurityConfirmation() : undefined,
       },
       i18n: {
         formatMessage: (key: string) => {

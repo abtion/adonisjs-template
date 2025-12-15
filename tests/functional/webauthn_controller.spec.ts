@@ -6,6 +6,9 @@ import { webauthnServer } from '#services/webauthn_server'
 import { Insertable, sql } from 'kysely'
 import type { WebauthnCredentials } from '#database/types'
 
+// Helper to create a valid security confirmation timestamp for tests
+const validSecurityConfirmation = () => Date.now()
+
 async function createPasskey(
   userId: number,
   overrides: Partial<Insertable<WebauthnCredentials>> = {}
@@ -50,7 +53,7 @@ test.group('WebauthnController', (group) => {
     const response = await client
       .post('/2fa/webauthn/register/options')
       .loginAs(user)
-      .withSession({ securityConfirmation: true, twoFactorPassed: false })
+      .withSession({ securityConfirmation: validSecurityConfirmation(), twoFactorPassed: false })
       .withCsrfToken()
 
     response.assertStatus(401)
@@ -67,7 +70,7 @@ test.group('WebauthnController', (group) => {
     const response = await client
       .post('/2fa/webauthn/register/options')
       .loginAs(user)
-      .withSession({ securityConfirmation: true, twoFactorPassed: true })
+      .withSession({ securityConfirmation: validSecurityConfirmation(), twoFactorPassed: true })
       .withCsrfToken()
 
     response.assertStatus(200)
@@ -85,7 +88,7 @@ test.group('WebauthnController', (group) => {
     const response = await client
       .post('/2fa/webauthn/register/options')
       .loginAs(user)
-      .withSession({ securityConfirmation: true, twoFactorPassed: true })
+      .withSession({ securityConfirmation: validSecurityConfirmation(), twoFactorPassed: true })
       .withCsrfToken()
 
     response.assertStatus(200)
@@ -235,7 +238,10 @@ test.group('WebauthnController', (group) => {
     const response = await client
       .post('/2fa/webauthn/register/verify')
       .loginAs(user)
-      .withSession({ webauthnRegistrationChallenge: 'challenge', securityConfirmation: true })
+      .withSession({
+        webauthnRegistrationChallenge: 'challenge',
+        securityConfirmation: validSecurityConfirmation(),
+      })
       .withCsrfToken()
 
     response.assertStatus(400)
@@ -278,7 +284,10 @@ test.group('WebauthnController', (group) => {
     const response = await client
       .post('/2fa/webauthn/register/verify')
       .loginAs(user)
-      .withSession({ webauthnRegistrationChallenge: 'challenge', securityConfirmation: true })
+      .withSession({
+        webauthnRegistrationChallenge: 'challenge',
+        securityConfirmation: validSecurityConfirmation(),
+      })
       .withCsrfToken()
       .json({ attestation })
 
@@ -314,7 +323,10 @@ test.group('WebauthnController', (group) => {
     const response = await client
       .post('/2fa/webauthn/register/verify')
       .loginAs(user)
-      .withSession({ webauthnRegistrationChallenge: 'challenge', securityConfirmation: true })
+      .withSession({
+        webauthnRegistrationChallenge: 'challenge',
+        securityConfirmation: validSecurityConfirmation(),
+      })
       .withCsrfToken()
       .json({ attestation, friendlyName: 'My Key' })
 
@@ -362,7 +374,10 @@ test.group('WebauthnController', (group) => {
     const response = await client
       .post('/2fa/webauthn/register/verify')
       .loginAs(user)
-      .withSession({ webauthnRegistrationChallenge: 'challenge', securityConfirmation: true })
+      .withSession({
+        webauthnRegistrationChallenge: 'challenge',
+        securityConfirmation: validSecurityConfirmation(),
+      })
       .withCsrfToken()
       .json({ attestation })
 
@@ -411,7 +426,10 @@ test.group('WebauthnController', (group) => {
     const response = await client
       .post('/2fa/webauthn/register/verify')
       .loginAs(user)
-      .withSession({ webauthnRegistrationChallenge: 'challenge', securityConfirmation: true })
+      .withSession({
+        webauthnRegistrationChallenge: 'challenge',
+        securityConfirmation: validSecurityConfirmation(),
+      })
       .withCsrfToken()
       .json({ attestation })
 
