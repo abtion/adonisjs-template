@@ -104,17 +104,24 @@ test.group('Profile controller', (group) => {
     response.assertBodyContains({ message: 'Invalid password' })
   })
 
-  test('confirmSecurity accepts valid password and marks confirmation', async ({ client }) => {
+  test('confirmSecurity accepts valid password and marks confirmation', async ({
+    client,
+    assert,
+  }) => {
     const user = await createUser()
 
     const response = await client
       .post('/profile/confirm-security')
       .loginAs(user)
+      .withSession({ [SECURITY_CONFIRMATION_CHALLENGE_KEY]: 'challenge-token' })
       .withCsrfToken()
       .json({ password: 'password' })
 
     response.assertStatus(200)
     response.assertBodyContains({ confirmed: true })
+    const sessionData = response.session()
+    // Challenge should be cleared after successful confirmation
+    assert.isUndefined((sessionData as any)[SECURITY_CONFIRMATION_CHALLENGE_KEY])
   })
 
   test('confirmSecurity fails when credential does not exist', async ({ client }) => {

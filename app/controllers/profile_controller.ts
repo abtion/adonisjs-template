@@ -68,6 +68,7 @@ export default class ProfileController {
         return response.unauthorized({ message: 'Invalid password' })
       }
       markSecurityConfirmed(session)
+      session.forget(SECURITY_CONFIRMATION_CHALLENGE_KEY)
       return response.ok({ confirmed: true })
     }
 
