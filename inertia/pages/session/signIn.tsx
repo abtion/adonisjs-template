@@ -67,7 +67,6 @@ export default function SignIn() {
         setShowPasswordFallback(true)
       }
     } catch (err) {
-
       if (err instanceof ApiError && err.status === 400) {
         setPasskeyError(err.message)
       }
