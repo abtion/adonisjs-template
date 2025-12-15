@@ -22,7 +22,7 @@ export default function TwoFactorChallenge({
     setError(null)
     try {
       await fn()
-      window.location.href = '/'
+      router.visit('/')
     } catch (err) {
       setError((err as Error).message)
     } finally {
