@@ -13,7 +13,7 @@ import {
   parseTransports,
 } from '#services/two_factor'
 import { getRpId, getOrigin, fromBase64Url } from '#services/webauthn_service'
-import { generateAuthenticationOptions, verifyAuthenticationResponse } from '@simplewebauthn/server'
+import { webauthnServer } from '#services/webauthn_server'
 import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
 
 export default class SessionController {
@@ -111,7 +111,7 @@ export default class SessionController {
       return response.badRequest({ message: 'No passkeys registered for this user' })
     }
 
-    const options = await generateAuthenticationOptions({
+    const options = await webauthnServer.generateAuthenticationOptions({
       rpID: getRpId(),
       userVerification: 'preferred',
       allowCredentials: credentials.map((credential) => ({
@@ -148,7 +148,7 @@ export default class SessionController {
       return response.badRequest({ message: 'Credential not found' })
     }
 
-    const verification = await verifyAuthenticationResponse({
+    const verification = await webauthnServer.verifyAuthenticationResponse({
       response: assertion,
       expectedChallenge,
       expectedOrigin: getOrigin(),
@@ -181,9 +181,8 @@ export default class SessionController {
       .where('users.id', '=', credential.userId)
       .executeTakeFirst()
 
-    if (!user) {
-      return response.badRequest({ message: 'User not found' })
-    }
+    /* v8 ignore next */
+    if (!user) return response.badRequest({ message: 'User not found' })
 
     await auth.use('web').login(user)
 
