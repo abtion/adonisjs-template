@@ -10,6 +10,7 @@ import {
   isSecurityConfirmed,
   parseRecoveryCodes,
   parseTwoFactorSecret,
+  generateAndStoreTwoFactorSecret,
 } from '#services/two_factor'
 import { verifyOtpValidator } from '#validators/verify_otp'
 import { sql } from 'kysely'
@@ -49,18 +50,7 @@ export default class TwoFactorController {
       })
     }
 
-    const secret = await twoFactorAuth.generateSecret(user.email)
-    const recoveryCodes = twoFactorAuth.generateRecoveryCodes()
-
-    await db()
-      .updateTable('users')
-      .set({
-        twoFactorSecret: sql`cast(${JSON.stringify(secret)} as jsonb)`,
-        isTwoFactorEnabled: false,
-        twoFactorRecoveryCodes: sql`cast(${JSON.stringify(recoveryCodes)} as jsonb)`,
-      })
-      .where('users.id', '=', user.id)
-      .execute()
+    const { secret, recoveryCodes } = await generateAndStoreTwoFactorSecret(user.id, user.email)
 
     return response.ok({ secret, recoveryCodes })
   }

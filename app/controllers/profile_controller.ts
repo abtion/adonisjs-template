@@ -7,12 +7,11 @@ import {
   SECURITY_CONFIRMATION_CHALLENGE_KEY,
   parseTransports,
   parseRecoveryCodes,
+  generateAndStoreTwoFactorSecret,
 } from '#services/two_factor'
 import { getRpId, getOrigin, fromBase64Url } from '#services/webauthn_service'
 import { confirmSecurityValidator } from '#validators/profile_validator'
-import twoFactorAuth from '@nulix/adonis-2fa/services/main'
 import { db } from '#services/db'
-import { sql } from 'kysely'
 import hash from '@adonisjs/core/services/hash'
 import { webauthnServer } from '#services/webauthn_server'
 import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
@@ -169,18 +168,7 @@ export default class ProfileController {
       })
     }
 
-    const secret = await twoFactorAuth.generateSecret(user.email)
-    const recoveryCodes = twoFactorAuth.generateRecoveryCodes()
-
-    await db()
-      .updateTable('users')
-      .set({
-        twoFactorSecret: sql`cast(${JSON.stringify(secret)} as jsonb)`,
-        twoFactorRecoveryCodes: sql`cast(${JSON.stringify(recoveryCodes)} as jsonb)`,
-        isTwoFactorEnabled: false,
-      })
-      .where('users.id', '=', user.id)
-      .execute()
+    const { secret, recoveryCodes } = await generateAndStoreTwoFactorSecret(user.id, user.email)
 
     return response.ok({ secret, recoveryCodes })
   }

@@ -3,6 +3,8 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { Selectable } from 'kysely'
 import type { Users } from '#database/types'
 import type { AuthenticatorTransport } from '@simplewebauthn/types'
+import twoFactorAuth from '@nulix/adonis-2fa/services/main'
+import { sql } from 'kysely'
 
 type SessionStore = HttpContext['session']
 
@@ -166,4 +168,28 @@ export function parseRecoveryCodes(codes: unknown): string[] {
     }
   }
   return []
+}
+
+/**
+ * Generate and store TOTP secret and recovery codes for a user
+ * This is shared logic used by both TwoFactorController.generate and ProfileController.enable
+ */
+export async function generateAndStoreTwoFactorSecret(
+  userId: number,
+  userEmail: string
+): Promise<{ secret: TwoFactorSecret; recoveryCodes: string[] }> {
+  const secret = await twoFactorAuth.generateSecret(userEmail)
+  const recoveryCodes = twoFactorAuth.generateRecoveryCodes()
+
+  await db()
+    .updateTable('users')
+    .set({
+      twoFactorSecret: sql`cast(${JSON.stringify(secret)} as jsonb)`,
+      isTwoFactorEnabled: false,
+      twoFactorRecoveryCodes: sql`cast(${JSON.stringify(recoveryCodes)} as jsonb)`,
+    })
+    .where('users.id', '=', userId)
+    .execute()
+
+  return { secret, recoveryCodes }
 }
