@@ -3,6 +3,7 @@ import { startRegistration } from '@simplewebauthn/browser'
 import Button from '~/components/Button'
 import SecurityConfirmation from '~/components/SecurityConfirmation'
 import { postJson } from '~/lib/api'
+import { router } from '@inertiajs/react'
 
 type Passkey = {
   id: number
