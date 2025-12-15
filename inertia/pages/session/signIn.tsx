@@ -7,7 +7,7 @@ import Alert from '~/components/Alert'
 import Button from '~/components/Button'
 import Input from '~/components/Input'
 import SessionLayout from '~/layouts/session'
-import { postJson } from '~/lib/api'
+import { postJson, ApiError } from '~/lib/api'
 
 export default function SignIn() {
   const { t } = useTranslation()
@@ -67,13 +67,12 @@ export default function SignIn() {
         setShowPasswordFallback(true)
       }
     } catch (err) {
-      const errorMessage = (err as Error).message
-      // Show validation errors (like "Email is required") but proceed to password entry
-      // Don't reveal account existence errors to prevent enumeration
-      if (errorMessage.includes('Email is required') || errorMessage.includes('required')) {
-        setPasskeyError(errorMessage)
+
+      if (err instanceof ApiError && err.status === 400) {
+        setPasskeyError(err.message)
       }
       // Always show password fallback to allow authentication attempt
+      // This prevents user enumeration by not revealing whether the account exists
       setShowPasswordFallback(true)
     } finally {
       setCheckingEmail(false)

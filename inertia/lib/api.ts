@@ -11,11 +11,26 @@ export function getCsrfToken(): string {
 }
 
 /**
+ * Custom error class that includes HTTP status code
+ */
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+    public data?: any
+  ) {
+    super(message)
+    this.name = 'ApiError'
+  }
+}
+
+/**
  * Make an authenticated JSON request to the server
  * @param url - The endpoint URL
  * @param payload - Optional request body payload
  * @param method - HTTP method (defaults to 'POST')
  * @returns Promise resolving to the response data
+ * @throws {ApiError} When the request fails, includes status code and response data
  */
 export async function postJson<T = any>(
   url: string,
@@ -35,7 +50,7 @@ export async function postJson<T = any>(
   const data = await res.json().catch(() => ({}))
 
   if (!res.ok) {
-    throw new Error((data as any).message || 'Request failed')
+    throw new ApiError((data as any).message || 'Request failed', res.status, data)
   }
 
   return data as T
