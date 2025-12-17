@@ -58,6 +58,11 @@ export default function Nav() {
                     </NavLink>
                   </li>
                 )}
+                <li>
+                  <NavLink href="/profile" active={component.startsWith('profile')}>
+                    {t('components.nav.profile', { defaultValue: 'Profile' })}
+                  </NavLink>
+                </li>
               </>
             )}
 

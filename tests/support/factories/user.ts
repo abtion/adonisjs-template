@@ -1,6 +1,6 @@
 import hash from '@adonisjs/core/services/hash'
 import timestamps from '../timestamps.js'
-import { InsertObject } from 'kysely'
+import { InsertObject, sql } from 'kysely'
 import { DB } from '#database/types'
 import { db } from '#services/db'
 
@@ -16,9 +16,21 @@ export async function getUserAttributes(attributes: Partial<InsertObject<DB, 'us
 }
 
 export async function createUser(attributes: Partial<InsertObject<DB, 'users'>> = {}) {
-  return db()
-    .insertInto('users')
-    .values([await getUserAttributes(attributes)])
-    .returningAll()
-    .executeTakeFirstOrThrow()
+  const values: any = await getUserAttributes(attributes)
+
+  if (attributes.twoFactorSecret !== undefined) {
+    const payload =
+      typeof attributes.twoFactorSecret === 'string'
+        ? attributes.twoFactorSecret
+        : JSON.stringify(attributes.twoFactorSecret)
+
+    values.twoFactorSecret = sql`cast(${payload} as jsonb)`
+  }
+
+  if (attributes.twoFactorRecoveryCodes !== undefined) {
+    const payload = JSON.stringify(attributes.twoFactorRecoveryCodes ?? [])
+    values.twoFactorRecoveryCodes = sql`cast(${payload} as jsonb)`
+  }
+
+  return db().insertInto('users').values([values]).returningAll().executeTakeFirstOrThrow()
 }

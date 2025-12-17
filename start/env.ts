@@ -17,6 +17,10 @@ export const schema = {
   HOST: Env.schema.string({ format: 'host' }),
   PORT: Env.schema.number.optional(),
   LOG_LEVEL: Env.schema.string.optional(),
+  APP_ISSUER: Env.schema.string.optional(),
+  WEBAUTHN_RP_ID: Env.schema.string.optional(),
+  WEBAUTHN_RP_NAME: Env.schema.string.optional(),
+  WEBAUTHN_ORIGIN: Env.schema.string.optional(),
 
   // Mail sending
   SMTP_HOST: Env.schema.string.optional({ format: 'host' }),

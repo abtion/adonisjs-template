@@ -48,6 +48,13 @@ Env files are ONLY loaded for non-production envs.
 
 Otherwise they follow [AdonisJS's environment variables docs](https://docs.adonisjs.com/guides/getting-started/environment-variables#all-other-dot-env-files).
 
+Two-factor auth env vars:
+
+- `APP_ISSUER` (defaults to `adonis`) – issuer label for TOTP secrets
+- `WEBAUTHN_RP_ID` – relying party id/hostname used for WebAuthn
+- `WEBAUTHN_ORIGIN` – full origin for WebAuthn (e.g. `http://localhost:3000`)
+- `WEBAUTHN_RP_NAME` – human-friendly relying party name
+
 ### Setup
 
 The recommended way to run the project is to use `docker compose` for databases and `asdf` for installing runtimes.\
@@ -161,6 +168,7 @@ Otherwise the following changes where made:
   - Automatically run pending migrations
   - Code coverage has been set up (Use `--coverage-text` flag when running tests)
 - Authentication implemented
+- Two-factor auth: TOTP + recovery codes via `@nulix/adonis-2fa`, WebAuthn (security keys/passkeys) under `/2fa/*` routes
 - Landing page and simple user management implemented
 
 ### Third party services

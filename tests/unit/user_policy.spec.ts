@@ -1,9 +1,18 @@
 import { test } from '@japa/runner'
 import UserPolicy from '#policies/user_policy'
+import { SessionUser } from '../../app/auth_providers/session_user_provider.js'
 
 test.group('User policy', () => {
   test('it grants access when user is admin', ({ assert }) => {
-    const sessionUser = { admin: true, id: 1, name: '', email: '' }
+    const sessionUser: SessionUser = {
+      admin: true,
+      id: 1,
+      name: '',
+      email: '',
+      isTwoFactorEnabled: false,
+      twoFactorSecret: null,
+      twoFactorRecoveryCodes: null,
+    }
     const targetUser = { id: 2 }
     const policy = new UserPolicy()
 
@@ -15,7 +24,15 @@ test.group('User policy', () => {
   })
 
   test('it denies access to index and create when user not admin', ({ assert }) => {
-    const sessionUser = { admin: false, id: 1, name: '', email: '' }
+    const sessionUser: SessionUser = {
+      admin: false,
+      id: 1,
+      name: '',
+      email: '',
+      isTwoFactorEnabled: false,
+      twoFactorSecret: null,
+      twoFactorRecoveryCodes: null,
+    }
     const policy = new UserPolicy()
 
     assert.isFalse(policy.index(sessionUser))
@@ -23,7 +40,15 @@ test.group('User policy', () => {
   })
 
   test('it grants non-admins access to see, edit and delete themselves', ({ assert }) => {
-    const sessionUser = { admin: false, id: 1, name: '', email: '' }
+    const sessionUser: SessionUser = {
+      admin: false,
+      id: 1,
+      name: '',
+      email: '',
+      isTwoFactorEnabled: false,
+      twoFactorSecret: null,
+      twoFactorRecoveryCodes: null,
+    }
     const targetUser = sessionUser
     const policy = new UserPolicy()
 
@@ -33,7 +58,15 @@ test.group('User policy', () => {
   })
 
   test('it denies non-admins access to see, edit and delete other users', ({ assert }) => {
-    const sessionUser = { admin: false, id: 1, name: '', email: '' }
+    const sessionUser: SessionUser = {
+      admin: false,
+      id: 1,
+      name: '',
+      email: '',
+      isTwoFactorEnabled: false,
+      twoFactorSecret: null,
+      twoFactorRecoveryCodes: null,
+    }
     const targetUser = { id: 2 }
     const policy = new UserPolicy()
 
