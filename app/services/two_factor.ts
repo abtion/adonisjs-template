@@ -52,16 +52,18 @@ export type TwoFactorSecret = {
   qr?: string
 }
 
-function safeParseJson(value: string): unknown {
-  try {
-    return JSON.parse(value)
-  } catch {
-    return null
-  }
-}
-
 export function parseTwoFactorSecret(value: unknown): TwoFactorSecret | null {
-  const parsed = typeof value === 'string' ? safeParseJson(value) : value
+  let parsed: unknown
+
+  if (typeof value === 'string') {
+    try {
+      parsed = JSON.parse(value)
+    } catch {
+      return null
+    }
+  } else {
+    parsed = value
+  }
 
   if (parsed && typeof parsed === 'object') {
     return parsed as TwoFactorSecret
@@ -143,16 +145,6 @@ export async function loadUserWithTwoFactor(userId: number): Promise<UserWithTwo
   }
 }
 
-export async function userHasWebauthnCredentials(userId: number): Promise<boolean> {
-  const credential = await db()
-    .selectFrom('webauthnCredentials')
-    .select(['id'])
-    .where('webauthnCredentials.userId', '=', userId)
-    .executeTakeFirst()
-
-  return Boolean(credential)
-}
-
 export async function getUserAuthInfo(email: string) {
   const user = await db()
     .selectFrom('users')
@@ -164,7 +156,13 @@ export async function getUserAuthInfo(email: string) {
     return null
   }
 
-  const hasPasskeys = await userHasWebauthnCredentials(user.id)
+  const credential = await db()
+    .selectFrom('webauthnCredentials')
+    .select(['id'])
+    .where('webauthnCredentials.userId', '=', user.id)
+    .executeTakeFirst()
+
+  const hasPasskeys = Boolean(credential)
   const requiresOtp = user.isTwoFactorEnabled
 
   return {
@@ -172,27 +170,6 @@ export async function getUserAuthInfo(email: string) {
     requiresOtp,
     userId: user.id,
   }
-}
-
-/**
- * Parse recovery codes from database (JSONB) to string array
- * Handles various formats: array, JSON string, or invalid values
- */
-export function parseRecoveryCodes(codes: unknown): string[] {
-  if (Array.isArray(codes)) {
-    return codes.filter((code): code is string => typeof code === 'string')
-  }
-  if (typeof codes === 'string') {
-    try {
-      const parsed = JSON.parse(codes)
-      if (Array.isArray(parsed)) {
-        return parsed.filter((code): code is string => typeof code === 'string')
-      }
-    } catch {
-      return []
-    }
-  }
-  return []
 }
 
 /**

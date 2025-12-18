@@ -1,7 +1,6 @@
 import { test } from '@japa/runner'
 import {
   parseTwoFactorSecret,
-  parseRecoveryCodes,
   loadUserWithTwoFactor,
   parseTransports,
   markSecurityConfirmed,
@@ -23,13 +22,6 @@ test.group('two_factor utils', (group) => {
   test('parseTwoFactorSecret returns null for invalid input', async ({ assert }) => {
     assert.isNull(parseTwoFactorSecret('not-json'))
     assert.isNull(parseTwoFactorSecret(123))
-  })
-
-  test('parseRecoveryCodes handles arrays and strings', async ({ assert }) => {
-    assert.deepEqual(parseRecoveryCodes(['A', 'B']), ['A', 'B'])
-    assert.deepEqual(parseRecoveryCodes('["C","D"]'), ['C', 'D'])
-    assert.deepEqual(parseRecoveryCodes('bad-json'), [])
-    assert.deepEqual(parseRecoveryCodes(undefined), [])
   })
 
   test('parseTransports filters invalid transports', async ({ assert }) => {

@@ -42,6 +42,7 @@ router.use([
   () => import('@adonisjs/auth/initialize_auth_middleware'),
   () => import('#middleware/detect_user_locale_middleware'),
   () => import('#middleware/silent_auth_middleware'),
+  () => import('#middleware/two_factor_middleware'),
   () => import('#middleware/initialize_bouncer_middleware'),
   () => import('#middleware/permissions_middleware'),
 ])
