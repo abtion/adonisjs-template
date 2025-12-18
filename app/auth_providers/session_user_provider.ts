@@ -5,18 +5,15 @@ import { symbols } from '@adonisjs/auth'
 import { SessionGuardUser, SessionUserProviderContract } from '@adonisjs/auth/types/session'
 import { db } from '#services/db'
 
-export type SessionUser = Omit<
-  Pick<
-    Selectable<Users>,
-    | 'id'
-    | 'email'
-    | 'name'
-    | 'admin'
-    | 'isTwoFactorEnabled'
-    | 'twoFactorSecret'
-    | 'twoFactorRecoveryCodes'
-  >,
-  'twoFactorRecoveryCodes'
+export type SessionUser = Pick<
+  Selectable<Users>,
+  | 'id'
+  | 'email'
+  | 'name'
+  | 'admin'
+  | 'isTwoFactorEnabled'
+  | 'twoFactorSecret'
+  | 'twoFactorRecoveryCodes'
 >
 
 export class SessionKyselyUserProvider implements SessionUserProviderContract<SessionUser> {
