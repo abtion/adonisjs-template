@@ -104,7 +104,9 @@ test.group('Profile controller', (group) => {
       .json({ password: 'wrong-password' })
 
     response.assertStatus(401)
-    response.assertBodyContains({ message: 'Invalid password' })
+    response.assertBodyContains({
+      message: 'Security confirmation failed. Please verify your identity and try again.',
+    })
   })
 
   test('confirmSecurity accepts valid password and marks confirmation', async ({

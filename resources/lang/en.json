@@ -85,6 +85,9 @@
     "securityConfirmationRequired": "Security confirmation required to modify 2FA settings",
     "securityConfirmationRequiredRemovePasskeys": "Security confirmation required to remove passkeys",
     "securityConfirmationRequiredAddPasskeys": "Security confirmation required to add passkeys",
+    "securityConfirmationFailed": "Security confirmation failed. Please verify your identity and try again.",
+    "securityConfirmationExpired": "Security confirmation has expired. Please verify your identity again.",
+    "securityConfirmationTimeout": "Security confirmation timed out. Please verify your identity again.",
     "twoFactorAlreadyEnabled": "Two-factor authentication is already enabled",
     "credentialIdRequired": "Credential ID is required",
     "invalidCredentialId": "Invalid credential ID",
@@ -94,7 +97,12 @@
     "missingRegistrationPayload": "Missing registration payload",
     "userNotFound": "User not found",
     "twoFactorSecretNotGenerated": "Two-factor secret not generated",
-    "otpInvalid": "OTP invalid",
+    "otpInvalid": "The code you entered is incorrect or has expired. Please try again.",
+    "otpExpired": "The verification code has expired. Please request a new code from your authenticator app.",
+    "otpInvalidFormat": "The code format is invalid. Please enter a 6-digit code.",
+    "recoveryCodeInvalid": "The recovery code you entered is incorrect or has already been used. Please try another code.",
+    "recoveryCodeExpired": "This recovery code has already been used. Please use a different recovery code.",
+    "recoveryCodeNotFound": "Recovery code not found. Please check your code and try again.",
     "otpValid": "OTP valid",
     "userWithout2FAActive": "User without 2FA active",
     "twoFactorRequiredModifySettings": "Two-factor authentication required to modify settings",
@@ -102,6 +110,13 @@
     "twoFactorRequiredDisable": "Two-factor authentication required to disable",
     "twoFactorRequiredAddWebauthn": "Two-factor authentication required to add WebAuthn",
     "noSecurityKeysRegistered": "No security keys registered",
-    "unauthorized": "Unauthorized"
+    "unauthorized": "Unauthorized",
+    "rateLimitExceeded": "Too many failed attempts. Please wait {minutes} minutes before trying again.",
+    "rateLimitExceededGeneric": "Too many failed attempts. Please wait a few minutes before trying again.",
+    "networkError": "Network connection error. Please check your internet connection and try again.",
+    "authenticatorAppError": "Unable to verify code. Please check that your authenticator app is working correctly and the time is synchronized.",
+    "deviceTimeError": "Your device's time appears to be incorrect. Please synchronize your device time and try again.",
+    "backupCodeFailed": "The backup code you entered is incorrect or has already been used. Please try another backup code or use your authenticator app.",
+    "twoFactorSetupError": "An error occurred while setting up two-factor authentication. Please try again or contact support if the problem persists."
   }
 }

@@ -63,7 +63,9 @@ export default class ProfileController {
     if (data.password) {
       const isPasswordValid = await hash.verify(user.password, data.password)
       if (!isPasswordValid) {
-        return response.unauthorized({ message: i18n.formatMessage('errors.invalidPassword') })
+        return response.unauthorized({
+          message: i18n.formatMessage('errors.securityConfirmationFailed'),
+        })
       }
       markSecurityConfirmed(session)
       session.forget(SECURITY_CONFIRMATION_CHALLENGE_KEY)
@@ -100,7 +102,7 @@ export default class ProfileController {
 
       if (!verification.verified || !verification.authenticationInfo) {
         return response.badRequest({
-          message: i18n.formatMessage('errors.passkeyVerificationFailed'),
+          message: i18n.formatMessage('errors.securityConfirmationFailed'),
         })
       }
 

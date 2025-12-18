@@ -143,7 +143,9 @@ test.group('TwoFactorController', (group) => {
       .redirects(0)
 
     response.assertStatus(400)
-    response.assertBodyContains({ message: 'OTP invalid' })
+    response.assertBodyContains({
+      message: 'The code format is invalid. Please enter a 6-digit code.',
+    })
   })
 
   test('verify enables 2FA and consumes recovery code', async ({ client, assert }) => {
