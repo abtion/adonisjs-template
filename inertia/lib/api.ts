@@ -18,7 +18,13 @@ export class ApiError extends Error {
     message: string,
     public status: number,
     public data?: any,
-    public errorType?: 'network' | 'rateLimit' | 'validation' | 'authentication' | 'server' | 'unknown'
+    public errorType?:
+      | 'network'
+      | 'rateLimit'
+      | 'validation'
+      | 'authentication'
+      | 'server'
+      | 'unknown'
   ) {
     super(message)
     this.name = 'ApiError'
@@ -61,7 +67,7 @@ export async function postJson<T = any>(
   method: string = 'POST'
 ): Promise<T> {
   const csrf = getCsrfToken()
-  
+
   let res: Response
   try {
     res = await fetch(url, {
@@ -94,7 +100,7 @@ export async function postJson<T = any>(
   if (!res.ok) {
     const errorMessage = (data as any)?.message || 'Request failed'
     const errorType = determineErrorType(res.status, errorMessage)
-    
+
     // Enhance error message for rate limiting
     if (res.status === 429) {
       const retryAfter = res.headers.get('Retry-After')
@@ -102,10 +108,10 @@ export async function postJson<T = any>(
       const enhancedMessage = minutes
         ? `Too many failed attempts. Please wait ${minutes} minutes before trying again.`
         : 'Too many failed attempts. Please wait a few minutes before trying again.'
-      
+
       throw new ApiError(enhancedMessage, res.status, data, errorType)
     }
-    
+
     throw new ApiError(errorMessage, res.status, data, errorType)
   }
 

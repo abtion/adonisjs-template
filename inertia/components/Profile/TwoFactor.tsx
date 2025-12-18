@@ -66,12 +66,12 @@ export default function TwoFactor({
     setError(null)
     setStatus(null)
     setErrorType('danger')
-    
+
     try {
       await fn()
     } catch (err) {
       const errorMessage = getErrorMessage(err)
-      
+
       // Check if error is about security confirmation
       if (
         errorMessage.includes('Security confirmation required') ||
@@ -83,9 +83,9 @@ export default function TwoFactor({
         setBusy(false)
         return
       }
-      
+
       setError(errorMessage)
-      
+
       // Determine error type for styling
       if (err instanceof ApiError) {
         if (err.errorType === 'rateLimit' || err.errorType === 'network') {
@@ -122,14 +122,14 @@ export default function TwoFactor({
       setErrorType('danger')
       return
     }
-    
+
     // Validate format (should be 6 digits)
     if (!/^\d{6}$/.test(otp.trim())) {
       setError('Please enter a valid 6-digit code from your authenticator app.')
       setErrorType('danger')
       return
     }
-    
+
     handle(async () => {
       await postJson('/2fa/totp/verify', { otp: otp.trim() })
       setEnabled(true)
@@ -338,11 +338,9 @@ export default function TwoFactor({
             onDismiss={() => setError(null)}
           />
         )}
-        
+
         {status && !error && (
-          <div className="bg-green-50 text-green-700 mt-4 rounded p-3 text-sm">
-            {status}
-          </div>
+          <div className="bg-green-50 text-green-700 mt-4 rounded p-3 text-sm">{status}</div>
         )}
       </section>
     </>

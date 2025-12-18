@@ -3,11 +3,11 @@ import Alert from '~/components/Alert'
 import ExclamationTriangleIcon from '@heroicons/react/20/solid/ExclamationTriangleIcon'
 
 export interface ErrorMessageProps {
-  message: string
-  variant?: 'danger' | 'warning' | 'info'
-  className?: string
-  onDismiss?: () => void
-  showIcon?: boolean
+  'message': string
+  'variant'?: 'danger' | 'warning' | 'info'
+  'className'?: string
+  'onDismiss'?: () => void
+  'showIcon'?: boolean
   'aria-live'?: 'polite' | 'assertive' | 'off'
 }
 
@@ -27,10 +27,7 @@ export default function ErrorMessage({
     <div className={className} role="alert" aria-live={ariaLive}>
       <Alert variant={variant} onClose={onDismiss} className="flex items-start gap-3">
         {showIcon && (
-          <ExclamationTriangleIcon
-            className="mt-0.5 h-5 w-5 flex-shrink-0"
-            aria-hidden="true"
-          />
+          <ExclamationTriangleIcon className="mt-0.5 h-5 w-5 flex-shrink-0" aria-hidden="true" />
         )}
         <div className="flex-1">
           <p className="text-sm font-medium">{message}</p>

@@ -59,7 +59,7 @@ export default function TwoFactorChallenge({
     setBusy(true)
     setError(null)
     setErrorType('danger')
-    
+
     try {
       await fn()
       // Success - redirect to home
@@ -67,7 +67,7 @@ export default function TwoFactorChallenge({
     } catch (err) {
       const errorMessage = getErrorMessage(err)
       setError(errorMessage)
-      
+
       // Determine error type for styling
       if (err instanceof ApiError) {
         if (err.errorType === 'rateLimit') {
@@ -76,7 +76,7 @@ export default function TwoFactorChallenge({
           setErrorType('warning')
         }
       }
-      
+
       // Track attempt count for user feedback
       setAttemptCount((prev) => prev + 1)
     } finally {
@@ -86,21 +86,21 @@ export default function TwoFactorChallenge({
 
   const verifyTotp = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    
+
     // Basic client-side validation
     if (!otp || otp.trim().length === 0) {
       setError('Please enter a verification code.')
       setErrorType('danger')
       return
     }
-    
+
     // Validate format (should be 6 digits)
     if (!/^\d{6}$/.test(otp.trim())) {
       setError('Please enter a valid 6-digit code from your authenticator app.')
       setErrorType('danger')
       return
     }
-    
+
     handle(async () => {
       await postJson('/2fa/totp/verify', { otp: otp.trim() })
     })
@@ -108,14 +108,14 @@ export default function TwoFactorChallenge({
 
   const verifyRecovery = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    
+
     // Basic client-side validation
     if (!recoveryCode || recoveryCode.trim().length === 0) {
       setError('Please enter a recovery code.')
       setErrorType('danger')
       return
     }
-    
+
     handle(async () => {
       await postJson('/2fa/totp/verify', { otp: recoveryCode.trim() })
     })
@@ -235,8 +235,10 @@ export default function TwoFactorChallenge({
               </p>
               {attemptCount > 0 && (
                 <p className="text-gray-500 mt-1 text-xs">
-                  {attemptCount === 1 && 'Recovery code not recognized. Please check and try again.'}
-                  {attemptCount >= 2 && 'This recovery code may have already been used. Try a different code.'}
+                  {attemptCount === 1 &&
+                    'Recovery code not recognized. Please check and try again.'}
+                  {attemptCount >= 2 &&
+                    'This recovery code may have already been used. Try a different code.'}
                 </p>
               )}
             </div>

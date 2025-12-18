@@ -78,7 +78,7 @@ export default function SecurityConfirmation({
     setBusy(true)
     setError(null)
     setErrorType('danger')
-    
+
     try {
       await postJson('/profile/confirm-security', { password })
       onConfirmed()
@@ -86,7 +86,7 @@ export default function SecurityConfirmation({
     } catch (err) {
       const errorMessage = getErrorMessage(err)
       setError(errorMessage)
-      
+
       if (err instanceof ApiError) {
         if (err.errorType === 'network') {
           setErrorType('warning')
@@ -104,7 +104,7 @@ export default function SecurityConfirmation({
     setBusy(true)
     setError(null)
     setErrorType('danger')
-    
+
     try {
       const { options } = await postJson<{ options: any }>('/profile/confirm-security/options')
       const assertion = await startAuthentication(options)
@@ -114,7 +114,7 @@ export default function SecurityConfirmation({
     } catch (err) {
       const errorMessage = getErrorMessage(err)
       setError(errorMessage)
-      
+
       if (err instanceof ApiError) {
         if (err.errorType === 'network') {
           setErrorType('warning')
@@ -169,8 +169,10 @@ export default function SecurityConfirmation({
 
         {attemptCount > 0 && attemptCount < 3 && !error && (
           <div className="mb-4 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800">
-            {attemptCount === 1 && 'Verification failed. Please check your credentials and try again.'}
-            {attemptCount === 2 && 'Verification failed again. Please double-check your password or try using a passkey.'}
+            {attemptCount === 1 &&
+              'Verification failed. Please check your credentials and try again.'}
+            {attemptCount === 2 &&
+              'Verification failed again. Please double-check your password or try using a passkey.'}
           </div>
         )}
 

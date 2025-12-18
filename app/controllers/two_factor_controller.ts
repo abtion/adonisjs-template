@@ -108,7 +108,7 @@ export default class TwoFactorController {
     if (!isValid) {
       // Record failed attempt
       const newRateLimitRemaining = recordTwoFactorAttempt(session)
-      
+
       if (newRateLimitRemaining !== null) {
         const minutes = Math.ceil(newRateLimitRemaining / 60000)
         return response.status(429).json({
@@ -118,7 +118,7 @@ export default class TwoFactorController {
 
       // Determine specific error message
       let errorMessage = i18n.formatMessage('errors.otpInvalid')
-      
+
       if (isRecoveryCode) {
         errorMessage = i18n.formatMessage('errors.recoveryCodeInvalid')
       } else if (!/^\d{6}$/.test(otp.trim())) {
