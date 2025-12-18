@@ -17,7 +17,7 @@ import { sql } from 'kysely'
 export default class TwoFactorController {
   async challenge({ auth, session, inertia, response }: HttpContext) {
     if (!auth.user) {
-      return response.redirect().toRoute('sign-in')
+      return response.redirect('/sign-in')
     }
 
     const user = await loadUserWithTwoFactor(auth.user.id)

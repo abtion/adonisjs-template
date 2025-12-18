@@ -101,6 +101,7 @@
     "twoFactorRequiredRotateRecoveryCodes": "Two-factor authentication required to rotate recovery codes",
     "twoFactorRequiredDisable": "Two-factor authentication required to disable",
     "twoFactorRequiredAddWebauthn": "Two-factor authentication required to add WebAuthn",
-    "noSecurityKeysRegistered": "No security keys registered"
+    "noSecurityKeysRegistered": "No security keys registered",
+    "unauthorized": "Unauthorized"
   }
 }

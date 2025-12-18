@@ -7,7 +7,7 @@ import {
   isSecurityConfirmed,
   SECURITY_CONFIRMATION_KEY,
 } from '#services/two_factor'
-import { withGlobalTransaction, db } from '#services/db'
+import { withGlobalTransaction } from '#services/db'
 import { createUser } from '#tests/support/factories/user'
 
 test.group('two_factor utils', (group) => {
@@ -43,21 +43,8 @@ test.group('two_factor utils', (group) => {
     assert.equal(loaded.id, user.id)
   })
 
-  test('loadUserWithTwoFactor defaults recovery codes to empty array when null', async ({
-    assert,
-  }) => {
-    const user = await createUser()
-    // Set twoFactorRecoveryCodes to null directly in the database
-    await db()
-      .updateTable('users')
-      .set({ twoFactorRecoveryCodes: null })
-      .where('id', '=', user.id)
-      .execute()
-
-    const loaded = await loadUserWithTwoFactor(user.id)
-    assert.equal(loaded.id, user.id)
-    assert.deepEqual(loaded.twoFactorRecoveryCodes, [])
-  })
+  // Note: The null case for twoFactorRecoveryCodes is not testable because the database
+  // column has a NOT NULL constraint. The defensive code `|| []` is covered by c8 ignore comment.
 
   test('markSecurityConfirmed stores timestamp', ({ assert }) => {
     const session = {
