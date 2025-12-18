@@ -12,6 +12,13 @@ test.group('TwoFactorController', (group) => {
   group.each.setup(() => withGlobalTransaction())
   group.each.teardown(() => sinon.restore())
 
+  test('challenge redirects to sign-in when user is not authenticated', async ({ client }) => {
+    const response = await client.get('/2fa/challenge').redirects(0)
+
+    response.assertStatus(302)
+    response.assertHeader('location', '/sign-in')
+  })
+
   test('challenge bypasses when 2FA not enabled', async ({ client }) => {
     const user = await createUser({ email: 'no2fa@example.com', isTwoFactorEnabled: false })
 
@@ -315,5 +322,32 @@ test.group('TwoFactorController', (group) => {
     assert.isFalse(stored.isTwoFactorEnabled)
     assert.isNull(stored.twoFactorSecret)
     assert.deepEqual(stored.twoFactorRecoveryCodes, [])
+  })
+
+  test('verify returns unauthorized when user is not authenticated', async ({ client }) => {
+    const response = await client
+      .post('/2fa/totp/verify')
+      .form({ otp: '123456' })
+      .withCsrfToken()
+      .redirects(0)
+
+    response.assertStatus(401)
+    response.assertBodyContains({ message: 'Unauthorized' })
+  })
+
+  test('generateRecoveryCodes returns unauthorized when user is not authenticated', async ({
+    client,
+  }) => {
+    const response = await client.post('/2fa/recovery-codes').withCsrfToken()
+
+    response.assertStatus(401)
+    response.assertBodyContains({ message: 'Unauthorized' })
+  })
+
+  test('disable returns unauthorized when user is not authenticated', async ({ client }) => {
+    const response = await client.post('/2fa/disable').withCsrfToken()
+
+    response.assertStatus(401)
+    response.assertBodyContains({ message: 'Unauthorized' })
   })
 })

@@ -447,4 +447,51 @@ test.group('WebauthnController', (group) => {
     assert.isNull(stored.friendlyName)
     assert.deepEqual(stored.transports, [])
   })
+
+  test('verifyRegistration returns unauthorized when user is not authenticated', async ({
+    client,
+  }) => {
+    const attestation = {
+      id: 'att-id',
+      rawId: 'att-raw',
+      response: { clientDataJSON: '', attestationObject: '' },
+      type: 'public-key',
+    }
+
+    const response = await client
+      .post('/2fa/webauthn/register/verify')
+      .withSession({
+        webauthnRegistrationChallenge: 'challenge',
+        securityConfirmation: validSecurityConfirmation(),
+      })
+      .withCsrfToken()
+      .json({ attestation })
+
+    response.assertStatus(401)
+    response.assertBodyContains({ message: 'Unauthorized' })
+  })
+
+  test('authenticationOptions returns unauthorized when user is not authenticated', async ({
+    client,
+  }) => {
+    const response = await client.post('/2fa/webauthn/authenticate/options').withCsrfToken()
+
+    response.assertStatus(401)
+    response.assertBodyContains({ message: 'Unauthorized' })
+  })
+
+  test('verifyAuthentication returns unauthorized when user is not authenticated', async ({
+    client,
+  }) => {
+    const assertion = { id: 'test-id', rawId: 'test-raw', response: {}, type: 'public-key' }
+
+    const response = await client
+      .post('/2fa/webauthn/authenticate/verify')
+      .withSession({ webauthnAuthenticationChallenge: 'challenge' })
+      .withCsrfToken()
+      .json({ assertion })
+
+    response.assertStatus(401)
+    response.assertBodyContains({ message: 'Unauthorized' })
+  })
 })

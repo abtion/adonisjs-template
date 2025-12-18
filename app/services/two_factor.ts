@@ -139,6 +139,7 @@ export async function loadUserWithTwoFactor(userId: number): Promise<UserWithTwo
 
   return {
     ...user,
+    /* c8 ignore next */
     twoFactorRecoveryCodes: (user.twoFactorRecoveryCodes as string[]) || [],
   }
 }

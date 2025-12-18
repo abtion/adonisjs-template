@@ -7,7 +7,7 @@ import {
   isSecurityConfirmed,
   SECURITY_CONFIRMATION_KEY,
 } from '#services/two_factor'
-import { withGlobalTransaction } from '#services/db'
+import { withGlobalTransaction, db } from '#services/db'
 import { createUser } from '#tests/support/factories/user'
 
 test.group('two_factor utils', (group) => {
@@ -41,6 +41,22 @@ test.group('two_factor utils', (group) => {
     const user = await createUser()
     const loaded = await loadUserWithTwoFactor(user.id)
     assert.equal(loaded.id, user.id)
+  })
+
+  test('loadUserWithTwoFactor defaults recovery codes to empty array when null', async ({
+    assert,
+  }) => {
+    const user = await createUser()
+    // Set twoFactorRecoveryCodes to null directly in the database
+    await db()
+      .updateTable('users')
+      .set({ twoFactorRecoveryCodes: null })
+      .where('id', '=', user.id)
+      .execute()
+
+    const loaded = await loadUserWithTwoFactor(user.id)
+    assert.equal(loaded.id, user.id)
+    assert.deepEqual(loaded.twoFactorRecoveryCodes, [])
   })
 
   test('markSecurityConfirmed stores timestamp', ({ assert }) => {
