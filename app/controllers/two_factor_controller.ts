@@ -20,7 +20,6 @@ export default class TwoFactorController {
       return response.redirect().toRoute('sign-in')
     }
 
-    // Needed: twoFactorRecoveryCodes (parsed as string[]), twoFactorSecret (needs parsing)
     const user = await loadUserWithTwoFactor(auth.user.id)
     const needsTwoFactor = user.isTwoFactorEnabled
 
@@ -40,7 +39,6 @@ export default class TwoFactorController {
   }
 
   async generate({ auth, response, session, i18n }: HttpContext) {
-    // Needed: user.email (not in auth.user)
     const user = await loadUserWithTwoFactor(auth.user!.id)
 
     if (!isSecurityConfirmed(session)) {
@@ -67,7 +65,6 @@ export default class TwoFactorController {
 
     const { otp } = await request.validateUsing(verifyOtpValidator)
 
-    // Needed: Fresh data (recovery codes may have been consumed), twoFactorRecoveryCodes (parsed as string[])
     const user = await loadUserWithTwoFactor(auth.user.id)
 
     const userSecret = parseTwoFactorSecret(user.twoFactorSecret)
