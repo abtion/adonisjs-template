@@ -48,6 +48,7 @@ export default class ProfileController {
   }
 
   async confirmSecurity({ auth, request, session, response, i18n }: HttpContext) {
+    // Needed: user.password (not in auth.user)
     const user = await loadUserWithTwoFactor(auth.user!.id)
     const data = await request.validateUsing(confirmSecurityValidator)
     const expectedChallengeValue = session.get(SECURITY_CONFIRMATION_CHALLENGE_KEY)

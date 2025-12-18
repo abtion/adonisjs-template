@@ -20,6 +20,7 @@ export default class TwoFactorController {
       return response.redirect().toRoute('sign-in')
     }
 
+    // Needed: twoFactorRecoveryCodes (parsed as string[]), twoFactorSecret (needs parsing)
     const user = await loadUserWithTwoFactor(auth.user.id)
     const needsTwoFactor = user.isTwoFactorEnabled
 
@@ -39,6 +40,7 @@ export default class TwoFactorController {
   }
 
   async generate({ auth, response, session, i18n }: HttpContext) {
+    // Needed: user.email (not in auth.user)
     const user = await loadUserWithTwoFactor(auth.user!.id)
 
     if (!isSecurityConfirmed(session)) {
@@ -65,6 +67,7 @@ export default class TwoFactorController {
 
     const { otp } = await request.validateUsing(verifyOtpValidator)
 
+    // Needed: Fresh data (recovery codes may have been consumed), twoFactorRecoveryCodes (parsed as string[])
     const user = await loadUserWithTwoFactor(auth.user.id)
 
     const userSecret = parseTwoFactorSecret(user.twoFactorSecret)
@@ -101,9 +104,11 @@ export default class TwoFactorController {
   }
 
   async generateRecoveryCodes({ auth, response, session, i18n }: HttpContext) {
-    const user = await loadUserWithTwoFactor(auth.user!.id)
+    if (!auth.user) {
+      return response.unauthorized({ message: i18n.formatMessage('errors.unauthorized') })
+    }
 
-    if (!user.isTwoFactorEnabled) {
+    if (!auth.user.isTwoFactorEnabled) {
       return response.badRequest({ message: i18n.formatMessage('errors.userWithout2FAActive') })
     }
 
@@ -124,16 +129,18 @@ export default class TwoFactorController {
     await db()
       .updateTable('users')
       .set({ twoFactorRecoveryCodes: sql`cast(${JSON.stringify(recoveryCodes)} as jsonb)` })
-      .where('users.id', '=', user.id)
+      .where('users.id', '=', auth.user.id)
       .execute()
 
     return { recoveryCodes }
   }
 
   async disable({ auth, response, session, i18n }: HttpContext) {
-    const user = await loadUserWithTwoFactor(auth.user!.id)
+    if (!auth.user) {
+      return response.unauthorized({ message: i18n.formatMessage('errors.unauthorized') })
+    }
 
-    if (!user.isTwoFactorEnabled) {
+    if (!auth.user.isTwoFactorEnabled) {
       return response.badRequest({ message: i18n.formatMessage('errors.userWithout2FAActive') })
     }
 
@@ -156,7 +163,7 @@ export default class TwoFactorController {
         twoFactorSecret: null,
         twoFactorRecoveryCodes: sql`cast('[]' as jsonb)`,
       })
-      .where('users.id', '=', user.id)
+      .where('users.id', '=', auth.user.id)
       .execute()
 
     resetTwoFactorSession(session)
