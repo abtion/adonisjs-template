@@ -38,7 +38,6 @@ export default class SessionController {
 
     const authInfo = await getUserAuthInfo(email)
 
-    // Authentication will fail with generic error on server side if credentials are invalid
     return response.ok({
       hasPasskeys: authInfo?.hasPasskeys || false,
       requiresOtp: authInfo?.requiresOtp || false,
@@ -67,15 +66,14 @@ export default class SessionController {
 
     if (!verifiedUser) throw new errors.E_INVALID_CREDENTIALS('invalidCredentials')
 
-    await auth.use('web').login(verifiedUser)
-
     const needsTwoFactor = verifiedUser.isTwoFactorEnabled
 
     if (needsTwoFactor) {
-      session.put('twoFactorPassed', false)
+      session.put('pendingUserId', verifiedUser.id)
       return response.redirect().toRoute('2fa.challenge')
     }
 
+    await auth.use('web').login(verifiedUser)
     markTwoFactorPassed(session)
     return response.redirect('/')
   }

@@ -12,6 +12,7 @@ import {
   markTwoFactorPassed,
   isSecurityConfirmed,
   parseTransports,
+  PENDING_USER_ID_KEY,
 } from '#services/two_factor'
 import {
   getRpId,
@@ -125,7 +126,14 @@ export default class WebauthnController {
   }
 
   async authenticationOptions({ auth, session, response, i18n }: HttpContext) {
-    const user = await loadUserWithTwoFactor(auth.user!.id)
+    const pendingUserId = session.get(PENDING_USER_ID_KEY) as number | undefined
+    const userId = pendingUserId || auth.user?.id
+
+    if (!userId) {
+      return response.unauthorized({ message: i18n.formatMessage('errors.unauthorized') })
+    }
+
+    const user = await loadUserWithTwoFactor(userId)
     const credentials = await db()
       .selectFrom('webauthnCredentials')
       .selectAll()
@@ -154,7 +162,14 @@ export default class WebauthnController {
   }
 
   async verifyAuthentication({ auth, request, session, response, i18n }: HttpContext) {
-    const user = await loadUserWithTwoFactor(auth.user!.id)
+    const pendingUserId = session.get(PENDING_USER_ID_KEY) as number | undefined
+    const userId = pendingUserId || auth.user?.id
+
+    if (!userId) {
+      return response.unauthorized({ message: i18n.formatMessage('errors.unauthorized') })
+    }
+
+    const user = await loadUserWithTwoFactor(userId)
     const assertion = request.input('assertion') as AuthenticationResponseJSON | undefined
     const expectedChallenge = session.get(WEBAUTHN_AUTH_CHALLENGE_KEY) as string | undefined
 
@@ -203,6 +218,11 @@ export default class WebauthnController {
       })
       .where('id', '=', credential.id)
       .execute()
+
+    if (pendingUserId) {
+      await auth.use('web').login(user)
+      session.forget(PENDING_USER_ID_KEY)
+    }
 
     markTwoFactorPassed(session)
     session.forget(WEBAUTHN_AUTH_CHALLENGE_KEY)

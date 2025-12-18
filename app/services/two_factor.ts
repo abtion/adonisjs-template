@@ -71,6 +71,7 @@ export function parseTwoFactorSecret(value: unknown): TwoFactorSecret | null {
 }
 
 export const TWO_FACTOR_SESSION_KEY = 'twoFactorPassed'
+export const PENDING_USER_ID_KEY = 'pendingUserId'
 export const WEBAUTHN_REG_CHALLENGE_KEY = 'webauthnRegistrationChallenge'
 export const WEBAUTHN_AUTH_CHALLENGE_KEY = 'webauthnAuthenticationChallenge'
 export const SECURITY_CONFIRMATION_KEY = 'securityConfirmation'
@@ -86,6 +87,7 @@ export const isTwoFactorPassed = (session: SessionStore) => {
 
 export const resetTwoFactorSession = (session: SessionStore) => {
   session.forget(TWO_FACTOR_SESSION_KEY)
+  session.forget(PENDING_USER_ID_KEY)
   session.forget(WEBAUTHN_REG_CHALLENGE_KEY)
   session.forget(WEBAUTHN_AUTH_CHALLENGE_KEY)
 }
@@ -109,12 +111,10 @@ export const markSecurityConfirmed = (session: SessionStore) => {
 export const isSecurityConfirmed = (session: SessionStore): boolean => {
   const confirmationValue = session.get(SECURITY_CONFIRMATION_KEY)
 
-  // If it's not a number (timestamp), it's invalid
   if (typeof confirmationValue !== 'number') {
     return false
   }
 
-  // Check if the timestamp is within the timeout window
   const now = Date.now()
   const timeSinceConfirmation = now - confirmationValue
 

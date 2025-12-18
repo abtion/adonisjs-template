@@ -10,18 +10,30 @@ import {
   isSecurityConfirmed,
   parseTwoFactorSecret,
   generateAndStoreTwoFactorSecret,
+  PENDING_USER_ID_KEY,
 } from '#services/two_factor'
 import { verifyOtpValidator } from '#validators/verify_otp'
 import { sql } from 'kysely'
 
 export default class TwoFactorController {
   async challenge({ auth, session, inertia, response }: HttpContext) {
-    const user = await loadUserWithTwoFactor(auth.user!.id)
+    const pendingUserId = session.get(PENDING_USER_ID_KEY) as number | undefined
+    const userId = pendingUserId || auth.user?.id
+
+    if (!userId) {
+      return response.redirect().toRoute('sign-in')
+    }
+
+    const user = await loadUserWithTwoFactor(userId)
     const needsTwoFactor = user.isTwoFactorEnabled
 
     const recoveryCodes = user.twoFactorRecoveryCodes
 
     if (!needsTwoFactor) {
+      if (pendingUserId) {
+        await auth.use('web').login(user)
+        session.forget(PENDING_USER_ID_KEY)
+      }
       markTwoFactorPassed(session)
       return response.redirect('/')
     }
@@ -57,7 +69,14 @@ export default class TwoFactorController {
   async verify({ auth, request, response, session, i18n }: HttpContext) {
     const { otp } = await request.validateUsing(verifyOtpValidator)
 
-    const user = await loadUserWithTwoFactor(auth.user!.id)
+    const pendingUserId = session.get(PENDING_USER_ID_KEY) as number | undefined
+    const userId = pendingUserId || auth.user?.id
+
+    if (!userId) {
+      return response.unauthorized({ message: i18n.formatMessage('errors.unauthorized') })
+    }
+
+    const user = await loadUserWithTwoFactor(userId)
 
     const userSecret = parseTwoFactorSecret(user.twoFactorSecret)
 
@@ -86,6 +105,11 @@ export default class TwoFactorController {
       })
       .where('users.id', '=', user.id)
       .execute()
+
+    if (pendingUserId) {
+      await auth.use('web').login(user)
+      session.forget(PENDING_USER_ID_KEY)
+    }
 
     markTwoFactorPassed(session)
 

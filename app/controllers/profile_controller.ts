@@ -54,14 +54,12 @@ export default class ProfileController {
     const expectedChallenge =
       typeof expectedChallengeValue === 'string' ? expectedChallengeValue : undefined
 
-    // Ensure at least one authentication method is provided
     if (!data.password && !data.assertion) {
       return response.badRequest({
         message: i18n.formatMessage('errors.passwordOrPasskeyRequired'),
       })
     }
 
-    // Verify password
     if (data.password) {
       const isPasswordValid = await hash.verify(user.password, data.password)
       if (!isPasswordValid) {
@@ -72,7 +70,6 @@ export default class ProfileController {
       return response.ok({ confirmed: true })
     }
 
-    // Verify passkey
     if (data.assertion && expectedChallenge) {
       // Type is validated by confirmSecurityValidator
       const assertion: AuthenticationResponseJSON = data.assertion as AuthenticationResponseJSON
@@ -121,7 +118,6 @@ export default class ProfileController {
       return response.ok({ confirmed: true })
     }
 
-    // If assertion provided but no challenge in session
     if (data.assertion && !expectedChallenge) {
       return response.badRequest({
         message: i18n.formatMessage('errors.securityConfirmationChallengeNotFound'),
@@ -191,7 +187,6 @@ export default class ProfileController {
       return response.badRequest({ message: i18n.formatMessage('errors.invalidCredentialId') })
     }
 
-    // Verify the credential belongs to the user
     const credential = await db()
       .selectFrom('webauthnCredentials')
       .select(['id', 'userId'])

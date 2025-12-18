@@ -17,9 +17,7 @@ export type SessionUser = Omit<
     | 'twoFactorRecoveryCodes'
   >,
   'twoFactorRecoveryCodes'
-> & {
-  twoFactorRecoveryCodes: string[]
-}
+>
 
 export class SessionKyselyUserProvider implements SessionUserProviderContract<SessionUser> {
   declare [symbols.PROVIDER_REAL_USER]: SessionUser
