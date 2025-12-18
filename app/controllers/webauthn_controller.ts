@@ -8,7 +8,6 @@ import {
   WEBAUTHN_AUTH_CHALLENGE_KEY,
   WEBAUTHN_REG_CHALLENGE_KEY,
   isTwoFactorPassed,
-  loadUserWithTwoFactor,
   markTwoFactorPassed,
   isSecurityConfirmed,
   parseTransports,
@@ -23,7 +22,9 @@ import {
 
 export default class WebauthnController {
   async registerOptions({ auth, session, response, i18n }: HttpContext) {
-    const user = await loadUserWithTwoFactor(auth.user!.id)
+    if (!auth.user) {
+      return response.unauthorized({ message: i18n.formatMessage('errors.unauthorized') })
+    }
 
     if (!isSecurityConfirmed(session)) {
       return response.unauthorized({
@@ -31,7 +32,7 @@ export default class WebauthnController {
       })
     }
 
-    if (user.isTwoFactorEnabled && !isTwoFactorPassed(session)) {
+    if (auth.user.isTwoFactorEnabled && !isTwoFactorPassed(session)) {
       return response.unauthorized({
         message: i18n.formatMessage('errors.twoFactorRequiredAddWebauthn'),
       })
@@ -40,15 +41,15 @@ export default class WebauthnController {
     const existing = await db()
       .selectFrom('webauthnCredentials')
       .select(['credentialId'])
-      .where('webauthnCredentials.userId', '=', user.id)
+      .where('webauthnCredentials.userId', '=', auth.user.id)
       .execute()
 
     const options = await webauthnServer.generateRegistrationOptions({
       rpName: getRpName(),
       rpID: getRpId(),
-      userID: Buffer.from(String(user.id)),
-      userName: user.email,
-      userDisplayName: user.name,
+      userID: Buffer.from(String(auth.user.id)),
+      userName: auth.user.email,
+      userDisplayName: auth.user.name,
       attestationType: 'none',
       excludeCredentials: existing.map((credential) => ({
         id: credential.credentialId,
@@ -65,7 +66,9 @@ export default class WebauthnController {
   }
 
   async verifyRegistration({ auth, request, session, response, i18n }: HttpContext) {
-    const user = await loadUserWithTwoFactor(auth.user!.id)
+    if (!auth.user) {
+      return response.unauthorized({ message: i18n.formatMessage('errors.unauthorized') })
+    }
 
     if (!isSecurityConfirmed(session)) {
       return response.unauthorized({
@@ -105,7 +108,7 @@ export default class WebauthnController {
     await db()
       .insertInto('webauthnCredentials')
       .values({
-        userId: user.id,
+        userId: auth.user.id,
         credentialId: credential.id,
         publicKey: toBase64Url(credential.publicKey),
         counter,
@@ -129,11 +132,10 @@ export default class WebauthnController {
       return response.unauthorized({ message: i18n.formatMessage('errors.unauthorized') })
     }
 
-    const user = await loadUserWithTwoFactor(auth.user.id)
     const credentials = await db()
       .selectFrom('webauthnCredentials')
       .selectAll()
-      .where('webauthnCredentials.userId', '=', user.id)
+      .where('webauthnCredentials.userId', '=', auth.user.id)
       .execute()
 
     if (!credentials.length) {
@@ -162,7 +164,6 @@ export default class WebauthnController {
       return response.unauthorized({ message: i18n.formatMessage('errors.unauthorized') })
     }
 
-    const user = await loadUserWithTwoFactor(auth.user.id)
     const assertion = request.input('assertion') as AuthenticationResponseJSON | undefined
     const expectedChallenge = session.get(WEBAUTHN_AUTH_CHALLENGE_KEY) as string | undefined
 
@@ -175,7 +176,7 @@ export default class WebauthnController {
     const credential = await db()
       .selectFrom('webauthnCredentials')
       .selectAll()
-      .where('webauthnCredentials.userId', '=', user.id)
+      .where('webauthnCredentials.userId', '=', auth.user.id)
       .where('webauthnCredentials.credentialId', '=', assertion.id)
       .executeTakeFirst()
 
