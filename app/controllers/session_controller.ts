@@ -66,14 +66,14 @@ export default class SessionController {
 
     if (!verifiedUser) throw new errors.E_INVALID_CREDENTIALS('invalidCredentials')
 
+    await auth.use('web').login(verifiedUser)
+
     const needsTwoFactor = verifiedUser.isTwoFactorEnabled
 
     if (needsTwoFactor) {
-      session.put('pendingUserId', verifiedUser.id)
       return response.redirect().toRoute('2fa.challenge')
     }
 
-    await auth.use('web').login(verifiedUser)
     markTwoFactorPassed(session)
     return response.redirect('/')
   }
