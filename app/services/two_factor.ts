@@ -6,6 +6,10 @@ import type { AuthenticatorTransport } from '@simplewebauthn/types'
 import twoFactorAuth from '@nulix/adonis-2fa/services/main'
 import { sql } from 'kysely'
 
+export type UserWithTwoFactor = Omit<Selectable<Users>, 'twoFactorRecoveryCodes'> & {
+  twoFactorRecoveryCodes: string[]
+}
+
 type SessionStore = HttpContext['session']
 
 /**
@@ -122,7 +126,7 @@ export const resetSecurityConfirmation = (session: SessionStore) => {
   session.forget(SECURITY_CONFIRMATION_CHALLENGE_KEY)
 }
 
-export async function loadUserWithTwoFactor(userId: number): Promise<Selectable<Users>> {
+export async function loadUserWithTwoFactor(userId: number): Promise<UserWithTwoFactor> {
   const user = await db()
     .selectFrom('users')
     .selectAll()
@@ -133,7 +137,10 @@ export async function loadUserWithTwoFactor(userId: number): Promise<Selectable<
     throw new Error('User not found')
   }
 
-  return user
+  return {
+    ...user,
+    twoFactorRecoveryCodes: (user.twoFactorRecoveryCodes as string[]) || [],
+  }
 }
 
 export async function userHasWebauthnCredentials(userId: number): Promise<boolean> {

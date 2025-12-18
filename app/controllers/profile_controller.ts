@@ -17,9 +17,7 @@ import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
 export default class ProfileController {
   async show({ auth, inertia }: HttpContext) {
     const user = auth.user!
-    const recoveryCodes = Array.isArray(user.twoFactorRecoveryCodes)
-      ? (user.twoFactorRecoveryCodes as string[])
-      : []
+    const recoveryCodes = user.twoFactorRecoveryCodes
 
     const webauthnCredentials = await db()
       .selectFrom('webauthnCredentials')
