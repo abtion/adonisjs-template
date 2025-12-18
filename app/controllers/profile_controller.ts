@@ -1,7 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import {
   loadUserWithTwoFactor,
-  userHasWebauthnCredentials,
   markSecurityConfirmed,
   isSecurityConfirmed,
   SECURITY_CONFIRMATION_CHALLENGE_KEY,
@@ -19,7 +18,6 @@ import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
 export default class ProfileController {
   async show({ auth, inertia }: HttpContext) {
     const user = auth.user!
-    const hasWebauthn = await userHasWebauthnCredentials(user.id)
     const recoveryCodes = parseRecoveryCodes(user.twoFactorRecoveryCodes)
 
     const webauthnCredentials = await db()
@@ -28,6 +26,8 @@ export default class ProfileController {
       .where('userId', '=', user.id)
       .orderBy('createdAt', 'desc')
       .execute()
+
+    const hasWebauthn = webauthnCredentials.length > 0
 
     return inertia.render('profile/index', {
       user: {
