@@ -30,7 +30,7 @@ test.group('WebauthnController (unit)', () => {
     const controller = new WebauthnController()
     const ctx = makeMockContext()
 
-    const result = await controller.registerOptions(ctx)
+    await controller.registerOptions(ctx)
 
     assert.isTrue((ctx.response.unauthorized as sinon.SinonSpy).called)
     assert.deepEqual((ctx.response.unauthorized as sinon.SinonSpy).firstCall.args[0], {
@@ -42,7 +42,7 @@ test.group('WebauthnController (unit)', () => {
     const controller = new WebauthnController()
     const ctx = makeMockContext()
 
-    const result = await controller.verifyRegistration(ctx)
+    await controller.verifyRegistration(ctx)
 
     assert.isTrue((ctx.response.unauthorized as sinon.SinonSpy).called)
     assert.deepEqual((ctx.response.unauthorized as sinon.SinonSpy).firstCall.args[0], {

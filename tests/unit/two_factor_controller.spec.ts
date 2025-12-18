@@ -34,7 +34,7 @@ test.group('TwoFactorController (unit)', () => {
     const controller = new TwoFactorController()
     const ctx = makeMockContext()
 
-    const result = await controller.generateRecoveryCodes(ctx)
+    await controller.generateRecoveryCodes(ctx)
 
     assert.isTrue((ctx.response.unauthorized as sinon.SinonSpy).called)
     assert.deepEqual((ctx.response.unauthorized as sinon.SinonSpy).firstCall.args[0], {
@@ -46,7 +46,7 @@ test.group('TwoFactorController (unit)', () => {
     const controller = new TwoFactorController()
     const ctx = makeMockContext()
 
-    const result = await controller.disable(ctx)
+    await controller.disable(ctx)
 
     assert.isTrue((ctx.response.unauthorized as sinon.SinonSpy).called)
     assert.deepEqual((ctx.response.unauthorized as sinon.SinonSpy).firstCall.args[0], {
@@ -58,7 +58,7 @@ test.group('TwoFactorController (unit)', () => {
     const controller = new TwoFactorController()
     const ctx = makeMockContext()
 
-    const result = await controller.verify(ctx)
+    await controller.verify(ctx)
 
     assert.isTrue((ctx.response.unauthorized as sinon.SinonSpy).called)
     assert.deepEqual((ctx.response.unauthorized as sinon.SinonSpy).firstCall.args[0], {
