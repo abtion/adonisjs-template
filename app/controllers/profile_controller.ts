@@ -18,7 +18,7 @@ import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
 
 export default class ProfileController {
   async show({ auth, inertia }: HttpContext) {
-    const user = await loadUserWithTwoFactor(auth.user!.id)
+    const user = auth.user!
     const hasWebauthn = await userHasWebauthnCredentials(user.id)
     const recoveryCodes = parseRecoveryCodes(user.twoFactorRecoveryCodes)
 
@@ -131,7 +131,7 @@ export default class ProfileController {
   }
 
   async confirmSecurityOptions({ auth, session, response }: HttpContext) {
-    const user = await loadUserWithTwoFactor(auth.user!.id)
+    const user = auth.user!
     const credentials = await db()
       .selectFrom('webauthnCredentials')
       .selectAll()
@@ -154,7 +154,7 @@ export default class ProfileController {
   }
 
   async enable({ auth, response, session, i18n }: HttpContext) {
-    const user = await loadUserWithTwoFactor(auth.user!.id)
+    const user = auth.user!
 
     if (!isSecurityConfirmed(session)) {
       return response.unauthorized({
@@ -174,7 +174,7 @@ export default class ProfileController {
   }
 
   async removePasskey({ auth, request, response, session, i18n }: HttpContext) {
-    const user = await loadUserWithTwoFactor(auth.user!.id)
+    const user = auth.user!
 
     if (!isSecurityConfirmed(session)) {
       return response.unauthorized({
