@@ -8,7 +8,6 @@ import {
   markTwoFactorPassed,
   resetTwoFactorSession,
   isSecurityConfirmed,
-  parseRecoveryCodes,
   parseTwoFactorSecret,
   generateAndStoreTwoFactorSecret,
 } from '#services/two_factor'
@@ -20,7 +19,9 @@ export default class TwoFactorController {
     const user = await loadUserWithTwoFactor(auth.user!.id)
     const needsTwoFactor = user.isTwoFactorEnabled
 
-    const recoveryCodes = parseRecoveryCodes(user.twoFactorRecoveryCodes)
+    const recoveryCodes = Array.isArray(user.twoFactorRecoveryCodes)
+      ? (user.twoFactorRecoveryCodes as string[])
+      : []
 
     if (!needsTwoFactor) {
       markTwoFactorPassed(session)
@@ -63,7 +64,9 @@ export default class TwoFactorController {
     const userSecret = parseTwoFactorSecret(user.twoFactorSecret)
 
     const secret = userSecret?.secret
-    const recoveryCodes = parseRecoveryCodes(user.twoFactorRecoveryCodes)
+    const recoveryCodes = Array.isArray(user.twoFactorRecoveryCodes)
+      ? (user.twoFactorRecoveryCodes as string[])
+      : []
 
     if (!secret) {
       return response.badRequest({

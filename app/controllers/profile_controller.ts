@@ -5,7 +5,6 @@ import {
   isSecurityConfirmed,
   SECURITY_CONFIRMATION_CHALLENGE_KEY,
   parseTransports,
-  parseRecoveryCodes,
   generateAndStoreTwoFactorSecret,
 } from '#services/two_factor'
 import { getRpId, getOrigin, fromBase64Url } from '#services/webauthn_service'
@@ -18,7 +17,9 @@ import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
 export default class ProfileController {
   async show({ auth, inertia }: HttpContext) {
     const user = auth.user!
-    const recoveryCodes = parseRecoveryCodes(user.twoFactorRecoveryCodes)
+    const recoveryCodes = Array.isArray(user.twoFactorRecoveryCodes)
+      ? (user.twoFactorRecoveryCodes as string[])
+      : []
 
     const webauthnCredentials = await db()
       .selectFrom('webauthnCredentials')
