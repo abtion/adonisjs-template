@@ -14,7 +14,7 @@ import i18nextConfig from '../config/i18next_config'
 createInertiaApp<SharedProps>({
   progress: { color: colors.primary.DEFAULT },
 
-  title: (title) => [title, 'DM Greenkeeping'].filter(Boolean).join(' - '),
+  title: (title) => [title, 'Project Name Human'].filter(Boolean).join(' - '),
 
   resolve: (name) =>
     resolvePageComponent(`../pages/${name}.tsx`, import.meta.glob('../pages/**/*.tsx')),
