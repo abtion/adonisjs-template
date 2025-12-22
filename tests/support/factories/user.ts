@@ -18,6 +18,11 @@ export async function getUserAttributes(attributes: Partial<InsertObject<DB, 'us
 export async function createUser(attributes: Partial<InsertObject<DB, 'users'>> = {}) {
   const values: any = await getUserAttributes(attributes)
 
+  // Explicitly handle isTwoFactorEnabled to ensure it's set correctly
+  if (attributes.isTwoFactorEnabled !== undefined) {
+    values.isTwoFactorEnabled = attributes.isTwoFactorEnabled
+  }
+
   if (attributes.twoFactorSecret !== undefined) {
     const payload =
       typeof attributes.twoFactorSecret === 'string'

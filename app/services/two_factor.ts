@@ -77,8 +77,6 @@ export const WEBAUTHN_REG_CHALLENGE_KEY = 'webauthnRegistrationChallenge'
 export const WEBAUTHN_AUTH_CHALLENGE_KEY = 'webauthnAuthenticationChallenge'
 export const SECURITY_CONFIRMATION_KEY = 'securityConfirmation'
 export const SECURITY_CONFIRMATION_CHALLENGE_KEY = 'securityConfirmationChallenge'
-export const TWO_FACTOR_ATTEMPTS_KEY = 'twoFactorAttempts'
-export const TWO_FACTOR_RATE_LIMIT_KEY = 'twoFactorRateLimit'
 
 export const markTwoFactorPassed = (session: SessionStore) => {
   session.put(TWO_FACTOR_SESSION_KEY, true)
@@ -126,59 +124,6 @@ export const isSecurityConfirmed = (session: SessionStore): boolean => {
 export const resetSecurityConfirmation = (session: SessionStore) => {
   session.forget(SECURITY_CONFIRMATION_KEY)
   session.forget(SECURITY_CONFIRMATION_CHALLENGE_KEY)
-}
-
-/**
- * Rate limiting configuration for 2FA attempts
- */
-const MAX_ATTEMPTS = 5
-const RATE_LIMIT_DURATION_MS = 5 * 60 * 1000 // 5 minutes
-
-/**
- * Check if user is rate limited for 2FA attempts
- * Returns the remaining wait time in milliseconds if rate limited, null otherwise
- */
-export const checkTwoFactorRateLimit = (session: SessionStore): number | null => {
-  const rateLimitUntil = session.get(TWO_FACTOR_RATE_LIMIT_KEY) as number | undefined
-
-  if (!rateLimitUntil) {
-    return null
-  }
-
-  const now = Date.now()
-  if (now < rateLimitUntil) {
-    return rateLimitUntil - now
-  }
-
-  // Rate limit expired, clear it
-  session.forget(TWO_FACTOR_RATE_LIMIT_KEY)
-  session.forget(TWO_FACTOR_ATTEMPTS_KEY)
-  return null
-}
-
-/**
- * Record a failed 2FA attempt and apply rate limiting if necessary
- * Returns the remaining wait time in milliseconds if rate limited, null otherwise
- */
-export const recordTwoFactorAttempt = (session: SessionStore): number | null => {
-  const attempts = (session.get(TWO_FACTOR_ATTEMPTS_KEY, 0) as number) + 1
-  session.put(TWO_FACTOR_ATTEMPTS_KEY, attempts)
-
-  if (attempts >= MAX_ATTEMPTS) {
-    const rateLimitUntil = Date.now() + RATE_LIMIT_DURATION_MS
-    session.put(TWO_FACTOR_RATE_LIMIT_KEY, rateLimitUntil)
-    return RATE_LIMIT_DURATION_MS
-  }
-
-  return null
-}
-
-/**
- * Clear 2FA attempt tracking (called on successful verification)
- */
-export const clearTwoFactorAttempts = (session: SessionStore) => {
-  session.forget(TWO_FACTOR_ATTEMPTS_KEY)
-  session.forget(TWO_FACTOR_RATE_LIMIT_KEY)
 }
 
 export async function loadUserWithTwoFactor(userId: number): Promise<UserWithTwoFactor> {

@@ -5,6 +5,7 @@ import { createUser } from '#tests/support/factories/user'
 import { webauthnServer } from '#services/webauthn_server'
 import { Insertable } from 'kysely'
 import type { WebauthnCredentials } from '#database/types'
+import hash from '@adonisjs/core/services/hash'
 
 const defaultCredentialId = Buffer.from('passwordless-cred').toString('base64url')
 
@@ -260,6 +261,70 @@ test.group('Session controller - checkEmail', (group) => {
 test.group('Session controller - sign in', (group) => {
   group.each.setup(() => withGlobalTransaction())
 
+  test('show renders sign-in form', async ({ client }) => {
+    const response = await client.get('/sign-in').withInertia()
+
+    response.assertStatus(200)
+    response.assertBodyContains({
+      component: 'session/signIn',
+      props: {
+        step: 'email',
+      },
+    })
+  })
+
+  test('store logs in user without 2FA and redirects to home', async ({ client }) => {
+    const user = await createUser({
+      email: 'nofactor@example.com',
+      password: await hash.make('password123'),
+      isTwoFactorEnabled: false,
+    })
+
+    const response = await client
+      .post('/sign-in')
+      .form({ email: user.email, password: 'password123' })
+      .withCsrfToken()
+      .redirects(0)
+
+    response.assertStatus(302)
+    response.assertHeader('location', '/')
+  })
+
+  test('store redirects to 2FA challenge when user has 2FA enabled', async ({ client, assert }) => {
+    // Create user with 2FA enabled
+    const userPassword = 'password123'
+    const user = await createUser({
+      email: 'withfactor@example.com',
+      password: await hash.make(userPassword),
+      isTwoFactorEnabled: true,
+    })
+
+    // Verify user has 2FA enabled in database (reload to ensure value is persisted)
+    const dbUser = await db()
+      .selectFrom('users')
+      .where('id', '=', user.id)
+      .selectAll()
+      .executeTakeFirstOrThrow()
+    assert.isTrue(
+      Boolean(dbUser.isTwoFactorEnabled),
+      `User should have 2FA enabled in database, got: ${dbUser.isTwoFactorEnabled}`
+    )
+
+    const response = await client
+      .post('/sign-in')
+      .form({ email: user.email, password: userPassword })
+      .withCsrfToken()
+      .redirects(0)
+
+    response.assertStatus(302)
+    const location = response.header('location')
+    // The route name '2fa.challenge' should resolve to '/2fa/challenge'
+    assert.isTrue(
+      location === '/2fa/challenge' || location?.includes('2fa/challenge'),
+      `Expected redirect to /2fa/challenge, got: ${location}`
+    )
+  })
+
   test('store returns invalid credentials for unknown email', async ({ client }) => {
     const response = await client
       .post('/sign-in')
@@ -271,5 +336,14 @@ test.group('Session controller - sign in', (group) => {
     if (![400, 302].includes(response.status())) {
       throw new Error(`Unexpected status ${response.status()}`)
     }
+  })
+
+  test('destroy logs out user and redirects to home', async ({ client }) => {
+    const user = await createUser()
+
+    const response = await client.delete('/session').loginAs(user).withCsrfToken().redirects(0)
+
+    response.assertStatus(302)
+    response.assertHeader('location', '/')
   })
 })

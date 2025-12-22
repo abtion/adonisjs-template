@@ -48,6 +48,7 @@ export default class ProfileController {
   }
 
   async confirmSecurity({ auth, request, session, response, i18n }: HttpContext) {
+    // Needed: user.password (not in auth.user)
     const user = await loadUserWithTwoFactor(auth.user!.id)
     const data = await request.validateUsing(confirmSecurityValidator)
     const expectedChallengeValue = session.get(SECURITY_CONFIRMATION_CHALLENGE_KEY)
@@ -63,9 +64,7 @@ export default class ProfileController {
     if (data.password) {
       const isPasswordValid = await hash.verify(user.password, data.password)
       if (!isPasswordValid) {
-        return response.unauthorized({
-          message: i18n.formatMessage('errors.securityConfirmationFailed'),
-        })
+        return response.unauthorized({ message: i18n.formatMessage('errors.invalidPassword') })
       }
       markSecurityConfirmed(session)
       session.forget(SECURITY_CONFIRMATION_CHALLENGE_KEY)
@@ -102,7 +101,7 @@ export default class ProfileController {
 
       if (!verification.verified || !verification.authenticationInfo) {
         return response.badRequest({
-          message: i18n.formatMessage('errors.securityConfirmationFailed'),
+          message: i18n.formatMessage('errors.passkeyVerificationFailed'),
         })
       }
 

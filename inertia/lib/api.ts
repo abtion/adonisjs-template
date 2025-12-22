@@ -11,46 +11,17 @@ export function getCsrfToken(): string {
 }
 
 /**
- * Custom error class that includes HTTP status code and error type
+ * Custom error class that includes HTTP status code
  */
 export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
-    public data?: any,
-    public errorType?:
-      | 'network'
-      | 'rateLimit'
-      | 'validation'
-      | 'authentication'
-      | 'server'
-      | 'unknown'
+    public data?: any
   ) {
     super(message)
     this.name = 'ApiError'
   }
-}
-
-/**
- * Determine error type based on status code and error message
- */
-function determineErrorType(status: number, message: string): ApiError['errorType'] {
-  if (status === 0 || status >= 500) {
-    return 'server'
-  }
-  if (status === 401 || status === 403) {
-    return 'authentication'
-  }
-  if (status === 429) {
-    return 'rateLimit'
-  }
-  if (status >= 400 && status < 500) {
-    return 'validation'
-  }
-  if (message.toLowerCase().includes('network') || message.toLowerCase().includes('fetch')) {
-    return 'network'
-  }
-  return 'unknown'
 }
 
 /**
@@ -67,52 +38,19 @@ export async function postJson<T = any>(
   method: string = 'POST'
 ): Promise<T> {
   const csrf = getCsrfToken()
+  const res = await fetch(url, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-XSRF-TOKEN': csrf,
+    },
+    body: payload ? JSON.stringify(payload) : undefined,
+  })
 
-  let res: Response
-  try {
-    res = await fetch(url, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        'X-XSRF-TOKEN': csrf,
-      },
-      body: payload ? JSON.stringify(payload) : undefined,
-    })
-  } catch (error) {
-    // Network error (no response received)
-    const networkError = error instanceof Error ? error : new Error('Network error')
-    throw new ApiError(
-      'Network connection error. Please check your internet connection and try again.',
-      0,
-      { originalError: networkError },
-      'network'
-    )
-  }
-
-  let data: any = {}
-  try {
-    data = await res.json()
-  } catch {
-    // Response is not JSON, use empty object
-    data = {}
-  }
+  const data = await res.json().catch(() => ({}))
 
   if (!res.ok) {
-    const errorMessage = (data as any)?.message || 'Request failed'
-    const errorType = determineErrorType(res.status, errorMessage)
-
-    // Enhance error message for rate limiting
-    if (res.status === 429) {
-      const retryAfter = res.headers.get('Retry-After')
-      const minutes = retryAfter ? Math.ceil(parseInt(retryAfter, 10) / 60) : undefined
-      const enhancedMessage = minutes
-        ? `Too many failed attempts. Please wait ${minutes} minutes before trying again.`
-        : 'Too many failed attempts. Please wait a few minutes before trying again.'
-
-      throw new ApiError(enhancedMessage, res.status, data, errorType)
-    }
-
-    throw new ApiError(errorMessage, res.status, data, errorType)
+    throw new ApiError((data as any).message || 'Request failed', res.status, data)
   }
 
   return data as T

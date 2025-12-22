@@ -10,9 +10,6 @@ import {
   isSecurityConfirmed,
   parseTwoFactorSecret,
   generateAndStoreTwoFactorSecret,
-  checkTwoFactorRateLimit,
-  recordTwoFactorAttempt,
-  clearTwoFactorAttempts,
 } from '#services/two_factor'
 import { verifyOtpValidator } from '#validators/verify_otp'
 import { sql } from 'kysely'
@@ -66,23 +63,7 @@ export default class TwoFactorController {
       return response.unauthorized({ message: i18n.formatMessage('errors.unauthorized') })
     }
 
-    // Check rate limiting
-    const rateLimitRemaining = checkTwoFactorRateLimit(session)
-    if (rateLimitRemaining !== null) {
-      const minutes = Math.ceil(rateLimitRemaining / 60000)
-      return response.status(429).json({
-        message: i18n.formatMessage('errors.rateLimitExceeded', { minutes }),
-      })
-    }
-
     const { otp } = await request.validateUsing(verifyOtpValidator)
-
-    // Basic format validation
-    if (!otp || typeof otp !== 'string' || otp.trim().length === 0) {
-      return response.badRequest({
-        message: i18n.formatMessage('errors.otpInvalidFormat'),
-      })
-    }
 
     const user = await loadUserWithTwoFactor(auth.user.id)
 
@@ -97,40 +78,13 @@ export default class TwoFactorController {
       })
     }
 
-    // Check if it's a recovery code
-    const isRecoveryCode = recoveryCodes.includes(otp.trim())
-
-    // Verify the code
-    const isValid = isRecoveryCode
-      ? true // Recovery code is already checked above
-      : twoFactorAuth.verifyToken(secret, otp.trim(), recoveryCodes)
+    const isValid = twoFactorAuth.verifyToken(secret, otp, recoveryCodes)
 
     if (!isValid) {
-      // Record failed attempt
-      const newRateLimitRemaining = recordTwoFactorAttempt(session)
-
-      if (newRateLimitRemaining !== null) {
-        const minutes = Math.ceil(newRateLimitRemaining / 60000)
-        return response.status(429).json({
-          message: i18n.formatMessage('errors.rateLimitExceeded', { minutes }),
-        })
-      }
-
-      // Determine specific error message
-      let errorMessage = i18n.formatMessage('errors.otpInvalid')
-
-      if (isRecoveryCode) {
-        errorMessage = i18n.formatMessage('errors.recoveryCodeInvalid')
-      } else if (!/^\d{6}$/.test(otp.trim())) {
-        errorMessage = i18n.formatMessage('errors.otpInvalidFormat')
-      }
-
-      return response.badRequest({ message: errorMessage })
+      return response.badRequest({ message: i18n.formatMessage('errors.otpInvalid') })
     }
 
-    // Success - clear rate limiting and update recovery codes if used
-    clearTwoFactorAttempts(session)
-    const updatedRecoveryCodes = recoveryCodes.filter((code) => code !== otp.trim())
+    const updatedRecoveryCodes = recoveryCodes.filter((code) => code !== otp)
 
     await db()
       .updateTable('users')

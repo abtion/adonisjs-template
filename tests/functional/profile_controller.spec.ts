@@ -105,7 +105,7 @@ test.group('Profile controller', (group) => {
 
     response.assertStatus(401)
     response.assertBodyContains({
-      message: 'Security confirmation failed. Please verify your identity and try again.',
+      message: 'Invalid password',
     })
   })
 
@@ -165,6 +165,9 @@ test.group('Profile controller', (group) => {
       .json({ assertion: buildAssertion(credential.credentialId) })
 
     response.assertStatus(400)
+    response.assertBodyContains({
+      message: 'Passkey verification failed',
+    })
 
     const stored = await db()
       .selectFrom('webauthnCredentials')
@@ -302,7 +305,9 @@ test.group('Profile controller', (group) => {
       .withCsrfToken()
 
     response.assertStatus(200)
-    response.assertBodyContains({ secret, recoveryCodes })
+    const body = response.body()
+    assert.deepEqual(body.secret, secret)
+    assert.deepEqual(body.recoveryCodes, recoveryCodes)
 
     const stored = await db()
       .selectFrom('users')

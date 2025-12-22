@@ -2,9 +2,8 @@ import { useState } from 'react'
 import { router } from '@inertiajs/react'
 import Button from '~/components/Button'
 import Input from '~/components/Input'
-import ErrorMessage from '~/components/ErrorMessage'
 import SecurityConfirmation from '~/components/SecurityConfirmation'
-import { postJson, ApiError } from '~/lib/api'
+import { postJson } from '~/lib/api'
 
 type TwoFactorSecret = { secret: string; uri: string; qr: string }
 
@@ -40,58 +39,27 @@ export default function TwoFactor({
   const [otp, setOtp] = useState('')
   const [status, setStatus] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [errorType, setErrorType] = useState<'danger' | 'warning'>('danger')
   const [busy, setBusy] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [pendingAction, setPendingAction] = useState<(() => Promise<void>) | null>(null)
-
-  const getErrorMessage = (err: unknown): string => {
-    if (err instanceof ApiError) {
-      if (err.errorType === 'network') {
-        return 'Network connection error. Please check your internet connection and try again.'
-      }
-      if (err.errorType === 'rateLimit') {
-        return err.message
-      }
-      return err.message
-    }
-    if (err instanceof Error) {
-      return err.message
-    }
-    return 'An unexpected error occurred. Please try again.'
-  }
 
   const handle = async (fn: () => Promise<void>) => {
     setBusy(true)
     setError(null)
     setStatus(null)
-    setErrorType('danger')
-
     try {
       await fn()
     } catch (err) {
-      const errorMessage = getErrorMessage(err)
-
+      const errorMessage = (err as Error).message
       // Check if error is about security confirmation
-      if (
-        errorMessage.includes('Security confirmation required') ||
-        errorMessage.includes('security confirmation')
-      ) {
+      if (errorMessage.includes('Security confirmation required')) {
         setError(null)
         setPendingAction(() => fn)
         setShowConfirmation(true)
         setBusy(false)
         return
       }
-
       setError(errorMessage)
-
-      // Determine error type for styling
-      if (err instanceof ApiError) {
-        if (err.errorType === 'rateLimit' || err.errorType === 'network') {
-          setErrorType('warning')
-        }
-      }
     } finally {
       setBusy(false)
     }
@@ -115,31 +83,15 @@ export default function TwoFactor({
       setStatus('Scan the QR code and verify with a code from your authenticator app.')
     })
 
-  const verifyTotp = () => {
-    // Basic client-side validation
-    if (!otp || otp.trim().length === 0) {
-      setError('Please enter a verification code.')
-      setErrorType('danger')
-      return
-    }
-
-    // Validate format (should be 6 digits)
-    if (!/^\d{6}$/.test(otp.trim())) {
-      setError('Please enter a valid 6-digit code from your authenticator app.')
-      setErrorType('danger')
-      return
-    }
-
+  const verifyTotp = () =>
     handle(async () => {
-      await postJson('/2fa/totp/verify', { otp: otp.trim() })
+      await postJson('/2fa/totp/verify', { otp })
       setEnabled(true)
       setSetupMode(false)
-      setOtp('')
       setStatus('Two-factor authentication enabled successfully.')
       // Reload to get updated server state (recovery codes count, etc.)
       router.reload({ only: ['twoFactor'] })
     })
-  }
 
   const generateRecovery = () =>
     handle(async () => {
@@ -241,34 +193,15 @@ export default function TwoFactor({
                     </label>
                     <Input
                       value={otp}
-                      onChange={(e) => {
-                        // Only allow digits
-                        const value = e.target.value.replace(/\D/g, '').slice(0, 6)
-                        setOtp(value)
-                        // Clear error when user starts typing
-                        if (error) {
-                          setError(null)
-                        }
-                      }}
+                      onChange={(e) => setOtp(e.target.value)}
                       placeholder="000000"
                       autoComplete="one-time-code"
-                      inputMode="numeric"
                       size="md"
                       className="max-w-xs"
-                      variant={error ? 'error' : 'default'}
-                      aria-invalid={error ? 'true' : 'false'}
-                      aria-describedby={error ? 'otp-error' : undefined}
-                      disabled={busy}
                     />
                   </div>
-                  <Button
-                    onClick={verifyTotp}
-                    disabled={busy || !otp || otp.length !== 6}
-                    variant="success"
-                    size="md"
-                    aria-busy={busy}
-                  >
-                    {busy ? 'Verifying...' : 'Verify and Complete Setup'}
+                  <Button onClick={verifyTotp} disabled={busy || !otp} variant="success" size="md">
+                    Verify and Complete Setup
                   </Button>
                 </div>
               </div>
@@ -328,19 +261,12 @@ export default function TwoFactor({
           </div>
         )}
 
-        {error && (
-          <ErrorMessage
-            message={error}
-            variant={errorType}
-            className="mt-4"
-            aria-live="assertive"
-            showIcon
-            onDismiss={() => setError(null)}
-          />
-        )}
-
-        {status && !error && (
-          <div className="bg-green-50 text-green-700 mt-4 rounded p-3 text-sm">{status}</div>
+        {(status || error) && (
+          <div
+            className={`mt-4 rounded p-3 ${error ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}
+          >
+            {error || status}
+          </div>
         )}
       </section>
     </>

@@ -137,14 +137,14 @@ test.group('TwoFactorController', (group) => {
 
     const response = await client
       .post('/2fa/totp/verify')
-      .form({ otp: 'BAD1' })
+      .form({ otp: '123456' })
       .loginAs(user)
       .withCsrfToken()
       .redirects(0)
 
     response.assertStatus(400)
     response.assertBodyContains({
-      message: 'The code format is invalid. Please enter a 6-digit code.',
+      message: 'OTP invalid',
     })
   })
 
