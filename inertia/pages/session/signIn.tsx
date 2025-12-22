@@ -1,30 +1,29 @@
 import { SharedProps } from '@adonisjs/inertia/types'
 import { Head, router, useForm, usePage } from '@inertiajs/react'
-import { ChangeEvent, FormEvent, useState } from 'react'
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { startAuthentication } from '@simplewebauthn/browser'
 import Alert from '~/components/Alert'
 import Button from '~/components/Button'
 import Input from '~/components/Input'
 import SessionLayout from '~/layouts/session'
-import { postJson, ApiError } from '~/lib/api'
+import { tuyau } from '~/lib/tuyau'
+import { useAutofillRef } from '~/hooks/useAutofillRef'
+import { FieldError, FormError } from '~/components/FieldError'
+import { BaseFormError } from '~/components/BaseFormError'
 
 export default function SignIn() {
   const { t } = useTranslation()
   const [emailChecked, setEmailChecked] = useState(false)
-  const [authInfo, setAuthInfo] = useState<{ hasPasskeys: boolean; requiresOtp: boolean } | null>(
+  const [authInfo, setAuthInfo] = useState<{ hasWebauthn: boolean; requiresOtp: boolean } | null>(
     null
   )
-  const [passkeyError, setPasskeyError] = useState<string | null>(null)
-  const [passkeyBusy, setPasskeyBusy] = useState(false)
+  const [webauthnError, setWebauthnError] = useState<boolean>(false)
+  const [webauthnBusy, setWebauthnBusy] = useState(false)
   const [checkingEmail, setCheckingEmail] = useState(false)
   const [showPasswordFallback, setShowPasswordFallback] = useState(false)
 
-  const {
-    props: { exceptions },
-  } = usePage<SharedProps>()
-
-  const { data, setData, post, processing, errors } = useForm({
+  const { data, setData, post, processing, errors, clearErrors } = useForm({
     email: '',
     password: '',
   })
@@ -33,45 +32,29 @@ export default function SignIn() {
     e.preventDefault()
 
     // If password field is shown, submit the full form
-    if (emailChecked && showPasswordFallback) {
+    if ((emailChecked && showPasswordFallback) || !data.email) {
       handlePasswordSubmit(e)
       return
     }
 
-    // Otherwise, check email and handle passkey or show password
     setCheckingEmail(true)
-    setPasskeyError(null)
+    setWebauthnError(false)
+    clearErrors()
 
     try {
-      const info = await postJson<{
-        exists: boolean
-        hasPasskeys?: boolean
-        requiresOtp?: boolean
-      }>('/sign-in/check-email', { email: data.email })
+      const info = await tuyau.session.options({ email: data.email }).$get().unwrap()
 
-      // Always proceed to password entry to prevent user enumeration
-      // Server always returns exists: true to prevent enumeration
-      // If account doesn't exist, authentication will fail with generic error on server side
-      setAuthInfo({
-        hasPasskeys: info.hasPasskeys || false,
-        requiresOtp: info.requiresOtp || false,
-      })
+      setAuthInfo(info)
       setEmailChecked(true)
 
-      // If user has passkeys, auto-trigger passkey authentication
-      if (info.hasPasskeys) {
-        await handlePasskey()
+      if (info.hasWebauthn) {
+        await handleWebauthn()
       } else {
-        // No passkeys or account doesn't exist, show password field
-        // Server-side authentication will handle invalid credentials generically
         setShowPasswordFallback(true)
       }
     } catch (err) {
-      if (err instanceof ApiError && err.status === 400) {
-        setPasskeyError(err.message)
-      }
-      // Always show password fallback to allow authentication attempt
-      // This prevents user enumeration by not revealing whether the account exists
+      console.error(err)
+      setWebauthnError(true)
       setShowPasswordFallback(true)
     } finally {
       setCheckingEmail(false)
@@ -80,52 +63,36 @@ export default function SignIn() {
 
   function handlePasswordSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    post('/sign-in')
+    post('/session')
   }
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
     setData(event.currentTarget.name as keyof typeof data, event.currentTarget.value)
-    // Reset state when email changes
-    if (event.currentTarget.name === 'email') {
-      setEmailChecked(false)
-      setAuthInfo(null)
-      setShowPasswordFallback(false)
-      setPasskeyError(null)
-    }
   }
 
-  async function handlePasskey() {
-    setPasskeyBusy(true)
-    setPasskeyError(null)
+  useEffect(() => {
+    setEmailChecked(false)
+    setAuthInfo(null)
+    setShowPasswordFallback(false)
+    setWebauthnError(false)
+  }, [data.email])
+
+  async function handleWebauthn() {
+    setWebauthnBusy(true)
+    setWebauthnError(false)
     try {
       if (!data.email) {
         throw new Error('Email is required')
       }
-      const { options } = await postJson<{ options: any }>('/passwordless/options', {
-        email: data.email,
-      })
-      const assertion = await startAuthentication(options)
-      // Use Inertia router to maintain SPA flow
-      await new Promise<void>((resolve, reject) => {
-        router.post(
-          '/passwordless/verify',
-          { assertion: assertion as any },
-          {
-            onSuccess: () => {
-              // Inertia will automatically follow the redirect from the server
-              resolve()
-            },
-            onError: (errors) => {
-              const errorMessage = (errors as any).message || 'Authentication failed'
-              reject(new Error(errorMessage))
-            },
-          }
-        )
-      })
+      const options = await tuyau.session.webauthn({ email: data.email }).$get().unwrap()
+      const assertion = await startAuthentication({ optionsJSON: options })
+
+      await tuyau.session.webauthn({ email: data.email }).$post({ assertion }).unwrap()
+      router.visit('/')
     } catch (err) {
-      setPasskeyError((err as Error).message)
-      setPasskeyBusy(false)
-      // On passkey failure, show password fallback
+      console.error(err)
+      setWebauthnError(true)
+      setWebauthnBusy(false)
       setShowPasswordFallback(true)
     }
   }
@@ -141,6 +108,7 @@ export default function SignIn() {
             <label>
               <p className="text-lg font-medium">{t('fields.email')}</p>
               <Input
+                autoFocus
                 className="mt-2 w-full"
                 size="md"
                 type="text"
@@ -150,18 +118,14 @@ export default function SignIn() {
                 onChange={handleChange}
                 placeholder={t('pages.session.signIn.emailPlaceholder')}
                 autoComplete="email"
-                disabled={passkeyBusy}
+                disabled={webauthnBusy}
+                ref={useAutofillRef<HTMLInputElement>(({ value }) => setData('email', value))}
               />
             </label>
 
-            {errors.email && (
-              <Alert variant="danger" className="mt-2">
-                {errors.email}
-              </Alert>
-            )}
+            <FieldError error={errors.email} className="mt-2" />
           </div>
 
-          {/* Show password field if no passkeys or passkey failed */}
           {showPasswordFallback && (
             <div className="mb-6">
               <label>
@@ -176,35 +140,28 @@ export default function SignIn() {
                   value={data.password}
                   onChange={handleChange}
                   placeholder={t('pages.session.signIn.passwordPlaceholder')}
-                  disabled={processing || passkeyBusy}
+                  disabled={processing || webauthnBusy}
                 />
               </label>
 
-              {errors.password && (
-                <Alert variant="danger" className="mt-2">
-                  {errors.password}
-                </Alert>
-              )}
+              <FieldError error={errors.password} className="mt-2" />
             </div>
           )}
 
-          {/* Show passkey status */}
-          {passkeyBusy && !showPasswordFallback && (
-            <div className="text-gray-600 mb-6 text-center text-sm">Waiting for passkey...</div>
+          {webauthnBusy && !showPasswordFallback && (
+            <div className="text-gray-600 mb-6 text-center text-sm">
+              {t('pages.session.signIn.awaitingWebauthn')}
+            </div>
           )}
 
           {/* Error messages */}
-          {passkeyError && (
+          {webauthnError && (
             <Alert variant="danger" className="mb-6">
-              {passkeyError}
+              {t('pages.session.signIn.webauthnFailed')}
             </Alert>
           )}
 
-          {exceptions['E_INVALID_CREDENTIALS'] && (
-            <Alert variant="danger" className="mb-6">
-              {t(`pages.session.signIn.${exceptions['E_INVALID_CREDENTIALS']}`)}
-            </Alert>
-          )}
+          <BaseFormError className="mb-6" />
 
           {/* Submit button */}
           <div className="actions mt-6">
@@ -213,27 +170,26 @@ export default function SignIn() {
               variant="primary"
               size="md"
               className="w-full"
-              disabled={checkingEmail || processing || passkeyBusy}
+              disabled={checkingEmail || processing || webauthnBusy}
             >
               {checkingEmail
-                ? 'Checking...'
-                : passkeyBusy
-                  ? 'Signing in...'
+                ? t('pages.session.signIn.checkingEmail')
+                : webauthnBusy
+                  ? t('pages.session.signIn.signingIn')
                   : showPasswordFallback
                     ? t('pages.session.signIn.signIn')
-                    : 'Continue'}
+                    : t('pages.session.signIn.continue')}
             </Button>
           </div>
 
-          {/* Fallback link if passkey is being attempted */}
-          {authInfo?.hasPasskeys && !showPasswordFallback && passkeyError && (
+          {authInfo?.hasWebauthn && !showPasswordFallback && webauthnError && (
             <div className="mt-4 text-center">
               <button
                 type="button"
                 onClick={() => setShowPasswordFallback(true)}
                 className="text-sm text-primary-600 underline hover:text-primary-700"
               >
-                Use password instead
+                {t('pages.session.signIn.usePasswordInstead')}
               </button>
             </div>
           )}

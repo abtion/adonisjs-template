@@ -24,7 +24,7 @@ export function getOrigin(): string {
  * Get the WebAuthn relying party name
  */
 export function getRpName(): string {
-  return env.get('WEBAUTHN_RP_NAME', env.get('APP_ISSUER', 'Adonis'))
+  return env.get('WEBAUTHN_RP_NAME', env.get('APP_ISSUER', 'Project Name Human'))
 }
 
 /**
@@ -39,15 +39,4 @@ export function fromBase64Url(value: string): Uint8Array<ArrayBuffer> {
   const uint8Array = new Uint8Array(arrayBuffer)
   uint8Array.set(buffer)
   return uint8Array as Uint8Array<ArrayBuffer>
-}
-
-/**
- * Convert a Uint8Array, ArrayBuffer, or Buffer to a base64url string
- */
-export function toBase64Url(
-  value: Uint8Array | Uint8Array<ArrayBuffer> | ArrayBuffer | Buffer
-): string {
-  return Buffer.from(value instanceof ArrayBuffer ? new Uint8Array(value) : value).toString(
-    'base64url'
-  )
 }

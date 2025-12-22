@@ -1,5 +1,5 @@
 import React from 'react'
-import Alert from '../Alert'
+import { FieldError } from '../FieldError'
 
 type FieldProps = React.HTMLProps<HTMLDivElement> & {
   label: string
@@ -16,11 +16,7 @@ export default function Field(props: FieldProps) {
         {children}
       </label>
 
-      {error && (
-        <Alert variant="danger" className="mt-2">
-          {error}
-        </Alert>
-      )}
+      <FieldError error={error} />
     </div>
   )
 }

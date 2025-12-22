@@ -1,15 +1,17 @@
 import { Head } from '@inertiajs/react'
 import MainLayout from '~/layouts/main'
-import TwoFactor from '~/components/Profile/TwoFactor'
-import Passkeys from '~/components/Profile/Passkeys'
+import Totp from '~/components/Profile/Totp'
+import Webauthn from '~/components/Profile/Webauthn'
 import ProfileController from '#controllers/profile_controller'
 import { InferPageProps } from '@adonisjs/inertia/types'
 
 export default function ProfilePage({
   user,
-  twoFactor,
-  passkeys,
+  totp,
+  credentials,
 }: InferPageProps<ProfileController, 'show'>) {
+  const hasWebauthn = credentials.length > 0
+
   return (
     <MainLayout>
       <Head title="Profile" />
@@ -28,12 +30,12 @@ export default function ProfilePage({
           </p>
         </div>
 
-        <Passkeys initialPasskeys={passkeys || []} hasPasskeys={twoFactor.hasWebauthn} />
+        <Webauthn credentials={credentials} />
 
-        <TwoFactor
-          initialEnabled={twoFactor.enabled}
-          recoveryCodesCount={twoFactor.recoveryCodesCount}
-          hasPasskeys={twoFactor.hasWebauthn}
+        <Totp
+          initialEnabled={totp.enabled}
+          recoveryCodesCount={totp.recoveryCodesCount}
+          hasWebauthn={hasWebauthn}
         />
       </div>
     </MainLayout>

@@ -4,6 +4,7 @@ import type { StatusPageRange, StatusPageRenderer } from '@adonisjs/core/types/h
 import { errors as bouncerErrors } from '@adonisjs/bouncer'
 import logRequest from '#utils/log_request'
 import * as Kysely from 'kysely'
+import FormError from './form_error.js'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -40,11 +41,21 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    */
   async handle(error: unknown, ctx: HttpContext) {
     if (error instanceof bouncerErrors.E_AUTHORIZATION_FAILURE) {
-      if (ctx.session) {
-        ctx.session.flashErrors({ [error.code]: error.message })
+      if (ctx.session && ctx.request.header('x-inertia')) {
+        ctx.session.flashErrors({ base: error.message })
         ctx.response.redirect('back', true)
       } else {
-        ctx.response.status(error.status).send(error.message)
+        ctx.response.status(error.status).send({ field: 'base', message: error.message })
+      }
+      return
+    }
+
+    if (error instanceof FormError) {
+      if (ctx.session && ctx.request.header('x-inertia')) {
+        ctx.session.flashErrors({ [error.field]: error.message })
+        ctx.response.redirect('back', true)
+      } else {
+        ctx.response.status(400).send({ field: error.field, message: error.message })
       }
       return
     }

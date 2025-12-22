@@ -18,23 +18,23 @@ export async function getUserAttributes(attributes: Partial<InsertObject<DB, 'us
 export async function createUser(attributes: Partial<InsertObject<DB, 'users'>> = {}) {
   const values: any = await getUserAttributes(attributes)
 
-  // Explicitly handle isTwoFactorEnabled to ensure it's set correctly
-  if (attributes.isTwoFactorEnabled !== undefined) {
-    values.isTwoFactorEnabled = attributes.isTwoFactorEnabled
+  // Explicitly handle totpEnabled to ensure it's set correctly
+  if (attributes.totpEnabled !== undefined) {
+    values.totpEnabled = attributes.totpEnabled
   }
 
-  if (attributes.twoFactorSecret !== undefined) {
+  if (attributes.totpSecret !== undefined) {
     const payload =
-      typeof attributes.twoFactorSecret === 'string'
-        ? attributes.twoFactorSecret
-        : JSON.stringify(attributes.twoFactorSecret)
+      typeof attributes.totpSecret === 'string'
+        ? attributes.totpSecret
+        : JSON.stringify(attributes.totpSecret)
 
-    values.twoFactorSecret = sql`cast(${payload} as jsonb)`
+    values.totpSecret = sql`cast(${payload} as jsonb)`
   }
 
-  if (attributes.twoFactorRecoveryCodes !== undefined) {
-    const payload = JSON.stringify(attributes.twoFactorRecoveryCodes ?? [])
-    values.twoFactorRecoveryCodes = sql`cast(${payload} as jsonb)`
+  if (attributes.totpRecoveryCodes !== undefined) {
+    const payload = JSON.stringify(attributes.totpRecoveryCodes ?? [])
+    values.totpRecoveryCodes = sql`cast(${payload} as jsonb)`
   }
 
   return db().insertInto('users').values([values]).returningAll().executeTakeFirstOrThrow()
