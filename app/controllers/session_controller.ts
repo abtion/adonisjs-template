@@ -4,16 +4,8 @@ import hash from '@adonisjs/core/services/hash'
 import { setTimeout } from 'node:timers/promises'
 import { errors } from '@adonisjs/auth'
 import type { HttpContext } from '@adonisjs/core/http'
-import {
-  markTwoFactorPassed,
-  resetTwoFactorSession,
-  getUserAuthInfo,
-  resetSecurityConfirmation,
-  parseTransports,
-} from '#services/two_factor'
-import { getRpId, getOrigin, fromBase64Url } from '#services/webauthn_service'
-import { webauthnServer } from '#services/webauthn_server'
-import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
+import { TOTP_USER_ID_KEY } from './session/totp_controller.js'
+import FormError from '#exceptions/form_error'
 
 export default class SessionController {
   /**
@@ -26,29 +18,9 @@ export default class SessionController {
   }
 
   /**
-   * Check email and return auth info
-   * Always returns the same structure to prevent user enumeration attacks
-   */
-  async checkEmail({ request, response, i18n }: HttpContext) {
-    const email = request.input('email') as string | undefined
-
-    if (!email) {
-      return response.badRequest({ message: i18n.formatMessage('errors.emailRequired') })
-    }
-
-    const authInfo = await getUserAuthInfo(email)
-
-    // Authentication will fail with generic error on server side if credentials are invalid
-    return response.ok({
-      hasPasskeys: authInfo?.hasPasskeys || false,
-      requiresOtp: authInfo?.requiresOtp || false,
-    })
-  }
-
-  /**
    * Sign in
    */
-  async store({ response, request, auth, session }: HttpContext) {
+  async store({ i18n, response, request, auth, session }: HttpContext) {
     const data = await request.validateUsing(createSessionValidator)
 
     const findAndVerifyUser = async () => {
@@ -63,142 +35,30 @@ export default class SessionController {
       return isPasswordValid ? user : null
     }
 
+    // Prevent timing attacks by ensuring the function always takes 50ms
     const [verifiedUser] = await Promise.all([findAndVerifyUser(), setTimeout(50)])
+    if (!verifiedUser) throw new FormError(i18n.t('errors.invalidCredentials'))
 
-    if (!verifiedUser) throw new errors.E_INVALID_CREDENTIALS('invalidCredentials')
+    const needsTotp = verifiedUser.totpEnabled
+    if (needsTotp) {
+      session.put(TOTP_USER_ID_KEY, verifiedUser.id)
+      return response.redirect().toRoute('/session/totp')
+    }
 
+    session.forget(TOTP_USER_ID_KEY)
     await auth.use('web').login(verifiedUser)
-
-    const needsTwoFactor = verifiedUser.isTwoFactorEnabled
-
-    if (needsTwoFactor) {
-      session.put('twoFactorPassed', false)
-      return response.redirect().toRoute('2fa.challenge')
-    }
-
-    markTwoFactorPassed(session)
-    return response.redirect('/')
-  }
-
-  /**
-   * Passwordless WebAuthn authentication options for a specific email
-   */
-  async passwordlessOptions({ request, session, response, i18n }: HttpContext) {
-    const email = request.input('email') as string | undefined
-
-    if (!email) {
-      return response.badRequest({ message: i18n.formatMessage('errors.emailRequired') })
-    }
-
-    const user = await db()
-      .selectFrom('users')
-      .selectAll()
-      .where('users.email', '=', email)
-      .executeTakeFirst()
-
-    const credentials = user
-      ? await db()
-          .selectFrom('webauthnCredentials')
-          .selectAll()
-          .where('webauthnCredentials.userId', '=', user.id)
-          .execute()
-      : []
-
-    const allowCredentials = credentials.map((credential) => ({
-      id: credential.credentialId,
-      type: 'public-key' as const,
-      transports: parseTransports(credential.transports),
-    }))
-
-    const options = await webauthnServer.generateAuthenticationOptions({
-      rpID: getRpId(),
-      userVerification: 'preferred',
-      allowCredentials,
-    })
-
-    session.put('passwordlessChallenge', options.challenge)
-    session.put('passwordlessEmail', email)
-
-    return response.ok({ options })
-  }
-
-  /**
-   * Verify passwordless WebAuthn authentication and log in
-   */
-  async passwordlessVerify({ request, response, auth, session, i18n }: HttpContext) {
-    const assertion = request.input('assertion') as AuthenticationResponseJSON | undefined
-    const expectedChallenge = session.get('passwordlessChallenge') as string | undefined
-
-    if (!assertion || !expectedChallenge) {
-      return response.badRequest({
-        message: i18n.formatMessage('errors.missingAuthenticationPayload'),
-      })
-    }
-
-    const credential = await db()
-      .selectFrom('webauthnCredentials')
-      .selectAll()
-      .where('webauthnCredentials.credentialId', '=', assertion.id)
-      .executeTakeFirst()
-
-    if (!credential) {
-      return response.badRequest({ message: i18n.formatMessage('errors.credentialNotFound') })
-    }
-
-    const verification = await webauthnServer.verifyAuthenticationResponse({
-      response: assertion,
-      expectedChallenge,
-      expectedOrigin: getOrigin(),
-      expectedRPID: getRpId(),
-      credential: {
-        id: credential.credentialId,
-        publicKey: fromBase64Url(credential.publicKey),
-        counter: credential.counter,
-        transports: parseTransports(credential.transports),
-      },
-      requireUserVerification: true,
-    })
-
-    if (!verification.verified || !verification.authenticationInfo) {
-      return response.badRequest({
-        message: i18n.formatMessage('errors.webauthnVerificationFailed'),
-      })
-    }
-
-    await db()
-      .updateTable('webauthnCredentials')
-      .set({
-        counter: verification.authenticationInfo.newCounter,
-        updatedAt: new Date(),
-      })
-      .where('id', '=', credential.id)
-      .execute()
-
-    const user = await db()
-      .selectFrom('users')
-      .selectAll()
-      .where('users.id', '=', credential.userId)
-      .executeTakeFirst()
-
-    /* v8 ignore next */
-    if (!user) return response.badRequest({ message: i18n.formatMessage('errors.userNotFound') })
-
-    await auth.use('web').login(user)
-
-    // Passkey alone counts as MFA - no OTP required
-    markTwoFactorPassed(session)
-    session.forget('passwordlessChallenge')
-    session.forget('passwordlessEmail')
+    session.flash('notice', i18n.t('notices.signedIn'))
     return response.redirect('/')
   }
 
   /**
    * Delete session
    */
-  async destroy({ response, auth, session }: HttpContext) {
+  async destroy({ response, i18n, auth, session }: HttpContext) {
     await auth.use('web').logout()
-    resetTwoFactorSession(session)
-    resetSecurityConfirmation(session)
+
+    session.clear()
+    session.flash('notice', i18n.t('notices.signedOut'))
     return response.redirect('/')
   }
 }

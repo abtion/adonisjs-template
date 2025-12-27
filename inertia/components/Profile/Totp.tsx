@@ -1,16 +1,17 @@
 import { useState } from 'react'
 import { router } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import Button from '~/components/Button'
 import Input from '~/components/Input'
 import SecurityConfirmation from '~/components/SecurityConfirmation'
-import { postJson } from '~/lib/api'
+import { errorIsType, tuyau } from '~/lib/tuyau'
 
-type TwoFactorSecret = { secret: string; uri: string; qr: string }
+type totpSecret = { secret: string; uri: string; qr: string }
 
-type TwoFactorProps = {
+type TotpProps = {
   initialEnabled: boolean
   recoveryCodesCount: number
-  hasPasskeys: boolean
+  hasWebauthn: boolean
 }
 
 const downloadRecoveryCodes = (codes: string[]) => {
@@ -26,14 +27,11 @@ const downloadRecoveryCodes = (codes: string[]) => {
   URL.revokeObjectURL(url)
 }
 
-export default function TwoFactor({
-  initialEnabled,
-  recoveryCodesCount,
-  hasPasskeys,
-}: TwoFactorProps) {
+export default function Totp({ initialEnabled, recoveryCodesCount, hasWebauthn }: TotpProps) {
+  const { t } = useTranslation()
   const [enabled, setEnabled] = useState(initialEnabled)
   const [setupMode, setSetupMode] = useState(false)
-  const [secret, setSecret] = useState<TwoFactorSecret | null>(null)
+  const [secret, setSecret] = useState<totpSecret | null>(null)
   const [recoveryCodes, setRecoveryCodes] = useState<string[] | null>(null)
   const [showRecoveryCodes, setShowRecoveryCodes] = useState(false)
   const [otp, setOtp] = useState('')
@@ -50,16 +48,14 @@ export default function TwoFactor({
     try {
       await fn()
     } catch (err) {
-      const errorMessage = (err as Error).message
-      // Check if error is about security confirmation
-      if (errorMessage.includes('Security confirmation required')) {
+      if (errorIsType(err, 'SecurityConfirmationRequiredError')) {
         setError(null)
         setPendingAction(() => fn)
         setShowConfirmation(true)
         setBusy(false)
         return
       }
-      setError(errorMessage)
+      setError(err.message)
     } finally {
       setBusy(false)
     }
@@ -74,45 +70,41 @@ export default function TwoFactor({
 
   const setupTotp = () =>
     handle(async () => {
-      const data = await postJson<{ secret: TwoFactorSecret; recoveryCodes: string[] }>(
-        '/profile/enable-mfa'
-      )
+      const data = await tuyau.profile.totp.$post().unwrap()
+
       setSecret(data.secret)
       setRecoveryCodes(data.recoveryCodes)
       setSetupMode(true)
-      setStatus('Scan the QR code and verify with a code from your authenticator app.')
+      setStatus(t('components.totp.scanQr'))
     })
 
   const verifyTotp = () =>
     handle(async () => {
-      await postJson('/2fa/totp/verify', { otp })
+      await tuyau.profile.totp.verify.$post({ otp }).unwrap()
       setEnabled(true)
       setSetupMode(false)
-      setStatus('Two-factor authentication enabled successfully.')
-      // Reload to get updated server state (recovery codes count, etc.)
-      router.reload({ only: ['twoFactor'] })
+      setStatus(t('components.totp.enabled'))
+      router.reload({ only: ['totp'] })
     })
 
   const generateRecovery = () =>
     handle(async () => {
-      const data = await postJson<{ recoveryCodes: string[] }>('/2fa/recovery-codes')
+      const data = await tuyau.profile.totp.regeneration.$post().unwrap()
       setRecoveryCodes(data.recoveryCodes)
       setShowRecoveryCodes(true)
-      setStatus('New recovery codes generated. Store them safely.')
-      // Reload to get updated recovery codes count from server
-      router.reload({ only: ['twoFactor'] })
+      setStatus(t('components.totp.newRecoverySaved'))
+      router.reload({ only: ['totp'] })
     })
 
   const disableTotp = () =>
     handle(async () => {
-      await postJson('/2fa/disable')
+      await tuyau.profile.totp.$delete().unwrap()
       setEnabled(false)
       setSetupMode(false)
       setSecret(null)
       setRecoveryCodes(null)
-      setStatus('Two-factor authentication disabled.')
-      // Reload to get updated server state
-      router.reload({ only: ['twoFactor'] })
+      setStatus(t('components.totp.disabled'))
+      router.reload({ only: ['totp'] })
     })
 
   return (
@@ -124,19 +116,17 @@ export default function TwoFactor({
           setPendingAction(null)
         }}
         onConfirmed={handleConfirmed}
-        hasPasskeys={hasPasskeys}
+        hasWebauthn={hasWebauthn}
       />
       <section className="mb-10 rounded-md border border-neutral-300 p-4">
-        <h2 className="mb-2 text-xl font-semibold">Two-Factor Authentication (OTP)</h2>
-        <p className="text-gray-600 mb-4 text-sm">
-          Use an authenticator app to generate one-time codes for an extra layer of security.
-        </p>
+        <h2 className="mb-2 text-xl font-semibold">{t('components.totp.title')}</h2>
+        <p className="text-gray-600 mb-4 text-sm">{t('components.totp.description')}</p>
 
         {!enabled && !setupMode && (
           <div>
-            <p className="text-gray-700 mb-4 text-sm">Authenticator app not set up.</p>
+            <p className="text-gray-700 mb-4 text-sm">{t('components.totp.notSetUp')}</p>
             <Button onClick={setupTotp} disabled={busy} variant="primary" size="md">
-              Set Up Authenticator App
+              {t('components.totp.setupButton')}
             </Button>
           </div>
         )}
@@ -144,11 +134,8 @@ export default function TwoFactor({
         {setupMode && secret && recoveryCodes && (
           <div className="bg-gray-50 mt-6 space-y-6 rounded-md p-4">
             <div>
-              <h3 className="text-md mb-2 font-semibold">Step 1: Download Recovery Codes</h3>
-              <p className="text-gray-600 mb-3 text-sm">
-                Save these recovery codes in a safe place. You'll need them if you lose access to
-                your authenticator app.
-              </p>
+              <h3 className="text-md mb-2 font-semibold">{t('components.totp.step1Title')}</h3>
+              <p className="text-gray-600 mb-3 text-sm">{t('components.totp.saveRecoveryCodes')}</p>
               <div className="mb-3 rounded border bg-white p-4">
                 <ul className="font-mono grid grid-cols-1 gap-2 text-sm md:grid-cols-2">
                   {recoveryCodes.map((code) => (
@@ -163,45 +150,44 @@ export default function TwoFactor({
                 variant="neutral"
                 size="md"
               >
-                Download Recovery Codes
+                {t('components.totp.downloadRecoveryCodes')}
               </Button>
             </div>
 
             <div>
-              <h3 className="text-md mb-2 font-semibold">Step 2: Scan QR Code</h3>
-              <p className="text-gray-600 mb-3 text-sm">
-                Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)
-              </p>
+              <h3 className="text-md mb-2 font-semibold">{t('components.totp.step2Title')}</h3>
+              <p className="text-gray-600 mb-3 text-sm">{t('components.totp.scanInstructions')}</p>
+
               <div className="flex flex-col items-start gap-4 md:flex-row">
                 <div>
                   <img
                     src={secret.qr}
-                    alt="TOTP QR code"
+                    alt={t('components.totp.qrAlt')}
                     className="max-w-xs rounded border bg-white p-2"
                   />
                 </div>
                 <div className="flex-1 space-y-3">
                   <div>
-                    <p className="mb-1 text-sm font-semibold">Or enter this key manually:</p>
+                    <p className="mb-1 text-sm font-semibold">{t('components.totp.orKeyManual')}</p>
                     <p className="font-mono break-all rounded border bg-white p-2 text-sm">
                       {secret.secret}
                     </p>
                   </div>
                   <div>
                     <label className="mb-1 block text-sm font-semibold">
-                      Enter verification code:
+                      {t('components.totp.enterVerificationCode')}
                     </label>
                     <Input
                       value={otp}
                       onChange={(e) => setOtp(e.target.value)}
-                      placeholder="000000"
+                      placeholder={t('components.totp.otpPlaceholder')}
                       autoComplete="one-time-code"
                       size="md"
                       className="max-w-xs"
                     />
                   </div>
                   <Button onClick={verifyTotp} disabled={busy || !otp} variant="success" size="md">
-                    Verify and Complete Setup
+                    {t('components.totp.verifyButton')}
                   </Button>
                 </div>
               </div>
@@ -213,21 +199,21 @@ export default function TwoFactor({
           <div className="mt-6 space-y-4">
             <div>
               <p className="text-green-700 mb-3 text-sm font-medium">
-                Authenticator app configured
+                {t('components.totp.configured')}
               </p>
               <Button onClick={disableTotp} disabled={busy} variant="danger" size="md">
-                Disable OTP
+                {t('components.totp.disableButton')}
               </Button>
             </div>
 
             <div>
-              <h3 className="text-md mb-2 font-semibold">Recovery Codes</h3>
+              <h3 className="text-md mb-2 font-semibold">{t('components.totp.recoveryTitle')}</h3>
               <p className="text-gray-600 mb-3 text-sm">
                 {showRecoveryCodes && recoveryCodes
-                  ? 'Save these recovery codes in a safe place. You can download them below.'
+                  ? t('components.totp.saveAndDownload')
                   : recoveryCodesCount > 0
-                    ? `You have ${recoveryCodesCount} recovery codes remaining.`
-                    : 'Generate new recovery codes if needed.'}
+                    ? t('components.totp.youHaveRemaining', { count: recoveryCodesCount })
+                    : t('components.totp.generateIfNeeded')}
               </p>
 
               {showRecoveryCodes && recoveryCodes && (
@@ -249,13 +235,13 @@ export default function TwoFactor({
                     variant="neutral"
                     size="md"
                   >
-                    Download Recovery Codes
+                    {t('components.totp.downloadRecoveryCodes')}
                   </Button>
                 </div>
               )}
 
               <Button onClick={generateRecovery} disabled={busy} variant="neutral" size="md">
-                Generate New Recovery Codes
+                {t('components.totp.generateButton')}
               </Button>
             </div>
           </div>

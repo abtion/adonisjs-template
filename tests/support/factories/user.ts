@@ -18,18 +18,23 @@ export async function getUserAttributes(attributes: Partial<InsertObject<DB, 'us
 export async function createUser(attributes: Partial<InsertObject<DB, 'users'>> = {}) {
   const values: any = await getUserAttributes(attributes)
 
-  if (attributes.twoFactorSecret !== undefined) {
-    const payload =
-      typeof attributes.twoFactorSecret === 'string'
-        ? attributes.twoFactorSecret
-        : JSON.stringify(attributes.twoFactorSecret)
-
-    values.twoFactorSecret = sql`cast(${payload} as jsonb)`
+  // Explicitly handle totpEnabled to ensure it's set correctly
+  if (attributes.totpEnabled !== undefined) {
+    values.totpEnabled = attributes.totpEnabled
   }
 
-  if (attributes.twoFactorRecoveryCodes !== undefined) {
-    const payload = JSON.stringify(attributes.twoFactorRecoveryCodes ?? [])
-    values.twoFactorRecoveryCodes = sql`cast(${payload} as jsonb)`
+  if (attributes.totpSecret !== undefined) {
+    const payload =
+      typeof attributes.totpSecret === 'string'
+        ? attributes.totpSecret
+        : JSON.stringify(attributes.totpSecret)
+
+    values.totpSecret = sql`cast(${payload} as jsonb)`
+  }
+
+  if (attributes.totpRecoveryCodes !== undefined) {
+    const payload = JSON.stringify(attributes.totpRecoveryCodes ?? [])
+    values.totpRecoveryCodes = sql`cast(${payload} as jsonb)`
   }
 
   return db().insertInto('users').values([values]).returningAll().executeTakeFirstOrThrow()

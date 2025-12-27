@@ -158,6 +158,9 @@ Otherwise the following changes where made:
   - Setup script added: `bin/setup`
   - Scripts for creating and dropping databases
   - `config/database.ts`: A single place for db config for multiple envs
+  - The concept of a "base" error on form handlers
+    - Triggered by throwing a `FormError` in a controller
+    - Shown with the `BaseFormError` component
 - Database
   - Kysely used instead of lucid
     - Allows us to have types in react
@@ -168,7 +171,7 @@ Otherwise the following changes where made:
   - Automatically run pending migrations
   - Code coverage has been set up (Use `--coverage-text` flag when running tests)
 - Authentication implemented
-- Two-factor auth: TOTP + recovery codes via `@nulix/adonis-2fa`, WebAuthn (security keys/passkeys) under `/2fa/*` routes
+- TOTP + Webauthn auth
 - Landing page and simple user management implemented
 
 ### Third party services
