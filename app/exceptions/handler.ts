@@ -41,11 +41,11 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    */
   async handle(error: unknown, ctx: HttpContext) {
     if (error instanceof bouncerErrors.E_AUTHORIZATION_FAILURE) {
-      if (ctx.session) {
-        ctx.session.flashErrors({ [error.code]: error.message })
+      if (ctx.session && ctx.request.header('x-inertia')) {
+        ctx.session.flashErrors({ base: error.message })
         ctx.response.redirect('back', true)
       } else {
-        ctx.response.status(error.status).send(error.message)
+        ctx.response.status(error.status).send({ field: 'base', message: error.message })
       }
       return
     }
