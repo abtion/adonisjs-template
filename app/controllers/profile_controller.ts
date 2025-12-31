@@ -1,23 +1,11 @@
-import type { HttpContext } from '@adonisjs/core/http'
-import {
-  loadUserWithTwoFactor,
-  markSecurityConfirmed,
-  isSecurityConfirmed,
-  SECURITY_CONFIRMATION_CHALLENGE_KEY,
-  parseTransports,
-  generateAndStoreTwoFactorSecret,
-} from '#services/two_factor'
-import { getRpId, getOrigin, fromBase64Url } from '#services/webauthn_service'
-import { confirmSecurityValidator } from '#validators/profile_validator'
 import { db } from '#services/db'
-import hash from '@adonisjs/core/services/hash'
-import { webauthnServer } from '#services/webauthn_server'
-import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
+import type { HttpContext } from '@adonisjs/core/http'
+import encryption from '@adonisjs/core/services/encryption'
 
 export default class ProfileController {
   async show({ auth, inertia }: HttpContext) {
     const user = auth.user!
-    const recoveryCodes = user.twoFactorRecoveryCodes as string[]
+    const recoveryCodes = encryption.decrypt<string[]>(user.totpRecoveryCodesEncrypted)
 
     const webauthnCredentials = await db()
       .selectFrom('webauthnCredentials')
@@ -26,185 +14,21 @@ export default class ProfileController {
       .orderBy('createdAt', 'desc')
       .execute()
 
-    const hasWebauthn = webauthnCredentials.length > 0
-
     return inertia.render('profile/index', {
       user: {
         name: user.name,
         email: user.email,
       },
-      twoFactor: {
-        enabled: user.isTwoFactorEnabled,
-        hasWebauthn,
-        recoveryCodesCount: recoveryCodes.length,
+      totp: {
+        enabled: user.totpEnabled,
+        recoveryCodesCount: (recoveryCodes ?? []).length,
       },
-      passkeys: webauthnCredentials.map((cred) => ({
+      credentials: webauthnCredentials.map((cred) => ({
         id: cred.id,
         friendlyName: cred.friendlyName,
         createdAt: cred.createdAt,
         lastUsed: cred.updatedAt,
       })),
     })
-  }
-
-  async confirmSecurity({ auth, request, session, response, i18n }: HttpContext) {
-    // Needed: user.password (not in auth.user)
-    const user = await loadUserWithTwoFactor(auth.user!.id)
-    const data = await request.validateUsing(confirmSecurityValidator)
-    const expectedChallengeValue = session.get(SECURITY_CONFIRMATION_CHALLENGE_KEY)
-    const expectedChallenge =
-      typeof expectedChallengeValue === 'string' ? expectedChallengeValue : undefined
-
-    if (!data.password && !data.assertion) {
-      return response.badRequest({
-        message: i18n.formatMessage('errors.passwordOrPasskeyRequired'),
-      })
-    }
-
-    if (data.password) {
-      const isPasswordValid = await hash.verify(user.password, data.password)
-      if (!isPasswordValid) {
-        return response.unauthorized({ message: i18n.formatMessage('errors.invalidPassword') })
-      }
-      markSecurityConfirmed(session)
-      session.forget(SECURITY_CONFIRMATION_CHALLENGE_KEY)
-      return response.ok({ confirmed: true })
-    }
-
-    if (data.assertion && expectedChallenge) {
-      // Type is validated by confirmSecurityValidator
-      const assertion: AuthenticationResponseJSON = data.assertion as AuthenticationResponseJSON
-      const credential = await db()
-        .selectFrom('webauthnCredentials')
-        .selectAll()
-        .where('webauthnCredentials.userId', '=', user.id)
-        .where('webauthnCredentials.credentialId', '=', assertion.id)
-        .executeTakeFirst()
-
-      if (!credential) {
-        return response.badRequest({ message: i18n.formatMessage('errors.credentialNotFound') })
-      }
-
-      const verification = await webauthnServer.verifyAuthenticationResponse({
-        response: assertion,
-        expectedChallenge,
-        expectedOrigin: getOrigin(),
-        expectedRPID: getRpId(),
-        credential: {
-          id: credential.credentialId,
-          publicKey: fromBase64Url(credential.publicKey),
-          counter: credential.counter,
-          transports: parseTransports(credential.transports),
-        },
-        requireUserVerification: true,
-      })
-
-      if (!verification.verified || !verification.authenticationInfo) {
-        return response.badRequest({
-          message: i18n.formatMessage('errors.passkeyVerificationFailed'),
-        })
-      }
-
-      await db()
-        .updateTable('webauthnCredentials')
-        .set({
-          counter: verification.authenticationInfo.newCounter,
-          updatedAt: new Date(),
-        })
-        .where('id', '=', credential.id)
-        .execute()
-
-      markSecurityConfirmed(session)
-      session.forget(SECURITY_CONFIRMATION_CHALLENGE_KEY)
-      return response.ok({ confirmed: true })
-    }
-
-    if (data.assertion && !expectedChallenge) {
-      return response.badRequest({
-        message: i18n.formatMessage('errors.securityConfirmationChallengeNotFound'),
-      })
-    }
-  }
-
-  async confirmSecurityOptions({ auth, session, response }: HttpContext) {
-    const user = auth.user!
-    const credentials = await db()
-      .selectFrom('webauthnCredentials')
-      .selectAll()
-      .where('webauthnCredentials.userId', '=', user.id)
-      .execute()
-
-    const options = await webauthnServer.generateAuthenticationOptions({
-      rpID: getRpId(),
-      userVerification: 'preferred',
-      allowCredentials: credentials.map((credential) => ({
-        id: credential.credentialId,
-        type: 'public-key' as const,
-        transports: parseTransports(credential.transports),
-      })),
-    })
-
-    session.put(SECURITY_CONFIRMATION_CHALLENGE_KEY, options.challenge)
-
-    return response.ok({ options, hasPasskeys: credentials.length > 0 })
-  }
-
-  async enable({ auth, response, session, i18n }: HttpContext) {
-    const user = auth.user!
-
-    if (!isSecurityConfirmed(session)) {
-      return response.unauthorized({
-        message: i18n.formatMessage('errors.securityConfirmationRequired'),
-      })
-    }
-
-    if (user.isTwoFactorEnabled) {
-      return response.badRequest({
-        message: i18n.formatMessage('errors.twoFactorAlreadyEnabled'),
-      })
-    }
-
-    const { secret, recoveryCodes } = await generateAndStoreTwoFactorSecret(user.id, user.email)
-
-    return response.ok({ secret, recoveryCodes })
-  }
-
-  async removePasskey({ auth, request, response, session, i18n }: HttpContext) {
-    const user = auth.user!
-
-    if (!isSecurityConfirmed(session)) {
-      return response.unauthorized({
-        message: i18n.formatMessage('errors.securityConfirmationRequiredRemovePasskeys'),
-      })
-    }
-
-    const credentialIdParam = request.param('id')
-    if (!credentialIdParam) {
-      return response.badRequest({ message: i18n.formatMessage('errors.credentialIdRequired') })
-    }
-
-    const credentialId = Number.parseInt(credentialIdParam, 10)
-    if (!Number.isInteger(credentialId) || credentialId <= 0) {
-      return response.badRequest({ message: i18n.formatMessage('errors.invalidCredentialId') })
-    }
-
-    const credential = await db()
-      .selectFrom('webauthnCredentials')
-      .select(['id', 'userId'])
-      .where('id', '=', credentialId)
-      .where('userId', '=', user.id)
-      .executeTakeFirst()
-
-    if (!credential) {
-      return response.notFound({ message: i18n.formatMessage('errors.passkeyNotFound') })
-    }
-
-    await db()
-      .deleteFrom('webauthnCredentials')
-      .where('id', '=', credentialId)
-      .where('userId', '=', user.id)
-      .execute()
-
-    return response.ok({ message: i18n.formatMessage('errors.passkeyRemovedSuccessfully') })
   }
 }

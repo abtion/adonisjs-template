@@ -60,7 +60,7 @@ export default function Nav() {
                 )}
                 <li>
                   <NavLink href="/profile" active={component.startsWith('profile')}>
-                    {t('components.nav.profile', { defaultValue: 'Profile' })}
+                    {t('components.nav.profile')}
                   </NavLink>
                 </li>
               </>

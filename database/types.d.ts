@@ -5,34 +5,32 @@
 
 import type { ColumnType } from "kysely";
 
+export type ArrayType<T> = ArrayTypeImpl<T> extends (infer U)[]
+  ? U[]
+  : ArrayTypeImpl<T>;
+
+export type ArrayTypeImpl<T> = T extends ColumnType<infer S, infer I, infer U>
+  ? ColumnType<S[], I[], U[]>
+  : T[];
+
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
 
-export type Json = JsonValue;
-
-export type JsonArray = JsonValue[];
-
-export type JsonObject = {
-  [x: string]: JsonValue | undefined;
-};
-
-export type JsonPrimitive = boolean | number | string | null;
-
-export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
-
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
+
+export type WebauthnTransport = "ble" | "cable" | "hybrid" | "internal" | "nfc" | "smart-card" | "usb";
 
 export interface Users {
   admin: Generated<boolean>;
   createdAt: Timestamp;
   email: string;
   id: Generated<number>;
-  isTwoFactorEnabled: Generated<boolean>;
   name: string;
   password: string;
-  twoFactorRecoveryCodes: Generated<Json>;
-  twoFactorSecret: Json | null;
+  totpEnabled: Generated<boolean>;
+  totpRecoveryCodesEncrypted: string | null;
+  totpSecretEncrypted: string | null;
   updatedAt: Timestamp;
 }
 
@@ -45,7 +43,7 @@ export interface WebauthnCredentials {
   friendlyName: string | null;
   id: Generated<number>;
   publicKey: string;
-  transports: Generated<Json>;
+  transports: Generated<ArrayType<WebauthnTransport>>;
   updatedAt: Generated<Timestamp>;
   userId: number;
 }

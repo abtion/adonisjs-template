@@ -1,40 +1,37 @@
 import { Head } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import MainLayout from '~/layouts/main'
-import TwoFactor from '~/components/Profile/TwoFactor'
-import Passkeys from '~/components/Profile/Passkeys'
+import Totp from '~/components/Profile/Totp'
+import Webauthn from '~/components/Profile/Webauthn'
 import ProfileController from '#controllers/profile_controller'
 import { InferPageProps } from '@adonisjs/inertia/types'
 
 export default function ProfilePage({
   user,
-  twoFactor,
-  passkeys,
+  totp,
+  credentials,
 }: InferPageProps<ProfileController, 'show'>) {
+  const { t } = useTranslation()
+
   return (
     <MainLayout>
-      <Head title="Profile" />
-      <div className="container my-10 space-y-6">
+      <Head title={t('pages.profile.title')} />
+      <div className="container my-20 space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold">Profile</h1>
-          <p className="text-gray-600 text-sm">
-            Manage your account security and authentication methods.
-          </p>
+          <h1 className="text-3xl">{t('pages.profile.heading')}</h1>
+          <p className="text-gray-600 text-sm mt-4">{t('pages.profile.description')}</p>
         </div>
 
-        <div className="rounded-md border border-neutral-300 p-4">
-          <h2 className="mb-2 text-xl font-semibold">Account</h2>
+        <div className="rounded-md border border-neutral-300 p-4 mt-10">
+          <h2 className="mb-2 text-xl">{t('pages.profile.accountTitle')}</h2>
           <p className="text-gray-700 text-sm">
-            Signed in as {user.name} ({user.email})
+            {t('pages.profile.signedInAs', { name: user.name, email: user.email })}
           </p>
         </div>
 
-        <Passkeys initialPasskeys={passkeys || []} hasPasskeys={twoFactor.hasWebauthn} />
+        <Webauthn credentials={credentials} />
 
-        <TwoFactor
-          initialEnabled={twoFactor.enabled}
-          recoveryCodesCount={twoFactor.recoveryCodesCount}
-          hasPasskeys={twoFactor.hasWebauthn}
-        />
+        <Totp enabled={totp.enabled} recoveryCodesCount={totp.recoveryCodesCount} />
       </div>
     </MainLayout>
   )

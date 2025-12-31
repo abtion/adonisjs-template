@@ -171,7 +171,7 @@ Otherwise the following changes where made:
   - Automatically run pending migrations
   - Code coverage has been set up (Use `--coverage-text` flag when running tests)
 - Authentication implemented
-- Two-factor auth: TOTP + recovery codes via `@nulix/adonis-2fa`, WebAuthn (security keys/passkeys) under `/2fa/*` routes
+- TOTP + Webauthn auth
 - Landing page and simple user management implemented
 
 ### Third party services

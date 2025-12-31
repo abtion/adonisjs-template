@@ -35,85 +35,81 @@ type UsersIdDelete = {
   request: unknown
   response: MakeTuyauResponse<import('../app/controllers/users_controller.ts').default['destroy'], false>
 }
-type SignInGetHead = {
+type ProfileGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/controllers/session_controller.ts').default['show'], false>
+  response: MakeTuyauResponse<import('../app/controllers/profile_controller.ts').default['show'], false>
 }
-type SigninCheckemailPost = {
+type ProfileWebauthnOptionsGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/controllers/session_controller.ts').default['checkEmail'], false>
+  response: MakeTuyauResponse<import('../app/controllers/profile/webauthn_controller.ts').default['options'], false>
 }
-type SignInPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/validators/session_validator.ts')['createSessionValidator']>>
-  response: MakeTuyauResponse<import('../app/controllers/session_controller.ts').default['store'], true>
-}
-type PasswordlessOptionsPost = {
+type ProfileWebauthnPost = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/controllers/session_controller.ts').default['passwordlessOptions'], false>
+  response: MakeTuyauResponse<import('../app/controllers/profile/webauthn_controller.ts').default['store'], false>
 }
-type PasswordlessVerifyPost = {
+type ProfileWebauthnIdDelete = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/controllers/session_controller.ts').default['passwordlessVerify'], false>
+  response: MakeTuyauResponse<import('../app/controllers/profile/webauthn_controller.ts').default['destroy'], false>
+}
+type ProfileTotpPost = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/controllers/profile/totp_controller.ts').default['store'], false>
+}
+type ProfileTotpVerifyPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/validators/profile/totp_validator.ts')['postOtpValidator']>>
+  response: MakeTuyauResponse<import('../app/controllers/profile/totp_controller.ts').default['verify'], true>
+}
+type ProfileTotpDelete = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/controllers/profile/totp_controller.ts').default['destroy'], false>
+}
+type ProfileTotpRegenerationPost = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/controllers/profile/totp_controller.ts').default['regenerateRecoveryCodes'], false>
+}
+type SessionConfirmsecurityGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/controllers/session/confirm_security_controller.ts').default['index'], false>
+}
+type SessionConfirmsecurityPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/validators/session/confirm_security.ts')['confirmSecurityValidator']>>
+  response: MakeTuyauResponse<import('../app/controllers/session/confirm_security_controller.ts').default['store'], true>
 }
 type SessionDelete = {
   request: unknown
   response: MakeTuyauResponse<import('../app/controllers/session_controller.ts').default['destroy'], false>
 }
-type ProfileGetHead = {
+type SignInGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/controllers/profile_controller.ts').default['show'], false>
+  response: MakeTuyauResponse<import('../app/controllers/sign_in_controller.ts').default['index'], false>
 }
-type ProfileConfirmsecurityOptionsPost = {
+type SignInPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/validators/sign_in_validator.ts')['signInValidator']>>
+  response: MakeTuyauResponse<import('../app/controllers/sign_in_controller.ts').default['store'], true>
+}
+type SigninIdGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/controllers/profile_controller.ts').default['confirmSecurityOptions'], false>
+  response: MakeTuyauResponse<import('../app/controllers/session_controller.ts').default['index'], false>
 }
-type ProfileConfirmsecurityPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/validators/profile_validator.ts')['confirmSecurityValidator']>>
-  response: MakeTuyauResponse<import('../app/controllers/profile_controller.ts').default['confirmSecurity'], true>
+type SigninIdPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/validators/session_validator.ts')['createSessionValidator']>>
+  response: MakeTuyauResponse<import('../app/controllers/session_controller.ts').default['store'], true>
 }
-type ProfileEnablemfaPost = {
+type SessionTotpGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/controllers/profile_controller.ts').default['enable'], false>
+  response: MakeTuyauResponse<import('../app/controllers/session/totp_controller.ts').default['index'], false>
 }
-type ProfilePasskeysIdDelete = {
+type SessionTotpPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/validators/session/totp_validator.ts')['postOtpValidator']>>
+  response: MakeTuyauResponse<import('../app/controllers/session/totp_controller.ts').default['store'], true>
+}
+type SessionTotpRecoverGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/controllers/profile_controller.ts').default['removePasskey'], false>
+  response: MakeTuyauResponse<import('../app/controllers/session/totp_recover_controller.ts').default['index'], false>
 }
-type 2faChallengeGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/controllers/two_factor_controller.ts').default['challenge'], false>
-}
-type 2faTotpVerifyPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/validators/verify_otp.ts')['verifyOtpValidator']>>
-  response: MakeTuyauResponse<import('../app/controllers/two_factor_controller.ts').default['verify'], true>
-}
-type 2faWebauthnAuthenticateOptionsPost = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/controllers/webauthn_controller.ts').default['authenticationOptions'], false>
-}
-type 2faWebauthnAuthenticateVerifyPost = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/controllers/webauthn_controller.ts').default['verifyAuthentication'], false>
-}
-type 2faTotpGeneratePost = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/controllers/two_factor_controller.ts').default['generate'], false>
-}
-type 2faRecoverycodesPost = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/controllers/two_factor_controller.ts').default['generateRecoveryCodes'], false>
-}
-type 2faDisablePost = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/controllers/two_factor_controller.ts').default['disable'], false>
-}
-type 2faWebauthnRegisterOptionsPost = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/controllers/webauthn_controller.ts').default['registerOptions'], false>
-}
-type 2faWebauthnRegisterVerifyPost = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/controllers/webauthn_controller.ts').default['verifyRegistration'], false>
+type SessionTotpRecoverPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/validators/session/totp_recover_validator.ts')['postOtpRecoverValidator']>>
+  response: MakeTuyauResponse<import('../app/controllers/session/totp_recover_controller.ts').default['store'], true>
 }
 type ColorsCssGetHead = {
   request: unknown
@@ -148,117 +144,82 @@ export interface ApiDefinition {
       '$delete': UsersIdDelete;
     };
   };
-  'sign-in': {
-    '$url': {
-    };
-    '$get': SignInGetHead;
-    '$head': SignInGetHead;
-    'check-email': {
-      '$url': {
-      };
-      '$post': SigninCheckemailPost;
-    };
-    '$post': SignInPost;
-  };
-  'passwordless': {
-    'options': {
-      '$url': {
-      };
-      '$post': PasswordlessOptionsPost;
-    };
-    'verify': {
-      '$url': {
-      };
-      '$post': PasswordlessVerifyPost;
-    };
-  };
-  'session': {
-    '$url': {
-    };
-    '$delete': SessionDelete;
-  };
   'profile': {
     '$url': {
     };
     '$get': ProfileGetHead;
     '$head': ProfileGetHead;
-    'confirm-security': {
+    'webauthn': {
       'options': {
         '$url': {
         };
-        '$post': ProfileConfirmsecurityOptionsPost;
+        '$get': ProfileWebauthnOptionsGetHead;
+        '$head': ProfileWebauthnOptionsGetHead;
       };
       '$url': {
       };
-      '$post': ProfileConfirmsecurityPost;
-    };
-    'enable-mfa': {
-      '$url': {
-      };
-      '$post': ProfileEnablemfaPost;
-    };
-    'passkeys': {
+      '$post': ProfileWebauthnPost;
       ':id': {
         '$url': {
         };
-        '$delete': ProfilePasskeysIdDelete;
+        '$delete': ProfileWebauthnIdDelete;
       };
-    };
-  };
-  '2fa': {
-    'challenge': {
-      '$url': {
-      };
-      '$get': 2faChallengeGetHead;
-      '$head': 2faChallengeGetHead;
     };
     'totp': {
+      '$url': {
+      };
+      '$post': ProfileTotpPost;
       'verify': {
         '$url': {
         };
-        '$post': 2faTotpVerifyPost;
+        '$post': ProfileTotpVerifyPost;
       };
-      'generate': {
+      '$delete': ProfileTotpDelete;
+      'regeneration': {
         '$url': {
         };
-        '$post': 2faTotpGeneratePost;
+        '$post': ProfileTotpRegenerationPost;
       };
     };
-    'webauthn': {
-      'authenticate': {
-        'options': {
-          '$url': {
-          };
-          '$post': 2faWebauthnAuthenticateOptionsPost;
-        };
-        'verify': {
-          '$url': {
-          };
-          '$post': 2faWebauthnAuthenticateVerifyPost;
-        };
-      };
-      'register': {
-        'options': {
-          '$url': {
-          };
-          '$post': 2faWebauthnRegisterOptionsPost;
-        };
-        'verify': {
-          '$url': {
-          };
-          '$post': 2faWebauthnRegisterVerifyPost;
-        };
-      };
-    };
-    'recovery-codes': {
+  };
+  'session': {
+    'confirm-security': {
       '$url': {
       };
-      '$post': 2faRecoverycodesPost;
+      '$get': SessionConfirmsecurityGetHead;
+      '$head': SessionConfirmsecurityGetHead;
+      '$post': SessionConfirmsecurityPost;
     };
-    'disable': {
+    '$url': {
+    };
+    '$delete': SessionDelete;
+    'totp': {
       '$url': {
       };
-      '$post': 2faDisablePost;
+      '$get': SessionTotpGetHead;
+      '$head': SessionTotpGetHead;
+      '$post': SessionTotpPost;
+      'recover': {
+        '$url': {
+        };
+        '$get': SessionTotpRecoverGetHead;
+        '$head': SessionTotpRecoverGetHead;
+        '$post': SessionTotpRecoverPost;
+      };
+    };
+  };
+  'sign-in': {
+    '$url': {
+    };
+    '$get': SignInGetHead;
+    '$head': SignInGetHead;
+    '$post': SignInPost;
+    ':email': {
+      '$url': {
+      };
+      '$get': SigninIdGetHead;
+      '$head': SigninIdGetHead;
+      '$post': SigninIdPost;
     };
   };
   'colors.css': {
@@ -320,66 +281,66 @@ const routes = [
   },
   {
     params: [],
-    name: '2fa.challenge',
-    path: '/2fa/challenge',
+    name: 'profile_webauthn.index',
+    path: '/profile/webauthn',
     method: ["GET","HEAD"],
-    types: {} as 2faChallengeGetHead,
+    types: {} as unknown,
   },
   {
     params: [],
-    name: '2fa.totp.verify',
-    path: '/2fa/totp/verify',
+    name: 'profile_webauthn.store',
+    path: '/profile/webauthn',
     method: ["POST"],
-    types: {} as 2faTotpVerifyPost,
+    types: {} as ProfileWebauthnPost,
+  },
+  {
+    params: ["id"],
+    name: 'profile_webauthn.show',
+    path: '/profile/webauthn/:id',
+    method: ["GET","HEAD"],
+    types: {} as unknown,
+  },
+  {
+    params: ["id"],
+    name: 'profile_webauthn.update',
+    path: '/profile/webauthn/:id',
+    method: ["PUT","PATCH"],
+    types: {} as unknown,
+  },
+  {
+    params: ["id"],
+    name: 'profile_webauthn.destroy',
+    path: '/profile/webauthn/:id',
+    method: ["DELETE"],
+    types: {} as ProfileWebauthnIdDelete,
   },
   {
     params: [],
-    name: '2fa.webauthn.authenticationOptions',
-    path: '/2fa/webauthn/authenticate/options',
-    method: ["POST"],
-    types: {} as 2faWebauthnAuthenticateOptionsPost,
+    name: 'sign_in.index',
+    path: '/sign-in',
+    method: ["GET","HEAD"],
+    types: {} as SignInGetHead,
   },
   {
     params: [],
-    name: '2fa.webauthn.verifyAuthentication',
-    path: '/2fa/webauthn/authenticate/verify',
+    name: 'sign_in.store',
+    path: '/sign-in',
     method: ["POST"],
-    types: {} as 2faWebauthnAuthenticateVerifyPost,
+    types: {} as SignInPost,
   },
   {
-    params: [],
-    name: '2fa.totp.generate',
-    path: '/2fa/totp/generate',
-    method: ["POST"],
-    types: {} as 2faTotpGeneratePost,
+    params: ["email"],
+    name: 'sign_in_email.index',
+    path: '/sign-in/:email',
+    method: ["GET","HEAD"],
+    types: {} as SigninIdGetHead,
   },
   {
-    params: [],
-    name: '2fa.recovery.generate',
-    path: '/2fa/recovery-codes',
+    params: ["email"],
+    name: 'sign_in_email.store',
+    path: '/sign-in/:email',
     method: ["POST"],
-    types: {} as 2faRecoverycodesPost,
-  },
-  {
-    params: [],
-    name: '2fa.disable',
-    path: '/2fa/disable',
-    method: ["POST"],
-    types: {} as 2faDisablePost,
-  },
-  {
-    params: [],
-    name: '2fa.webauthn.registerOptions',
-    path: '/2fa/webauthn/register/options',
-    method: ["POST"],
-    types: {} as 2faWebauthnRegisterOptionsPost,
-  },
-  {
-    params: [],
-    name: '2fa.webauthn.verifyRegistration',
-    path: '/2fa/webauthn/register/verify',
-    method: ["POST"],
-    types: {} as 2faWebauthnRegisterVerifyPost,
+    types: {} as SigninIdPost,
   },
 ] as const;
 export const api = {

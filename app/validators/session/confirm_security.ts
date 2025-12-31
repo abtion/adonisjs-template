@@ -1,7 +1,7 @@
 import vine from '@vinejs/vine'
-import { webauthnAssertion } from './schemas.js'
+import { webauthnAssertion } from '../schemas.js'
 
-export const createSessionValidator = vine.compile(
+export const confirmSecurityValidator = vine.compile(
   vine.object({}).merge(
     vine
       .group([
