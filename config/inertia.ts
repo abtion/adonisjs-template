@@ -14,11 +14,19 @@ const inertiaConfig = defineConfig({
   sharedData: {
     locale: (ctx) => ctx.i18n?.locale,
     auth: (ctx) => {
-      const { user, isAuthenticated } = ctx.auth?.use('web') || {
+      const { user, isAuthenticated } = ctx.auth?.use('web') ?? {
         user: undefined,
         isAuthenticated: false,
       }
-      return { isAuthenticated, user }
+
+      let inertiaUser
+      if (user) {
+        // Only select non-sensitive props
+        const { name, admin, id, email } = user
+        inertiaUser = { name, admin, id, email }
+      }
+
+      return { isAuthenticated, user: inertiaUser }
     },
     policies: async ({ bouncer }) => {
       const res = {} as Record<keyof typeof policies, Record<'index' | 'create', boolean>>
