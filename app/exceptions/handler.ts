@@ -4,6 +4,7 @@ import type { StatusPageRange, StatusPageRenderer } from '@adonisjs/core/types/h
 import { errors as bouncerErrors } from '@adonisjs/bouncer'
 import logRequest from '#utils/log_request'
 import * as Kysely from 'kysely'
+import FormError from './form_error.js'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -45,6 +46,19 @@ export default class HttpExceptionHandler extends ExceptionHandler {
         ctx.response.redirect('back', true)
       } else {
         ctx.response.status(error.status).send(error.message)
+      }
+      return
+    }
+
+    if (error instanceof FormError) {
+      if (ctx.session && ctx.request.header('x-inertia')) {
+        ctx.session.flashErrors({ [error.field]: ctx.i18n.t(error.translationKey) })
+        ctx.response.redirect('back', true)
+      } else {
+        error.message
+        ctx.response
+          .status(error.status)
+          .send({ field: error.field, message: ctx.i18n.t(error.translationKey) })
       }
       return
     }

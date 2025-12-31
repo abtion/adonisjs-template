@@ -158,6 +158,9 @@ Otherwise the following changes where made:
   - Setup script added: `bin/setup`
   - Scripts for creating and dropping databases
   - `config/database.ts`: A single place for db config for multiple envs
+  - The concept of a "base" error on form handlers
+    - Triggered by throwing a `FormError` in a controller
+    - Shown with the `BaseFormError` component
 - Database
   - Kysely used instead of lucid
     - Allows us to have types in react
