@@ -1,6 +1,6 @@
 import UserPolicy from '#policies/user_policy'
 import { db } from '#services/db'
-import { createUserValidator, updateUserValidator } from '#validators/users_validator'
+import { createUserValidator, updateUserValidator } from '#validators/user_validator'
 import type { HttpContext } from '@adonisjs/core/http'
 import hash from '@adonisjs/core/services/hash'
 

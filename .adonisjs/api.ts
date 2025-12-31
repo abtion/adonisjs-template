@@ -16,7 +16,7 @@ type UsersCreateGetHead = {
   response: MakeTuyauResponse<import('../app/controllers/users_controller.ts').default['create'], false>
 }
 type UsersPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/validators/users_validator.ts')['createUserValidator']>>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/validators/user_validator.ts')['createUserValidator']>>
   response: MakeTuyauResponse<import('../app/controllers/users_controller.ts').default['store'], true>
 }
 type UsersIdGetHead = {
@@ -28,7 +28,7 @@ type UsersIdEditGetHead = {
   response: MakeTuyauResponse<import('../app/controllers/users_controller.ts').default['edit'], false>
 }
 type UsersIdPutPatch = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/validators/users_validator.ts')['updateUserValidator']>>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/validators/user_validator.ts')['updateUserValidator']>>
   response: MakeTuyauResponse<import('../app/controllers/users_controller.ts').default['update'], true>
 }
 type UsersIdDelete = {
