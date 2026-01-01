@@ -12,13 +12,17 @@
   "validation": {
     "required": "{field} is required",
     "minLength": "{field} must be at least {min} characters long",
-    "email": "Must be a valid email address"
+    "maxLength": "{field} must not be longer {max} characters",
+    "email": "Must be a valid email address",
+    "passwordOrAssertion": "Password is required"
   },
   "fields": {
     "createdAt": "Created at",
     "name": "Name",
     "email": "Email",
-    "password": "Password"
+    "password": "Password",
+    "otp": "Verification code",
+    "recoveryCode": "Recovery code"
   },
   "pages": {
     "errors": {
@@ -39,8 +43,29 @@
         "title": "Sign in",
         "heading": "Sign in",
         "emailPlaceholder": "Enter email",
+        "continue": "Continue",
+        "checkingEmail": "Checking...",
         "passwordPlaceholder": "Enter password",
-        "signIn": "Sign in"
+        "signIn": "Sign in",
+        "signingIn": "Signing in...",
+        "usePasswordInstead": "Use password instead",
+        "webauthnFailed": "Unable to sign in with passkey",
+        "tryWebauthnAgain": "Try passkey again",
+        "back": "Use a different email"
+      },
+      "totp": {
+        "title": "Two-Factor Authentication",
+        "heading": "Two-Factor Authentication",
+        "verificationCodeDescription": "Enter the code from your authenticator app.",
+        "verifyButton": "Verify",
+        "cannotAccessAccount": "Can't access my account"
+      },
+      "totpRecover": {
+        "title": "Two-Factor Authentication",
+        "heading": "Two-Factor Authentication",
+        "verifyButton": "Verify Recovery Code",
+        "recoveryCodeDescription": "Enter one of your recovery codes.",
+        "backToVerificationCode": "Back to verification code"
       }
     },
     "users": {
@@ -60,11 +85,19 @@
         "title": "{name}",
         "heading": "{name}"
       }
+    },
+    "profile": {
+      "title": "Profile",
+      "heading": "Profile",
+      "description": "Manage your account security and authentication methods.",
+      "accountTitle": "Account",
+      "signedInAs": "Signed in as {name} ({email})"
     }
   },
   "components": {
     "nav": {
       "users": "Users",
+      "profile": "Profile",
       "signIn": "Sign in",
       "signOut": "Sign out"
     },
@@ -72,35 +105,77 @@
       "namePlaceholder": "Full name of the user",
       "emailPlaceholder": "User's email address",
       "passwordPlaceholder": "Password - can be changed later"
+    },
+    "totp": {
+      "title": "Two-Factor Authentication (OTP)",
+      "description": "Use an authenticator app to generate one-time codes for an extra layer of security.",
+      "notSetUp": "Authenticator app not set up.",
+      "setupButton": "Set Up Authenticator App",
+      "step1Title": "Step 1: Download Recovery Codes",
+      "saveRecoveryCodes": "Save these recovery codes in a safe place. You'll need them if you lose access to your authenticator app.",
+      "downloadRecoveryCodes": "Download Recovery Codes",
+      "downloadFileName": "recovery-codes.txt",
+      "step2Title": "Step 2: Scan QR Code",
+      "scanInstructions": "Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)",
+      "qrAlt": "TOTP QR code",
+      "orKeyManual": "Or enter this key manually:",
+      "enterVerificationCode": "Enter verification code:",
+      "otpPlaceholder": "000000",
+      "verifyButton": "Verify and Complete Setup",
+      "configured": "Authenticator app configured",
+      "disableButton": "Disable OTP",
+      "recoveryTitle": "Recovery Codes",
+      "saveAndDownload": "Save these recovery codes in a safe place. You can download them below.",
+      "youHaveRemaining": "You have {count} recovery codes remaining.",
+      "generateIfNeeded": "Generate new recovery codes if needed.",
+      "generateButton": "Generate New Recovery Codes",
+      "scanQr": "Scan the QR code and verify with a code from your authenticator app.",
+      "enabled": "Two-factor authentication enabled successfully.\n",
+      "disabled": "Two-factor authentication disabled."
+    },
+    "securityConfirmation": {
+      "title": "Confirm Your Identity",
+      "description": "For your security, please confirm your identity before making changes to your security settings.",
+      "passwordPlaceholder": "Enter your password",
+      "confirmButton": "Confirm",
+      "cancelButton": "Cancel",
+      "retryWebauthn": "Retry Passkey authentication",
+      "webauthnDescription": "Use your passkey to confirm your identity. You may be prompted to use Touch ID, Face ID, Windows Hello, or your security key.",
+      "verifying": "Verifying...",
+      "useWebauthnButton": "Use Passkey",
+      "backButton": "Back"
+    },
+    "webauthn": {
+      "title": "WebAuthn (Passkeys)",
+      "description": "Use credentials for passwordless sign-in. Works with Touch ID, Face ID, Windows Hello, or security keys.",
+      "noCredentialsRegistered": "No credentials registered.",
+      "registerCredentialButton": "Register Credential",
+      "credentialRegisteredSuccess": "Credential registered successfully.",
+      "credentialRemovedSuccess": "Credential removed successfully.",
+      "credentialName": "Credential {id}",
+      "registered": "Registered:",
+      "lastUsed": "Last Used:",
+      "removeButton": "Remove",
+      "registerAnotherCredentialButton": "Register Another Credential"
     }
   },
+  "notices": {
+    "signedIn": "Signed in successfully",
+    "signedOut": "You have been signed out"
+  },
   "errors": {
-    "emailRequired": "Email is required",
-    "passwordOrPasskeyRequired": "Password or passkey assertion required",
-    "invalidPassword": "Invalid password",
+    "fallbackError": "Something went wrong",
+    "invalidCredentials": "Incorrect email or password",
+    "noLoginSession": "No login session found",
     "credentialNotFound": "Credential not found",
-    "passkeyVerificationFailed": "Passkey verification failed",
+    "verificationFailed": "Verification failed",
     "webauthnVerificationFailed": "WebAuthn verification failed",
-    "securityConfirmationChallengeNotFound": "Security confirmation challenge not found",
-    "securityConfirmationRequired": "Security confirmation required to modify 2FA settings",
-    "securityConfirmationRequiredRemovePasskeys": "Security confirmation required to remove passkeys",
-    "securityConfirmationRequiredAddPasskeys": "Security confirmation required to add passkeys",
-    "twoFactorAlreadyEnabled": "Two-factor authentication is already enabled",
-    "credentialIdRequired": "Credential ID is required",
-    "invalidCredentialId": "Invalid credential ID",
-    "passkeyNotFound": "Passkey not found",
-    "passkeyRemovedSuccessfully": "Passkey removed successfully",
+    "totpAlreadyEnabled": "Two-factor authentication is already enabled",
     "missingAuthenticationPayload": "Missing authentication payload",
     "missingRegistrationPayload": "Missing registration payload",
-    "userNotFound": "User not found",
-    "twoFactorSecretNotGenerated": "Two-factor secret not generated",
+    "totpSecretNotGenerated": "Two-factor secret not generated",
     "otpInvalid": "OTP invalid",
-    "otpValid": "OTP valid",
-    "userWithout2FAActive": "User without 2FA active",
-    "twoFactorRequiredModifySettings": "Two-factor authentication required to modify settings",
-    "twoFactorRequiredRotateRecoveryCodes": "Two-factor authentication required to rotate recovery codes",
-    "twoFactorRequiredDisable": "Two-factor authentication required to disable",
-    "twoFactorRequiredAddWebauthn": "Two-factor authentication required to add WebAuthn",
-    "noSecurityKeysRegistered": "No security keys registered"
+    "recoveryCodeInvalid": "Invalid code",
+    "userWithout2FAActive": "User without 2FA active"
   }
 }

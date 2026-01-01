@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { forwardRef } from 'react'
 import classNames from 'classnames'
 import './index.scss'
 
@@ -10,7 +10,7 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   variant?: InputVariant
 }
 
-export default function Input(props: InputProps): JSX.Element {
+const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
   const { size, variant, className, ...rest } = props
 
   const usedClassName = classNames(
@@ -22,5 +22,9 @@ export default function Input(props: InputProps): JSX.Element {
     className
   )
 
-  return <input className={usedClassName} {...rest} />
-}
+  return <input ref={ref} className={usedClassName} {...rest} />
+})
+
+Input.displayName = 'Input'
+
+export default Input

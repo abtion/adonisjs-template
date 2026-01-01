@@ -12,66 +12,62 @@ import { middleware } from './kernel.js'
 
 // Remember to *always lazy load controllers*, otherwise hot module reload won't work
 const UsersController = () => import('#controllers/users_controller')
+const SignInController = () => import('#controllers/sign_in_controller')
 const SessionController = () => import('#controllers/session_controller')
 const ColorsController = () => import('#controllers/colors_controller')
-const TwoFactorController = () => import('#controllers/two_factor_controller')
-const WebauthnController = () => import('#controllers/webauthn_controller')
+const SessionTotpController = () => import('#controllers/session/totp_controller')
+const SessionTotpRecoverController = () => import('#controllers/session/totp_recover_controller')
+const ProfileTotpController = () => import('#controllers/profile/totp_controller')
+const SessionConfirmSecurityController = () =>
+  import('#controllers/session/confirm_security_controller')
+const ProfileWebauthnController = () => import('#controllers/profile/webauthn_controller')
 const ProfileController = () => import('#controllers/profile_controller')
+
+// Validate id to be numeric + cast to number data type
+router.where('id', router.matchers.number())
 
 // Home
 router.on('/').renderInertia('home/index')
 
-// CRUD routes
-router.resource('users', UsersController).use('*', [middleware.auth(), middleware.twoFactor()])
-
-// Session management
-router.get('sign-in', [SessionController, 'show']).use(middleware.guest())
-router.post('sign-in/check-email', [SessionController, 'checkEmail']).use(middleware.guest())
-router.post('sign-in', [SessionController, 'store']).use(middleware.guest())
-router
-  .post('passwordless/options', [SessionController, 'passwordlessOptions'])
-  .use(middleware.guest())
-router
-  .post('passwordless/verify', [SessionController, 'passwordlessVerify'])
-  .use(middleware.guest())
-router.delete('session', [SessionController, 'destroy']).use(middleware.auth())
-
-// Profile routes - require authentication and 2FA (if enabled)
+// Authenticated routes
 router
   .group(() => {
+    router.resource('users', UsersController)
+
     router.get('profile', [ProfileController, 'show'])
-    router.post('profile/confirm-security/options', [ProfileController, 'confirmSecurityOptions'])
-    router.post('profile/confirm-security', [ProfileController, 'confirmSecurity'])
-    router.post('profile/enable-mfa', [ProfileController, 'enable'])
-    router.delete('profile/passkeys/:id', [ProfileController, 'removePasskey'])
-  })
-  .use([middleware.auth(), middleware.twoFactor()])
 
+    // Webauthn setup
+    router.get('profile/webauthn/options', [ProfileWebauthnController, 'options'])
+    router.resource('profile/webauthn', ProfileWebauthnController).apiOnly()
+
+    // TOTP setups
+    router.post('profile/totp', [ProfileTotpController, 'store'])
+    router.post('profile/totp/verify', [ProfileTotpController, 'verify'])
+    router.delete('profile/totp', [ProfileTotpController, 'destroy'])
+    router.post('profile/totp/regeneration', [ProfileTotpController, 'regenerateRecoveryCodes'])
+
+    // Confirm security for sensitive actions
+    router.get('session/confirm-security', [SessionConfirmSecurityController, 'index'])
+    router.post('session/confirm-security', [SessionConfirmSecurityController, 'store'])
+
+    router.delete('session', [SessionController, 'destroy'])
+  })
+  .use([middleware.auth()])
+
+// Session routes (not accessible when authenticated)
 router
   .group(() => {
-    router.get('challenge', [TwoFactorController, 'challenge']).as('challenge')
-    router.post('totp/generate', [TwoFactorController, 'generate']).as('totp.generate')
-    router.post('totp/verify', [TwoFactorController, 'verify']).as('totp.verify')
-    router
-      .post('recovery-codes', [TwoFactorController, 'generateRecoveryCodes'])
-      .as('recovery.generate')
-    router.post('disable', [TwoFactorController, 'disable']).as('disable')
+    // Sign in
+    router.resource('sign-in', SignInController).only(['index', 'store'])
+    router.resource('sign-in/:email', SessionController).only(['index', 'store'])
 
-    router
-      .post('webauthn/register/options', [WebauthnController, 'registerOptions'])
-      .as('webauthn.registerOptions')
-    router
-      .post('webauthn/register/verify', [WebauthnController, 'verifyRegistration'])
-      .as('webauthn.verifyRegistration')
-    router
-      .post('webauthn/authenticate/options', [WebauthnController, 'authenticationOptions'])
-      .as('webauthn.authenticationOptions')
-    router
-      .post('webauthn/authenticate/verify', [WebauthnController, 'verifyAuthentication'])
-      .as('webauthn.verifyAuthentication')
+    // TOTP
+    router.get('session/totp', [SessionTotpController, 'index'])
+    router.post('session/totp', [SessionTotpController, 'store'])
+    router.get('session/totp/recover', [SessionTotpRecoverController, 'index'])
+    router.post('session/totp/recover', [SessionTotpRecoverController, 'store'])
   })
-  .as('2fa')
-  .prefix('2fa')
-  .middleware(middleware.auth())
+  .use(middleware.guest())
 
+// Static routes
 router.get('/colors.css', [ColorsController])

@@ -4,6 +4,7 @@ import { defineConfig, formatters, loaders } from '@adonisjs/i18n'
 const i18nConfig = defineConfig({
   defaultLocale: app.inTest ? 'dev' : 'en',
   formatter: formatters.icu(),
+  fallback: (identifier) => identifier,
 
   loaders: [
     /**

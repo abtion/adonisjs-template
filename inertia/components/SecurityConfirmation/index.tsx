@@ -1,152 +1,143 @@
-import { useState, useEffect } from 'react'
-import { startAuthentication } from '@simplewebauthn/browser'
+import { useState, useEffect, FormEvent } from 'react'
+import { AuthenticationResponseJSON, startAuthentication } from '@simplewebauthn/browser'
 import Button from '~/components/Button'
 import Input from '~/components/Input'
-import { postJson } from '~/lib/api'
+import { tuyau } from '~/lib/tuyau'
+import { PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types'
+import { useTranslation } from 'react-i18next'
+import Alert from '../Alert'
 
 type SecurityConfirmationProps = {
   isOpen: boolean
   onClose: () => void
   onConfirmed: () => void
-  hasPasskeys: boolean
 }
 
 export default function SecurityConfirmation({
   isOpen,
   onClose,
   onConfirmed,
-  hasPasskeys,
 }: SecurityConfirmationProps) {
+  const { t } = useTranslation()
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [webauthnAttempted, setWebauthnAttempted] = useState(false)
+  const [webauthnOptions, setWebauthnOptions] =
+    useState<PublicKeyCredentialRequestOptionsJSON | null>(null)
   const [busy, setBusy] = useState(false)
-  const [usingPasskey, setUsingPasskey] = useState(false)
 
   useEffect(() => {
     if (!isOpen) {
       setPassword('')
-      setError(null)
-      setUsingPasskey(false)
+      setWebauthnOptions(null)
+      setWebauthnAttempted(false)
+      return
     }
+
+    tuyau.session['confirm-security']
+      .$get()
+      .unwrap()
+      .then(({ options }) => {
+        if (!options) return
+        setWebauthnOptions(options)
+      })
   }, [isOpen])
 
-  const handlePasswordConfirm = async () => {
+  const confirm = async (
+    params: { password: string } | { assertion: AuthenticationResponseJSON }
+  ) => {
     setBusy(true)
     setError(null)
     try {
-      await postJson('/profile/confirm-security', { password })
+      await tuyau.session['confirm-security'].$post(params).unwrap()
       onConfirmed()
       onClose()
     } catch (err) {
-      setError((err as Error).message)
+      setError(err?.value?.message ?? t('errors.fallbackError'))
     } finally {
       setBusy(false)
     }
   }
 
-  const handlePasskeyConfirm = async () => {
-    setBusy(true)
-    setError(null)
+  const confirmWithWebauthn = async () => {
     try {
-      const { options } = await postJson<{ options: any }>('/profile/confirm-security/options')
-      const assertion = await startAuthentication(options)
-      await postJson('/profile/confirm-security', { assertion })
-      onConfirmed()
-      onClose()
-    } catch (err) {
-      setError((err as Error).message)
+      const assertion = await startAuthentication({
+        optionsJSON: webauthnOptions!,
+      })
+      await confirm({ assertion })
     } finally {
-      setBusy(false)
+      setWebauthnAttempted(true)
     }
   }
+
+  const handlePaswordSubmit = (e: FormEvent) => {
+    e.preventDefault()
+    confirm({ password })
+  }
+
+  useEffect(() => {
+    if (webauthnOptions) confirmWithWebauthn()
+  }, [webauthnOptions])
 
   if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 z-50 !mt-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-        <h2 className="mb-4 text-xl font-semibold">Confirm Your Identity</h2>
+        <h2 className="mb-4 text-xl font-semibold">{t('components.securityConfirmation.title')}</h2>
         <p className="text-gray-600 mb-6 text-sm">
-          For your security, please confirm your identity before making changes to your security
-          settings.
+          {t('components.securityConfirmation.description')}
         </p>
 
-        {!usingPasskey ? (
-          <div className="space-y-4">
-            <div>
-              <label className="mb-2 block text-sm font-medium">Password</label>
+        <div className="space-y-4">
+          <form onSubmit={handlePaswordSubmit} className="space-y-4">
+            <label className="block">
+              <p className="mb-2 text-sm font-medium">{t('fields.password')}</p>
               <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
+                placeholder={t('components.securityConfirmation.passwordPlaceholder')}
                 autoComplete="current-password"
                 size="md"
                 className="w-full"
                 autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && password && !busy) {
-                    handlePasswordConfirm()
-                  }
-                }}
               />
-            </div>
+            </label>
             <div className="flex gap-3">
               <Button
-                onClick={handlePasswordConfirm}
                 variant="primary"
                 size="md"
+                type="submit"
                 disabled={busy || !password}
                 className="flex-1"
               >
-                Confirm
+                {t('components.securityConfirmation.confirmButton')}
               </Button>
               <Button onClick={onClose} variant="neutral" size="md" disabled={busy}>
-                Cancel
+                {t('components.securityConfirmation.cancelButton')}
               </Button>
             </div>
-            {hasPasskeys && (
-              <div className="pt-2 text-center">
-                <button
-                  type="button"
-                  onClick={() => setUsingPasskey(true)}
-                  disabled={busy}
-                  className="text-blue-600 hover:text-blue-800 disabled:text-gray-400 text-sm"
-                >
-                  Use Passkey instead
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <p className="text-gray-600 text-sm">
-              Use your passkey to confirm your identity. You may be prompted to use Touch ID, Face
-              ID, Windows Hello, or your security key.
-            </p>
-            <div className="flex gap-3">
-              <Button
-                onClick={handlePasskeyConfirm}
-                variant="primary"
-                size="md"
+          </form>
+          {webauthnAttempted && (
+            <div className="pt-2 text-center">
+              <button
+                type="button"
+                onClick={confirmWithWebauthn}
                 disabled={busy}
-                className="flex-1"
+                className="text-blue-600 hover:text-blue-800 disabled:text-gray-400 text-sm"
               >
-                {busy ? 'Verifying...' : 'Use Passkey'}
-              </Button>
-              <Button
-                onClick={() => setUsingPasskey(false)}
-                variant="neutral"
-                size="md"
-                disabled={busy}
-              >
-                Back
-              </Button>
+                {t('components.securityConfirmation.retryWebauthn')}
+              </button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {error && <div className="bg-red-50 text-red-700 mt-4 rounded p-3 text-sm">{error}</div>}
+        {error && (
+          <Alert variant="danger" className="mt-6">
+            {error}
+          </Alert>
+        )}
       </div>
     </div>
   )
