@@ -51,6 +51,24 @@ jobs:
       - name: check git diff
         run: git diff --exit-code database/types.d.ts
 
+  tuyau:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: '.tool-versions'
+          cache: 'npm'
+      - name: npm
+        run: npm ci
+      - name: generate tuyau types
+        run: |
+          node ace tuyau:generate
+      - name: check git diff
+        run: git diff --exit-code .adonisjs
+
   tests:
     runs-on: ubuntu-latest
 
