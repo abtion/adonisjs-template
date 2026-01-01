@@ -38,7 +38,7 @@ router
 
     // Webauthn setup
     router.get('profile/webauthn/options', [ProfileWebauthnController, 'options'])
-    router.resource('profile/webauthn', ProfileWebauthnController).apiOnly()
+    router.resource('profile/webauthn', ProfileWebauthnController).only(['store', 'destroy'])
 
     // TOTP setups
     router.post('profile/totp', [ProfileTotpController, 'store'])

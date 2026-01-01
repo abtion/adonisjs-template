@@ -281,31 +281,10 @@ const routes = [
   },
   {
     params: [],
-    name: 'profile_webauthn.index',
-    path: '/profile/webauthn',
-    method: ["GET","HEAD"],
-    types: {} as unknown,
-  },
-  {
-    params: [],
     name: 'profile_webauthn.store',
     path: '/profile/webauthn',
     method: ["POST"],
     types: {} as ProfileWebauthnPost,
-  },
-  {
-    params: ["id"],
-    name: 'profile_webauthn.show',
-    path: '/profile/webauthn/:id',
-    method: ["GET","HEAD"],
-    types: {} as unknown,
-  },
-  {
-    params: ["id"],
-    name: 'profile_webauthn.update',
-    path: '/profile/webauthn/:id',
-    method: ["PUT","PATCH"],
-    types: {} as unknown,
   },
   {
     params: ["id"],
