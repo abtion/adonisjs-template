@@ -9,6 +9,7 @@
 
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
+import env from '#start/env'
 
 // Remember to *always lazy load controllers*, otherwise hot module reload won't work
 const UsersController = () => import('#controllers/users_controller')
@@ -68,6 +69,11 @@ router
     router.post('session/totp/recover', [SessionTotpRecoverController, 'store'])
   })
   .use(middleware.guest())
+
+// Job handling UI
+const user = env.get('JOBS_UI_USER')
+const password = env.get('JOBS_UI_PASSWORD')
+if (user && password) router.jobs().use(middleware.basicAuth({ user, password }))
 
 // Static routes
 router.get('/colors.css', [ColorsController])

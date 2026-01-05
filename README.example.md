@@ -139,6 +139,7 @@ There are also many other built-in commands that can be inspected by just runnin
 node ace make:* # Lots of options, like `rails g`
 node ace repl # Similar to `rails c`
 node ace list:routes # Similar to `rails routes`
+node ace jobs:make # Make a new type of background job
 ```
 
 ## Good to know
@@ -173,6 +174,8 @@ Otherwise the following changes where made:
 - Authentication implemented
 - TOTP + Webauthn auth
 - Landing page and simple user management implemented
+- Background jobs implemented through [adonisjs-jobs](https://github.com/KABBOUCHI/adonisjs-jobs) (community package)
+  - UI available at `/jobs`
 
 ### Third party services
 
