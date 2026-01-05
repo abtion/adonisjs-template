@@ -11,7 +11,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.tool-versions'
-          cache: 'npm'
       - name: npm
         run: npm ci
       - name: lint
@@ -42,7 +41,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.tool-versions'
-          cache: 'npm'
       - name: npm
         run: npm ci
       - name: run migrations
@@ -60,7 +58,6 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version-file: '.tool-versions'
-          cache: 'npm'
       - name: npm
         run: npm ci
       - name: generate tuyau types
