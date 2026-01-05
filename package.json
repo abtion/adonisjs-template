@@ -15,6 +15,7 @@
     "typecheck": "tsc --noEmit",
     "i18n:check": "i18n-check"
   },
+  "packageManager": "npm@11.7.0",
   "engines": {
     "node": "22"
   },
