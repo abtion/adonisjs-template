@@ -8,7 +8,7 @@ import i18nextConfig from '../config/i18next_config'
 export default function render(page: any) {
   return createInertiaApp({
     page,
-    title: (title) => [title, 'DM Greenkeeping'].filter(Boolean).join(' - '),
+    title: (title) => [title, 'Project Name Human'].filter(Boolean).join(' - '),
     render: ReactDOMServer.renderToString,
     resolve: (name) => {
       const pages = import.meta.glob('../pages/**/*.tsx', { eager: true })

@@ -1,16 +1,21 @@
 import React from 'react'
+import { FlashMessages } from '~/components/FlashMessages'
 import Logo from '~/components/Logo'
 import backgroundImageUrl from '~/images/muffi-background-image.jpg'
 
 export default function SessionLayout({ children }: React.PropsWithChildren) {
   return (
-    <main className="w-full h-full md:flex">
-      <div className="w-full h-full p-6 md:w-1/2">
+    <main className="h-full w-full md:flex">
+      <div className="h-full w-full p-6 md:w-1/2">
         <Logo className="absolute" />
-        <div className="flex items-center justify-center h-full">{children}</div>
+        <div className="flex h-full items-center justify-center">
+          <FlashMessages className="container mx-auto my-4" />
+
+          {children}
+        </div>
       </div>
       <div
-        className="hidden md:w-1/2 md:block md:h-full bg-cover"
+        className="hidden bg-cover md:block md:h-full md:w-1/2"
         style={{ backgroundImage: `url('${backgroundImageUrl}')` }}
       ></div>
     </main>

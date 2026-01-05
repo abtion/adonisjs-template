@@ -5,11 +5,21 @@
 
 import type { ColumnType } from "kysely";
 
+export type ArrayType<T> = ArrayTypeImpl<T> extends (infer U)[]
+  ? U[]
+  : ArrayTypeImpl<T>;
+
+export type ArrayTypeImpl<T> = T extends ColumnType<infer S, infer I, infer U>
+  ? ColumnType<S[], I[], U[]>
+  : T[];
+
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
+
+export type WebauthnTransport = "ble" | "cable" | "hybrid" | "internal" | "nfc" | "smart-card" | "usb";
 
 export interface Users {
   admin: Generated<boolean>;
@@ -18,9 +28,27 @@ export interface Users {
   id: Generated<number>;
   name: string;
   password: string;
+  totpEnabled: Generated<boolean>;
+  totpRecoveryCodesEncrypted: string | null;
+  totpSecretEncrypted: string | null;
   updatedAt: Timestamp;
+}
+
+export interface WebauthnCredentials {
+  backedUp: Generated<boolean>;
+  counter: Generated<number>;
+  createdAt: Generated<Timestamp>;
+  credentialId: string;
+  deviceType: string | null;
+  friendlyName: string | null;
+  id: Generated<number>;
+  publicKey: string;
+  transports: Generated<ArrayType<WebauthnTransport>>;
+  updatedAt: Generated<Timestamp>;
+  userId: number;
 }
 
 export interface DB {
   users: Users;
+  webauthnCredentials: WebauthnCredentials;
 }

@@ -1,27 +1,26 @@
 import { BasePolicy } from '@adonisjs/bouncer'
-import { AuthorizerResponse } from '@adonisjs/bouncer/types'
 import { SessionUser } from '../auth_providers/session_user_provider.js'
 
 export type PolicyUser = { id: number }
 
 export default class UserPolicy extends BasePolicy {
-  index(user: SessionUser): AuthorizerResponse {
+  index(user: SessionUser) {
     return user.admin
   }
 
-  create(user: SessionUser): AuthorizerResponse {
+  create(user: SessionUser) {
     return user.admin
   }
 
-  show(user: SessionUser, targetUser: PolicyUser): AuthorizerResponse {
+  show(user: SessionUser, targetUser: PolicyUser) {
     return user.admin || user.id === targetUser.id
   }
 
-  edit(user: SessionUser, targetUser: PolicyUser): AuthorizerResponse {
+  edit(user: SessionUser, targetUser: PolicyUser) {
     return user.admin || user.id === targetUser.id
   }
 
-  destroy(user: SessionUser, targetUser: PolicyUser): AuthorizerResponse {
+  destroy(user: SessionUser, targetUser: PolicyUser) {
     return user.admin || user.id === targetUser.id
   }
 }

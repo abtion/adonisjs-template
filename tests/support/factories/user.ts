@@ -16,9 +16,7 @@ export async function getUserAttributes(attributes: Partial<InsertObject<DB, 'us
 }
 
 export async function createUser(attributes: Partial<InsertObject<DB, 'users'>> = {}) {
-  return db()
-    .insertInto('users')
-    .values([await getUserAttributes(attributes)])
-    .returningAll()
-    .executeTakeFirstOrThrow()
+  const values: any = await getUserAttributes(attributes)
+
+  return db().insertInto('users').values([values]).returningAll().executeTakeFirstOrThrow()
 }
