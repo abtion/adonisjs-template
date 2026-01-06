@@ -30,8 +30,8 @@ This section should include any business related explanation that helps understa
 - Email Service:
 - Client: IT person contact details
 
-If the project is using some special external services (NemID, oAuth, Customer API, etc.) give a short description here.
-Example: The app is using NemID to authenticate all its users.
+If the project is using some special external services (MitID, oAuth, Customer API, etc.) give a short description here.
+Example: The app is using MitID to authenticate all its users.
 
 ## Development
 
