@@ -17,7 +17,11 @@ const shieldConfig = defineConfig({
    */
   csrf: {
     enabled: true,
-    exceptRoutes: [],
+    exceptRoutes: (ctx) => {
+      // The adonisjs-jobs UI uses queuedash, which has no notion of AdonisJS CSRF
+      // https://github.com/alexbudure/queuedash
+      return ctx.route?.pattern === '/jobs/trpc/*'
+    },
     enableXsrfCookie: true,
     methods: ['POST', 'PUT', 'PATCH', 'DELETE'],
   },
