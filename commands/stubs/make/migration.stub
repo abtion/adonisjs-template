@@ -7,14 +7,14 @@ import { Kysely } from 'kysely'
 
 export async function up(db: Kysely<any>): Promise<void> {
   // await db.schema
-  //  .alterTable('TABLE_NAME')
-  //  .addColumn('COLUMN_NAME', 'integer', (col) => col.notNull())
-  //  .execute()
+  //   .alterTable('TABLE_NAME')
+  //   .addColumn('COLUMN_NAME', 'integer', (col) => col.notNull())
+  //   .execute()
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
   // await db.schema
-  //  .alterTable('TABLE_NAME')
-  //  .dropColumn('COLUMN_NAME')
-  //  .execute()
+  //   .alterTable('TABLE_NAME')
+  //   .dropColumn('COLUMN_NAME')
+  //   .execute()
 }
