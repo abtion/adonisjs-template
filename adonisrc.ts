@@ -15,6 +15,7 @@ export default defineConfig({
     () => import('@adonisjs/bouncer/commands'),
     () => import('@adonisjs/mail/commands'),
     () => import('@tuyau/core/commands'),
+    () => import('adonisjs-jobs/commands'),
   ],
 
   /*
@@ -47,6 +48,7 @@ export default defineConfig({
     () => import('@adonisjs/mail/mail_provider'),
     () => import('@nulix/adonis-2fa/two_factor_auth_provider'),
     () => import('@tuyau/core/tuyau_provider'),
+    () => import('adonisjs-jobs/jobs_provider'),
   ],
 
   /*
@@ -57,7 +59,11 @@ export default defineConfig({
   | List of modules to import before starting the application.
   |
   */
-  preloads: [() => import('#start/routes'), () => import('#start/kernel')],
+  preloads: [
+    () => import('#start/routes'),
+    () => import('#start/kernel'),
+    () => import('#start/mail'),
+  ],
 
   /*
   |--------------------------------------------------------------------------

@@ -87,6 +87,9 @@ All pages receive via `config/inertia.ts`:
 - Use `unit` tests to cover missing branches in other source files
 - Only use unit tests to fill in missing coverage
 - DO NOT assign passwords to test users unless the password will be used
+- Use `testUtils.createHttpContext()` to create an `HttpContext` for unit tests
+- Place unit tests under `tests/unit/[file path relative to app].spec.ts`
+- Place functional (request) tests under `tests/functional/[file path relative to app/controllers].spec.ts`
 
 ### i18n
 - Backend: `@adonisjs/i18n`

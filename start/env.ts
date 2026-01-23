@@ -42,6 +42,24 @@ export const schema = {
   */
   DATABASE_SERVER: Env.schema.string.optional(), // Used for development and test
   DATABASE_URL: Env.schema.string.optional(), // Used for production env
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring the jobs package
+  |----------------------------------------------------------
+  */
+  REDIS_HOST: Env.schema.string(),
+  REDIS_PORT: Env.schema.number(),
+  REDIS_PASSWORD: Env.schema.string.optional(),
+  REDIS_QUEUE: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring the jobs UI
+  |----------------------------------------------------------
+  */
+  JOBS_UI_USER: Env.schema.string.optional(),
+  JOBS_UI_PASSWORD: Env.schema.string.optional(),
 }
 
 const env =
