@@ -12,7 +12,6 @@ import { tuyau } from '~/lib/tuyau'
 export default function Totp() {
   const { t } = useTranslation()
 
-
   const { data, setData, post, errors, processing } = useForm({
     otp: '',
   })
@@ -28,7 +27,9 @@ export default function Totp() {
   }
 
   const otpRef = useAutofillRef<HTMLInputElement>((el) => {
-    el.addEventListener('keydown', (e) => handleKeyDown(e as unknown as React.KeyboardEvent<HTMLInputElement>))
+    el.addEventListener('keydown', (e) =>
+      handleKeyDown(e as unknown as React.KeyboardEvent<HTMLInputElement>)
+    )
   })
 
   useEffect(() => {
