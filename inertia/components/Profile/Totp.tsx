@@ -97,6 +97,12 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
       router.reload({ only: ['totp'] })
     })
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      verifyTotp()
+    }
+  }
+
   return (
     <>
       <SecurityConfirmation
@@ -167,7 +173,7 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
                         name="secret"
                         variant="default"
                         readOnly
-                        className="w-80 text-xs font-mono border-info-200 bg-info-50"
+                        className="font-mono w-80 border-info-200 bg-info-50 text-xs"
                         value={totpState.secret.secret}
                       />
                     </label>
@@ -179,6 +185,7 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
                     <Input
                       value={totpState.otp}
                       onChange={(e) => setTotpState({ ...totpState, otp: e.target.value })}
+                      onKeyDown={handleKeyDown}
                       placeholder={t('components.totp.otpPlaceholder')}
                       autoComplete="one-time-code"
                       size="md"
