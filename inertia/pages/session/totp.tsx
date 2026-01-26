@@ -1,5 +1,5 @@
 import { Head, router, useForm } from '@inertiajs/react'
-import { FormEvent } from 'react'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BaseFormError } from '~/components/BaseFormError'
 import Button from '~/components/Button'
@@ -11,6 +11,7 @@ import { tuyau } from '~/lib/tuyau'
 
 export default function Totp() {
   const { t } = useTranslation()
+
 
   const { data, setData, post, errors, processing } = useForm({
     otp: '',
@@ -25,6 +26,14 @@ export default function Totp() {
       verifyTotp()
     }
   }
+
+  const otpRef = useAutofillRef<HTMLInputElement>((el) => {
+    el.addEventListener('keydown', (e) => handleKeyDown(e as unknown as React.KeyboardEvent<HTMLInputElement>))
+  })
+
+  useEffect(() => {
+    otpRef.current?.focus()
+  }, [])
 
   return (
     <SessionLayout>
@@ -45,7 +54,7 @@ export default function Totp() {
                 value={data.otp}
                 onChange={(e) => setData('otp', e.target.value)}
                 onKeyDown={handleKeyDown}
-                ref={useAutofillRef(({ value }) => setData('otp', value))}
+                ref={otpRef}
                 placeholder="000000"
                 variant={errors.otp ? 'error' : 'default'}
               />
