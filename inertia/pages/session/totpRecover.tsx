@@ -43,7 +43,7 @@ export default function TotpRecover() {
               />
             </label>
             <p className="text-gray-600 mt-2 text-sm">
-              {t('pages.session.toerrortpRecover.recoveryCodeDescription')}
+              {t('pages.session.totpRecover.recoveryCodeDescription')}
             </p>
           </div>
 
