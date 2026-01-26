@@ -16,9 +16,14 @@ export default function Totp() {
     otp: '',
   })
 
-  const verifyTotp = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const verifyTotp = async () => {
     post(tuyau.session.totp.$url())
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      verifyTotp()
+    }
   }
 
   return (
@@ -39,6 +44,7 @@ export default function Totp() {
                 autoComplete="one-time-code"
                 value={data.otp}
                 onChange={(e) => setData('otp', e.target.value)}
+                onKeyDown={handleKeyDown}
                 ref={useAutofillRef(({ value }) => setData('otp', value))}
                 placeholder="000000"
                 variant={errors.otp ? 'error' : 'default'}
