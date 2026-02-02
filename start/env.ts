@@ -48,10 +48,8 @@ export const schema = {
   | Variables for configuring the jobs package
   |----------------------------------------------------------
   */
-  REDIS_HOST: Env.schema.string(),
-  REDIS_PORT: Env.schema.number(),
-  REDIS_PASSWORD: Env.schema.string.optional(),
-  REDIS_QUEUE: Env.schema.string.optional(),
+  REDIS_URL: Env.schema.string(),
+  JOBS_QUEUE: Env.schema.string.optional(),
 
   /*
   |----------------------------------------------------------

@@ -1,14 +1,16 @@
 import env from '#start/env'
 import { defineConfig } from 'adonisjs-jobs'
 
+const parsedRedisUrl = new URL(env.get('REDIS_URL'))
+
 const jobsConfig = defineConfig({
   connection: {
-    host: env.get('REDIS_HOST', 'localhost'),
-    port: env.get('REDIS_PORT', 6379),
-    password: env.get('REDIS_PASSWORD'),
+    host: parsedRedisUrl.hostname,
+    port: Number.parseInt(parsedRedisUrl.port),
+    password: parsedRedisUrl.password,
   },
 
-  queue: env.get('REDIS_QUEUE', 'default'),
+  queue: env.get('JOBS_QUEUE', 'default'),
 
   queues: ['default', 'mails'],
 
