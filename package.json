@@ -35,7 +35,6 @@
     "#jobs/*": "./app/jobs/*.js",
     "#database/*": "./database/*.js",
     "#utils/*": "./utils/*.js",
-    "#types/*": "./types/*.d.ts",
     "#tests/*": "./tests/*.js",
     "#start/*": "./start/*.js",
     "#config/*": "./config/*.js"
