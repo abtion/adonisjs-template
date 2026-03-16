@@ -44,7 +44,7 @@ export default class SecuritySettingsChangedMail extends BaseMail {
         '',
         'If you did not make this change, review your account security immediately.',
       ]
-        .filter(Boolean)
+        .filter((line): line is string => line !== undefined)
         .join('\n')
     )
   }

@@ -4,7 +4,7 @@ import mail from '@adonisjs/mail/services/main'
 import SecuritySettingsChangedMail from '#mails/security_settings_changed'
 
 test.group('SecuritySettingsChangedMail', () => {
-  test('uses fallback greeting and omits unnamed passkey detail', async () => {
+  test('uses fallback greeting and omits unnamed passkey detail', async ({ assert }) => {
     const fakeMailer = mail.fake()
 
     try {
@@ -22,8 +22,14 @@ test.group('SecuritySettingsChangedMail', () => {
       fakeMailer.mails.assertSent(SecuritySettingsChangedMail, (notification) => {
         notification.message.assertTo('test@example.com')
         notification.message.assertSubject('Passkey removed')
-        notification.message.assertTextIncludes('Hi there,')
-        notification.message.assertTextIncludes('A passkey was removed from your account.')
+        notification.message.assertTextIncludes(
+          'Hi there,\n\nA passkey was removed from your account.'
+        )
+        const text =
+          typeof notification.message.nodeMailerMessage.text === 'string'
+            ? notification.message.nodeMailerMessage.text
+            : ''
+        assert.notInclude(text, 'Passkey name:')
         return true
       })
     } finally {
