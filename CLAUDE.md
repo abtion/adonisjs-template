@@ -136,3 +136,15 @@ The codebase uses `#` prefix imports defined in package.json:
 - Use Inertia's useForm, whenever possible, for form state management
 - Use tuyau for client API calls (only) when Inertia's useForms is not suitable
 - In controllers, use FormError for non-validation errors
+
+## PR Workflow
+
+When asked to open a PR:
+1. Wait for AI review comments to come in
+2. For each comment received, analyze it and respond with either:
+   - Confirmation that it's been fixed (with details)
+   - Explanation of why it won't be fixed (reasoning)
+3. Monitor PR checks using --watch until all pass
+4. Post a final comment: 'Ready for review' when complete
+
+Always be thorough in reasoning about each comment's relevance before deciding to implement or decline.
