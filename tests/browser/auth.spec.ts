@@ -81,7 +81,7 @@ test.group('Auth', (group) => {
     await expect(page).toHaveURL('/session/totp')
     const validOtp = adonis2fa.generateToken(totpSecret.secret)!
     await page.getByLabel('fields.otp').fill(validOtp)
-    await page.getByRole('button', { name: 'pages.session.totp.verifyButton' }).click()
+    await page.getByLabel('fields.otp').press('Enter')
 
     await expect(page.getByText('components.nav.signOut')).toBeVisible()
   })
