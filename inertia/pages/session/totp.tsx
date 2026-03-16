@@ -56,7 +56,6 @@ export default function Totp() {
                 autoComplete="one-time-code"
                 value={data.otp}
                 onChange={(e) => setData('otp', e.target.value)}
-                onKeyDown={handleKeyDown}
                 ref={otpRef}
                 placeholder="000000"
                 variant={errors.otp ? 'error' : 'default'}
