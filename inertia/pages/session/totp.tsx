@@ -23,6 +23,7 @@ export default function Totp() {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
+      e.preventDefault()
       e.currentTarget.form?.requestSubmit()
     }
   }

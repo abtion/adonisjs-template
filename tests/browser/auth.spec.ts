@@ -81,7 +81,7 @@ test.group('Auth', (group) => {
     await expect(page).toHaveURL('/session/totp')
     const validOtp = adonis2fa.generateToken(totpSecret.secret)!
     await page.getByLabel('fields.otp').fill(validOtp)
-    await page.getByLabel('fields.otp').press('Enter')
+    await page.getByRole('button', { name: 'pages.session.totp.verifyButton' }).click()
 
     await expect(page.getByText('components.nav.signOut')).toBeVisible()
   })
@@ -106,7 +106,7 @@ test.group('Auth', (group) => {
 
     await expect(page).toHaveURL('/session/totp')
     await page.getByLabel('fields.otp').fill('000000')
-    await page.getByRole('button', { name: 'pages.session.totp.verifyButton' }).click()
+    await page.getByLabel('fields.otp').press('Enter')
 
     await expect(page.getByText('errors.otpInvalid')).toBeVisible()
   })
