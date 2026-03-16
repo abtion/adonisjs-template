@@ -17,7 +17,6 @@ import collectBrowserCoverage from './support/plugins/collect_browser_coverage.j
 import env from '#start/env'
 import nock from 'nock'
 import sinon from 'sinon'
-import mail from '@adonisjs/mail/services/main'
 
 /**
  * This file is imported by the "bin/test.ts" entrypoint file
@@ -88,7 +87,6 @@ export const configureSuite: Config['configureSuite'] = (suite) => {
   const testTeardown = () => {
     nock.cleanAll()
     sinon.restore()
-    mail.restore()
 
     // Restore app container between tests
     app.container.restoreAll()
@@ -98,17 +96,6 @@ export const configureSuite: Config['configureSuite'] = (suite) => {
   suite.onGroup((group) => group.each.teardown(testTeardown))
 
   if (['browser', 'functional', 'e2e'].includes(suite.name)) {
-    suite.onTest((test) =>
-      test.setup(() => {
-        mail.fake()
-      })
-    )
-    suite.onGroup((group) =>
-      group.each.setup(() => {
-        mail.fake()
-      })
-    )
-
     suite.setup(async () => {
       // Add warm up route before running server
       const { default: router } = await import('@adonisjs/core/services/router')
