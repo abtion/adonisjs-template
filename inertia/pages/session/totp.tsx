@@ -1,5 +1,5 @@
 import { Head, router, useForm } from '@inertiajs/react'
-import { useEffect } from 'react'
+import { type FormEvent, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BaseFormError } from '~/components/BaseFormError'
 import Button from '~/components/Button'
@@ -16,13 +16,15 @@ export default function Totp() {
     otp: '',
   })
 
-  const verifyTotp = async () => {
+  const verifyTotp = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     post(tuyau.session.totp.$url())
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      verifyTotp()
+      e.preventDefault()
+      e.currentTarget.form?.requestSubmit()
     }
   }
 
@@ -54,7 +56,6 @@ export default function Totp() {
                 autoComplete="one-time-code"
                 value={data.otp}
                 onChange={(e) => setData('otp', e.target.value)}
-                onKeyDown={handleKeyDown}
                 ref={otpRef}
                 placeholder="000000"
                 variant={errors.otp ? 'error' : 'default'}

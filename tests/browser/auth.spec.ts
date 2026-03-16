@@ -86,6 +86,31 @@ test.group('Auth', (group) => {
     await expect(page.getByText('components.nav.signOut')).toBeVisible()
   })
 
+  test('sign in with totp shows error for invalid otp', async ({ visit }) => {
+    const totpSecret = await adonis2fa.generateSecret('totp-user@example.com')
+
+    await createUser({
+      email: 'totp-user@example.com',
+      password: await hash.make('password'),
+      totpEnabled: true,
+      totpSecretEncrypted: encryption.encrypt(totpSecret.secret),
+      totpRecoveryCodesEncrypted: encryption.encrypt(['RECOVERY-CODE-1']),
+    })
+
+    const page = await visit('/sign-in')
+
+    await page.getByLabel('fields.email').fill('totp-user@example.com')
+    await page.getByRole('button', { name: 'pages.session.signIn.continue' }).click()
+    await page.getByLabel('fields.password').fill('password')
+    await page.getByRole('button', { name: 'pages.session.signIn.signIn' }).click()
+
+    await expect(page).toHaveURL('/session/totp')
+    await page.getByLabel('fields.otp').fill('000000')
+    await page.getByLabel('fields.otp').press('Enter')
+
+    await expect(page.getByText('errors.otpInvalid')).toBeVisible()
+  })
+
   test('sign in with totp recover code', async ({ visit }) => {
     await createUser({
       email: 'totp-user@example.com',
