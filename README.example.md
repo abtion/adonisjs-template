@@ -55,6 +55,22 @@ Two-factor auth env vars:
 - `WEBAUTHN_ORIGIN` – full origin for WebAuthn (e.g. `http://localhost:3000`)
 - `WEBAUTHN_RP_NAME` – human-friendly relying party name
 
+Mail env vars:
+
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD` – SMTP connection used by Adonis Mail
+- `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` – optional sender override for outgoing mail
+
+For local development, `docker compose up` starts `smtp4dev` for email testing:
+
+- SMTP server: `localhost:2525`
+- Web inbox: <http://localhost:5000>
+
+Emails are queued, so keep a worker running when testing mail locally:
+
+```sh
+node ace jobs:listen --queue=default,mails --concurrency=1,5
+```
+
 ### Setup
 
 The recommended way to run the project is to use `docker compose` for databases and `asdf` for installing runtimes.\
