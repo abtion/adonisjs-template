@@ -94,7 +94,7 @@ test.group('Profile TOTP', (group) => {
     const user = await createUser({
       totpEnabled: true,
       totpSecretEncrypted: encryption.encrypt(totpSecret.secret),
-      totpRecoveryCodesEncrypted: encryption.encrypt(['AAAAA-BBBBB']),
+      totpRecoveryCodesEncrypted: encryption.encrypt(['RECOVERY-CODE-1']),
     })
 
     const response = await client

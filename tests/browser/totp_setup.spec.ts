@@ -45,7 +45,7 @@ test.group('TOTP Setup', (group) => {
       password: await hash.make('password'),
       totpEnabled: true,
       totpSecretEncrypted: encryption.encrypt(totpSecret.secret),
-      totpRecoveryCodesEncrypted: encryption.encrypt(['AAAAA-BBBBB']),
+      totpRecoveryCodesEncrypted: encryption.encrypt(['RECOVERY-CODE-1']),
     })
     await browserContext.loginAs(user)
 
@@ -78,7 +78,7 @@ test.group('TOTP Setup', (group) => {
       password: await hash.make('password'),
       totpEnabled: true,
       totpSecretEncrypted: encryption.encrypt(totpSecret.secret),
-      totpRecoveryCodesEncrypted: encryption.encrypt(['AAAAA-BBBBB']),
+      totpRecoveryCodesEncrypted: encryption.encrypt(['RECOVERY-CODE-1']),
     })
     await browserContext.loginAs(user)
 
@@ -92,7 +92,7 @@ test.group('TOTP Setup', (group) => {
       .click()
 
     // Then enter recovery code in modal
-    await page.getByPlaceholder('components.totp.otpPlaceholder').fill('AAAAA-BBBBB')
+    await page.getByPlaceholder('components.totp.otpPlaceholder').fill('RECOVERY-CODE-1')
     await page
       .locator('form')
       .getByRole('button', { name: 'components.totp.disableButton' })
