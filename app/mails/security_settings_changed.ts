@@ -17,10 +17,6 @@ function normalizeCredentialName(credentialName?: string | null) {
   return name ? name : undefined
 }
 
-function assertNever(value: never): never {
-  throw new Error(`Unhandled change type: ${(value as SecuritySettingsChange).type}`)
-}
-
 export default class SecuritySettingsChangedMail extends BaseMail {
   constructor(
     protected recipient: MailRecipient,
@@ -78,8 +74,10 @@ export default class SecuritySettingsChangedMail extends BaseMail {
           summary: 'A passkey was removed from your account.',
           detail: this.passkeyDetail(this.change.credentialName),
         }
-      default:
-        return assertNever(this.change)
+      default: {
+        const _exhaustiveCheck: never = this.change
+        throw new Error(`Unhandled change type: ${(_exhaustiveCheck as SecuritySettingsChange).type}`)
+      }
     }
   }
 
