@@ -2,6 +2,7 @@ import adonis2fa from '@nulix/adonis-2fa/services/main'
 import type { HttpContext } from '@adonisjs/core/http'
 
 import { db } from '#services/db'
+import { queueSecuritySettingsChangedMail } from '#services/security_settings_notifications'
 import encryption from '@adonisjs/core/services/encryption'
 import { postOtpValidator, destroyTotpValidator } from '#validators/profile/totp_validator'
 import FormError from '#exceptions/form_error'
@@ -48,6 +49,8 @@ export default class ProfileTotpController {
       .where('users.id', '=', user.id)
       .execute()
 
+    await queueSecuritySettingsChangedMail(user, { type: 'totp_enabled' })
+
     return response.ok(null)
   }
 
@@ -78,6 +81,8 @@ export default class ProfileTotpController {
       .where('users.id', '=', user.id)
       .execute()
 
+    await queueSecuritySettingsChangedMail(user, { type: 'totp_disabled' })
+
     return response.noContent()
   }
 
@@ -95,6 +100,8 @@ export default class ProfileTotpController {
       .set({ totpRecoveryCodesEncrypted: encryption.encrypt(recoveryCodes) })
       .where('users.id', '=', user.id)
       .execute()
+
+    await queueSecuritySettingsChangedMail(user, { type: 'totp_recovery_codes_regenerated' })
 
     return { recoveryCodes }
   }

@@ -1,4 +1,5 @@
 import { db } from '#services/db'
+import { queueSecuritySettingsChangedMail } from '#services/security_settings_notifications'
 import type { HttpContext } from '@adonisjs/core/http'
 
 import { postOtpRecoverValidator } from '#validators/session/totp_recover_validator'
@@ -56,6 +57,11 @@ export default class SessionTotpRecoverController {
       .execute()
 
     await auth.use('web').login(user)
+
+    await queueSecuritySettingsChangedMail(user, {
+      type: 'recovery_code_used',
+      remainingCount: remainingCodes.length,
+    })
 
     return response.redirect('/')
   }
