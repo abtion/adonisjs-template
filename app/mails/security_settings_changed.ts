@@ -79,7 +79,6 @@ export default class SecuritySettingsChangedMail extends BaseMail {
   }
 
   protected passkeyDetail(credentialName?: string | null) {
-    const name = credentialName?.trim()
-    return name ? `Passkey name: ${name}` : undefined
+    return credentialName ? `Passkey name: ${credentialName}` : undefined
   }
 }
