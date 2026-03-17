@@ -7,6 +7,7 @@ import {
 } from '#tests/support/webauthn'
 import encryption from '@adonisjs/core/services/encryption'
 import hash from '@adonisjs/core/services/hash'
+import mail from '@adonisjs/mail/services/main'
 import adonis2fa from '@nulix/adonis-2fa/services/main'
 import { test } from '@japa/runner'
 import { expect } from '@playwright/test'
@@ -112,25 +113,31 @@ test.group('Auth', (group) => {
   })
 
   test('sign in with totp recover code', async ({ visit }) => {
-    await createUser({
-      email: 'totp-user@example.com',
-      password: await hash.make('password'),
-      totpEnabled: true,
-      totpSecretEncrypted: encryption.encrypt('not-used'),
-      totpRecoveryCodesEncrypted: encryption.encrypt(['ABCDE 12345']),
-    })
+    mail.fake()
 
-    const page = await visit('/sign-in')
+    try {
+      await createUser({
+        email: 'totp-user@example.com',
+        password: await hash.make('password'),
+        totpEnabled: true,
+        totpSecretEncrypted: encryption.encrypt('not-used'),
+        totpRecoveryCodesEncrypted: encryption.encrypt(['ABCDE 12345']),
+      })
 
-    await page.getByLabel('fields.email').fill('totp-user@example.com')
-    await page.getByRole('button', { name: 'pages.session.signIn.continue' }).click()
-    await page.getByLabel('fields.password').fill('password')
-    await page.getByRole('button', { name: 'pages.session.signIn.signIn' }).click()
-    await page.getByRole('button', { name: 'pages.session.totp.cannotAccessAccount' }).click()
-    await page.getByLabel('fields.recoveryCode').fill('ABCDE 12345')
-    await page.getByRole('button', { name: 'pages.session.totpRecover.verifyButton' }).click()
+      const page = await visit('/sign-in')
 
-    await expect(page.getByText('components.nav.signOut')).toBeVisible()
+      await page.getByLabel('fields.email').fill('totp-user@example.com')
+      await page.getByRole('button', { name: 'pages.session.signIn.continue' }).click()
+      await page.getByLabel('fields.password').fill('password')
+      await page.getByRole('button', { name: 'pages.session.signIn.signIn' }).click()
+      await page.getByRole('button', { name: 'pages.session.totp.cannotAccessAccount' }).click()
+      await page.getByLabel('fields.recoveryCode').fill('ABCDE 12345')
+      await page.getByRole('button', { name: 'pages.session.totpRecover.verifyButton' }).click()
+
+      await expect(page.getByText('components.nav.signOut')).toBeVisible()
+    } finally {
+      mail.restore()
+    }
   })
 
   test('failed sign in', async ({ visit }) => {

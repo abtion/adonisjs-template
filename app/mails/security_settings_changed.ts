@@ -11,6 +11,7 @@ export type SecuritySettingsChange =
   | { type: 'totp_recovery_codes_regenerated' }
   | { type: 'passkey_added'; credentialName?: string | null }
   | { type: 'passkey_removed'; credentialName?: string | null }
+  | { type: 'recovery_code_used'; remainingCount: number }
 
 export default class SecuritySettingsChangedMail extends BaseMail {
   constructor(
@@ -68,6 +69,12 @@ export default class SecuritySettingsChangedMail extends BaseMail {
           subject: 'Passkey removed',
           summary: 'A passkey was removed from your account.',
           detail: this.passkeyDetail(this.change.credentialName),
+        }
+      case 'recovery_code_used':
+        return {
+          subject: 'Recovery code used',
+          summary: 'A recovery code was used to sign in to your account.',
+          detail: `Remaining recovery codes: ${this.change.remainingCount}`,
         }
       default: {
         const exhaustiveCheck: never = this.change
