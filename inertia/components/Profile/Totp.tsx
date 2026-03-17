@@ -5,6 +5,7 @@ import Button from '~/components/Button'
 import Input from '~/components/Input'
 import SecurityConfirmation from '~/components/SecurityConfirmation'
 import { errorIsType, getErrorMessage, tuyau } from '~/lib/tuyau'
+import Alert from '../Alert'
 import FlashMessage from '../FlashMessage'
 
 type TotpSecret = { secret: string; uri: string; qr: string }
@@ -92,7 +93,11 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
     })
 
   const confirmDisableTotp = () => {
-    setTotpState({ state: 'confirm-disable', otp: '' })
+    setError(null)
+    setPendingAction(() => async () => {
+      setTotpState({ state: 'confirm-disable', otp: '' })
+    })
+    setShowConfirmation(true)
   }
 
   const disableTotp = () =>
@@ -213,46 +218,62 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
         )}
 
         {totpState.state === 'confirm-disable' && (
-          <div className="bg-gray-50 mt-6 space-y-4 rounded-md p-4">
-            <h3 className="text-md font-semibold">{t('components.totp.confirmDisableTitle')}</h3>
-            <p className="text-gray-600 text-sm">
-              {t('components.totp.confirmDisableDescription')}
-            </p>
-            <div>
-              <label className="mb-1 block text-sm font-semibold">
-                {t('components.totp.confirmDisableLabel')}
-              </label>
-              <Input
-                value={totpState.otp}
-                onChange={(e) => setTotpState({ ...totpState, otp: e.target.value })}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') disableTotp()
+          <div className="fixed inset-0 z-50 !mt-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+              <h2 className="mb-4 text-xl font-semibold">
+                {t('components.totp.confirmDisableTitle')}
+              </h2>
+              <p className="text-gray-600 mb-6 text-sm">
+                {t('components.totp.confirmDisableDescription')}
+              </p>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  disableTotp()
                 }}
-                placeholder={t('components.totp.otpPlaceholder')}
-                autoComplete="one-time-code"
-                size="md"
-                variant="default"
-                autoFocus
-              />
-            </div>
-            <p className="text-gray-500 text-xs">{t('components.totp.confirmDisableHelp')}</p>
-            <div className="flex gap-3">
-              <Button
-                onClick={disableTotp}
-                disabled={busy || !totpState.otp}
-                variant="danger"
-                size="md"
+                className="space-y-4"
               >
-                {t('components.totp.disableButton')}
-              </Button>
-              <Button
-                onClick={() => setTotpState({ state: 'enabled' })}
-                disabled={busy}
-                variant="neutral"
-                size="md"
-              >
-                {t('common.back')}
-              </Button>
+                <label className="block">
+                  <p className="mb-2 text-sm font-medium">
+                    {t('components.totp.confirmDisableLabel')}
+                  </p>
+                  <Input
+                    value={totpState.otp}
+                    onChange={(e) => setTotpState({ ...totpState, otp: e.target.value })}
+                    placeholder={t('components.totp.otpPlaceholder')}
+                    autoComplete="one-time-code"
+                    size="md"
+                    variant="default"
+                    className="w-full"
+                    autoFocus
+                  />
+                </label>
+                <p className="text-gray-500 text-xs">{t('components.totp.confirmDisableHelp')}</p>
+                <div className="flex gap-3">
+                  <Button
+                    variant="danger"
+                    size="md"
+                    type="submit"
+                    disabled={busy || !totpState.otp}
+                    className="flex-1"
+                  >
+                    {t('components.totp.disableButton')}
+                  </Button>
+                  <Button
+                    onClick={() => setTotpState({ state: 'enabled' })}
+                    disabled={busy}
+                    variant="neutral"
+                    size="md"
+                  >
+                    {t('components.securityConfirmation.cancelButton')}
+                  </Button>
+                </div>
+              </form>
+              {error && (
+                <Alert variant="danger" className="mt-6">
+                  {error}
+                </Alert>
+              )}
             </div>
           </div>
         )}

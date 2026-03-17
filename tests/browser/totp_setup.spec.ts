@@ -52,16 +52,16 @@ test.group('TOTP Setup', (group) => {
     const page = await visit('/profile')
     await page.getByRole('button', { name: 'components.totp.disableButton' }).click()
 
-    // Enter OTP code
-    const validOtp = adonis2fa.generateToken(totpSecret.secret)!
-    await page.getByPlaceholder('components.totp.otpPlaceholder').fill(validOtp)
-    await page.getByRole('button', { name: 'components.totp.disableButton' }).click()
-
-    // Confirm with password
+    // Confirm with password first
     await page.getByLabel('fields.password').fill('password')
     await page
       .getByRole('button', { name: 'components.securityConfirmation.confirmButton' })
       .click()
+
+    // Then enter OTP code
+    const validOtp = adonis2fa.generateToken(totpSecret.secret)!
+    await page.getByPlaceholder('components.totp.otpPlaceholder').fill(validOtp)
+    await page.getByRole('button', { name: 'components.totp.disableButton' }).click()
 
     await expect(page.getByText('components.totp.notSetUp')).toBeVisible()
     await expect(page.getByRole('button', { name: 'components.totp.setupButton' })).toBeVisible()
@@ -82,15 +82,15 @@ test.group('TOTP Setup', (group) => {
     const page = await visit('/profile')
     await page.getByRole('button', { name: 'components.totp.disableButton' }).click()
 
-    // Enter recovery code
-    await page.getByPlaceholder('components.totp.otpPlaceholder').fill('AAAAA-BBBBB')
-    await page.getByRole('button', { name: 'components.totp.disableButton' }).click()
-
-    // Confirm with password
+    // Confirm with password first
     await page.getByLabel('fields.password').fill('password')
     await page
       .getByRole('button', { name: 'components.securityConfirmation.confirmButton' })
       .click()
+
+    // Then enter recovery code
+    await page.getByPlaceholder('components.totp.otpPlaceholder').fill('AAAAA-BBBBB')
+    await page.getByRole('button', { name: 'components.totp.disableButton' }).click()
 
     await expect(page.getByText('components.totp.notSetUp')).toBeVisible()
     await expect(page.getByRole('button', { name: 'components.totp.setupButton' })).toBeVisible()
