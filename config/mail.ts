@@ -1,8 +1,8 @@
 import env from '#start/env'
 import { defineConfig, transports } from '@adonisjs/mail'
 
-const defaultSenderAddress = env.get('MAIL_FROM_ADDRESS') || 'no-reply@example.test'
-const defaultSenderName = env.get('MAIL_FROM_NAME') || 'Project Name Human'
+const defaultSenderAddress = env.get('MAIL_FROM_ADDRESS') || ''
+const defaultSenderName = env.get('MAIL_FROM_NAME') || ''
 
 const mailConfig = defineConfig({
   default: 'smtp',
