@@ -58,10 +58,10 @@ test.group('TOTP Setup', (group) => {
       .getByRole('button', { name: 'components.securityConfirmation.confirmButton' })
       .click()
 
-    // Then enter OTP code
+    // Then enter OTP code in modal
     const validOtp = adonis2fa.generateToken(totpSecret.secret)!
     await page.getByPlaceholder('components.totp.otpPlaceholder').fill(validOtp)
-    await page.getByRole('button', { name: 'components.totp.disableButton' }).click()
+    await page.locator('form').getByRole('button', { name: 'components.totp.disableButton' }).click()
 
     await expect(page.getByText('components.totp.notSetUp')).toBeVisible()
     await expect(page.getByRole('button', { name: 'components.totp.setupButton' })).toBeVisible()
@@ -88,9 +88,9 @@ test.group('TOTP Setup', (group) => {
       .getByRole('button', { name: 'components.securityConfirmation.confirmButton' })
       .click()
 
-    // Then enter recovery code
+    // Then enter recovery code in modal
     await page.getByPlaceholder('components.totp.otpPlaceholder').fill('AAAAA-BBBBB')
-    await page.getByRole('button', { name: 'components.totp.disableButton' }).click()
+    await page.locator('form').getByRole('button', { name: 'components.totp.disableButton' }).click()
 
     await expect(page.getByText('components.totp.notSetUp')).toBeVisible()
     await expect(page.getByRole('button', { name: 'components.totp.setupButton' })).toBeVisible()

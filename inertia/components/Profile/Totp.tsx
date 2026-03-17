@@ -14,7 +14,6 @@ type TotpState =
   | { state: 'disabled'; status?: string }
   | { state: 'setup-mode'; secret: TotpSecret; recoveryCodes: string[]; otp: string }
   | { state: 'enabled'; recoveryCodes?: string[]; status?: string }
-  | { state: 'confirm-disable'; otp: string }
 
 type TotpProps = {
   enabled: boolean
@@ -39,6 +38,8 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
   const [busy, setBusy] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [pendingAction, setPendingAction] = useState<(() => Promise<void>) | null>(null)
+  const [disableOtp, setDisableOtp] = useState<string | null>(null)
+  const [disableError, setDisableError] = useState<string | null>(null)
 
   const handle = async (fn: () => Promise<void>) => {
     setBusy(true)
@@ -95,18 +96,27 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
   const confirmDisableTotp = () => {
     setError(null)
     setPendingAction(() => async () => {
-      setTotpState({ state: 'confirm-disable', otp: '' })
+      setDisableOtp('')
+      setDisableError(null)
     })
     setShowConfirmation(true)
   }
 
-  const disableTotp = () =>
-    handle(async () => {
-      if (totpState.state !== 'confirm-disable') return
-      await tuyau.profile.totp.$delete({ otp: totpState.otp }).unwrap()
+  const submitDisableTotp = async () => {
+    if (disableOtp === null) return
+    setBusy(true)
+    setDisableError(null)
+    try {
+      await tuyau.profile.totp.$delete({ otp: disableOtp }).unwrap()
+      setDisableOtp(null)
       setTotpState({ state: 'disabled', status: t('components.totp.disabled') })
       router.reload({ only: ['totp'] })
-    })
+    } catch (err) {
+      setDisableError(getErrorMessage(err, t('errors.fallbackError')))
+    } finally {
+      setBusy(false)
+    }
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -217,7 +227,7 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
           </div>
         )}
 
-        {totpState.state === 'confirm-disable' && (
+        {disableOtp !== null && (
           <div className="fixed inset-0 z-50 !mt-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
               <h2 className="mb-4 text-xl font-semibold">
@@ -229,7 +239,7 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
               <form
                 onSubmit={(e) => {
                   e.preventDefault()
-                  disableTotp()
+                  submitDisableTotp()
                 }}
                 className="space-y-4"
               >
@@ -238,8 +248,8 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
                     {t('components.totp.confirmDisableLabel')}
                   </p>
                   <Input
-                    value={totpState.otp}
-                    onChange={(e) => setTotpState({ ...totpState, otp: e.target.value })}
+                    value={disableOtp}
+                    onChange={(e) => setDisableOtp(e.target.value)}
                     placeholder={t('components.totp.otpPlaceholder')}
                     autoComplete="one-time-code"
                     size="md"
@@ -254,13 +264,16 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
                     variant="danger"
                     size="md"
                     type="submit"
-                    disabled={busy || !totpState.otp}
+                    disabled={busy || !disableOtp}
                     className="flex-1"
                   >
                     {t('components.totp.disableButton')}
                   </Button>
                   <Button
-                    onClick={() => setTotpState({ state: 'enabled' })}
+                    onClick={() => {
+                      setDisableOtp(null)
+                      setDisableError(null)
+                    }}
                     disabled={busy}
                     variant="neutral"
                     size="md"
@@ -269,9 +282,9 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
                   </Button>
                 </div>
               </form>
-              {error && (
+              {disableError && (
                 <Alert variant="danger" className="mt-6">
-                  {error}
+                  {disableError}
                 </Alert>
               )}
             </div>
