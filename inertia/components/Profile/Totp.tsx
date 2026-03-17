@@ -113,6 +113,13 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
       setTotpState({ state: 'disabled', status: t('components.totp.disabled') })
       router.reload({ only: ['totp'] })
     } catch (err) {
+      if (errorIsType(err, 'SecurityConfirmationRequiredError')) {
+        setDisableError(null)
+        setPendingAction(() => submitDisableTotp)
+        setShowConfirmation(true)
+        setDisableBusy(false)
+        return
+      }
       setDisableError(getErrorMessage(err, t('errors.fallbackError')))
     } finally {
       setDisableBusy(false)
@@ -271,6 +278,7 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
                     {t('components.totp.disableButton')}
                   </Button>
                   <Button
+                    type="button"
                     onClick={() => {
                       setDisableOtp(null)
                       setDisableError(null)
