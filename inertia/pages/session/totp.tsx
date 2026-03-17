@@ -21,18 +21,7 @@ export default function Totp() {
     post(tuyau.session.totp.$url())
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      e.currentTarget.form?.requestSubmit()
-    }
-  }
-
-  const otpRef = useAutofillRef<HTMLInputElement>((el) => {
-    el.addEventListener('keydown', (e) =>
-      handleKeyDown(e as unknown as React.KeyboardEvent<HTMLInputElement>)
-    )
-  })
+  const otpRef = useAutofillRef<HTMLInputElement>(({ value }) => setData('otp', value))
 
   useEffect(() => {
     otpRef.current?.focus()
