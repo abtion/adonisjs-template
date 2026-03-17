@@ -23,5 +23,5 @@ export const getErrorMessage = (err: unknown, fallback: string) => {
     return (err.value as any)?.message ?? fallback
   }
 
-  return err instanceof Error ? err.message : fallback
+  return fallback
 }
