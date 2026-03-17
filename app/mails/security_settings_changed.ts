@@ -12,11 +12,6 @@ export type SecuritySettingsChange =
   | { type: 'passkey_added'; credentialName?: string | null }
   | { type: 'passkey_removed'; credentialName?: string | null }
 
-function normalizeCredentialName(credentialName?: string | null) {
-  const name = credentialName?.trim()
-  return name ? name : undefined
-}
-
 export default class SecuritySettingsChangedMail extends BaseMail {
   constructor(
     protected recipient: MailRecipient,
@@ -82,7 +77,7 @@ export default class SecuritySettingsChangedMail extends BaseMail {
   }
 
   protected passkeyDetail(credentialName?: string | null) {
-    const normalizedCredentialName = normalizeCredentialName(credentialName)
-    return normalizedCredentialName ? `Passkey name: ${normalizedCredentialName}` : undefined
+    const name = credentialName?.trim()
+    return name ? `Passkey name: ${name}` : undefined
   }
 }
