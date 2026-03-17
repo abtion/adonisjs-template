@@ -6,7 +6,7 @@ import { errors } from '@adonisjs/core/http'
 const SECURITY_CONFIRMATION_SESSION_KEY = 'securityConfirmedAt'
 const SECURITY_CONFIRMATION_TIMEOUT_MS = 5 * 60 * 1000
 
-class SecurityConfirmationRequiredError extends errors.E_HTTP_EXCEPTION {
+export class SecurityConfirmationRequiredError extends errors.E_HTTP_EXCEPTION {
   constructor() {
     super('Security confirmation required', { status: 401 })
   }
