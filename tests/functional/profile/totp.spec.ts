@@ -71,6 +71,24 @@ test.group('Profile TOTP', (group) => {
     response.assertBodyContains({ message: 'errors.userWithout2FAActive' })
   })
 
+  test('destroy throws error when TOTP secret is not set', async ({ client }) => {
+    const user = await createUser({
+      totpEnabled: true,
+      totpSecretEncrypted: null,
+      totpRecoveryCodesEncrypted: null,
+    })
+
+    const response = await client
+      .delete('/profile/totp')
+      .json({ otp: '123456' })
+      .withCsrfToken()
+      .loginAs(user)
+      .withSession(withSecurityConfirmed())
+
+    response.assertStatus(422)
+    response.assertBodyContains({ message: 'errors.totpSecretNotGenerated' })
+  })
+
   test('destroy throws error when OTP is invalid', async ({ client }) => {
     const totpSecret = await adonis2fa.generateSecret('user@example.com')
     const user = await createUser({
