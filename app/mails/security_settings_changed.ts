@@ -70,8 +70,10 @@ export default class SecuritySettingsChangedMail extends BaseMail {
           detail: this.passkeyDetail(this.change.credentialName),
         }
       default: {
-        const _exhaustiveCheck: never = this.change
-        throw new Error(`Unhandled change type: ${(_exhaustiveCheck as SecuritySettingsChange).type}`)
+        const exhaustiveCheck: never = this.change
+        throw new Error(
+          `Unhandled change type: ${(exhaustiveCheck as SecuritySettingsChange).type}`
+        )
       }
     }
   }
