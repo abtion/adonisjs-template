@@ -54,7 +54,7 @@ export default class HttpExceptionHandler extends ExceptionHandler {
     if (error instanceof SecurityConfirmationRequiredError) {
       ctx.response
         .status(401)
-        .send({ name: 'SecurityConfirmationRequiredError', message: error.message })
+        .send({ name: error.name, message: error.message })
       return
     }
 
