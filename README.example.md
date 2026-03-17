@@ -57,19 +57,17 @@ Two-factor auth env vars:
 
 Mail env vars:
 
-- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD` – SMTP connection used by Adonis Mail
-- `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` – optional sender override for outgoing mail
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD` – SMTP connection details
+- `MAIL_FROM_ADDRESS` – sender email address (must be a valid email)
+- `MAIL_FROM_NAME` – sender display name
 
-For local development, `docker compose up` starts `smtp4dev` for email testing:
+These are required — the app will not start without them.
 
-- SMTP server: `localhost:2525`
-- Web inbox: <http://localhost:5000>
-
-Emails are queued, so keep a worker running when testing mail locally:
-
-```sh
-node ace jobs:listen --queue=default,mails --concurrency=1,5
-```
+| Environment | SMTP setup |
+|---|---|
+| Development | smtp4dev via `docker compose` (`localhost:2525`, inbox at <http://localhost:5000>) |
+| Staging | [Mailtrap.io](https://mailtrap.io) sandbox (login: `admin@abtion.com`, credentials in 1Password) |
+| Production | Requires a real SMTP provider (e.g. Postmark, SendGrid) |
 
 ### Setup
 
