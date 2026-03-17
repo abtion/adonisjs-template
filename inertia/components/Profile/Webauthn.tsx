@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { startRegistration } from '@simplewebauthn/browser'
 import Button from '~/components/Button'
 import SecurityConfirmation from '~/components/SecurityConfirmation'
-import { tuyau, errorIsType } from '~/lib/tuyau'
+import { tuyau, errorIsType, getErrorMessage } from '~/lib/tuyau'
 import { router } from '@inertiajs/react'
 import { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/types'
 import { useTranslation } from 'react-i18next'
@@ -41,7 +41,7 @@ export default function Webauthn({ credentials }: WebauthnProps) {
         setBusy(false)
         return
       }
-      setError(err.message)
+      setError(getErrorMessage(err, t('errors.fallbackError')))
     } finally {
       setBusy(false)
     }

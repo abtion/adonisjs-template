@@ -97,12 +97,50 @@ test.group('Profile TOTP', (group) => {
 
     const response = await client
       .delete('/profile/totp')
+      .json({ otp: '123456' })
       .withCsrfToken()
       .loginAs(user)
       .withSession(withSecurityConfirmed())
 
     response.assertStatus(422)
     response.assertBodyContains({ message: 'errors.userWithout2FAActive' })
+  })
+
+  test('destroy throws error when TOTP secret is not set', async ({ client }) => {
+    const user = await createUser({
+      totpEnabled: true,
+      totpSecretEncrypted: null,
+      totpRecoveryCodesEncrypted: null,
+    })
+
+    const response = await client
+      .delete('/profile/totp')
+      .json({ otp: '123456' })
+      .withCsrfToken()
+      .loginAs(user)
+      .withSession(withSecurityConfirmed())
+
+    response.assertStatus(422)
+    response.assertBodyContains({ message: 'errors.totpSecretNotGenerated' })
+  })
+
+  test('destroy throws error when OTP is invalid', async ({ client }) => {
+    const totpSecret = await adonis2fa.generateSecret('user@example.com')
+    const user = await createUser({
+      totpEnabled: true,
+      totpSecretEncrypted: encryption.encrypt(totpSecret.secret),
+      totpRecoveryCodesEncrypted: encryption.encrypt(['RECOVERY-CODE-1']),
+    })
+
+    const response = await client
+      .delete('/profile/totp')
+      .json({ otp: '000000' })
+      .withCsrfToken()
+      .loginAs(user)
+      .withSession(withSecurityConfirmed())
+
+    response.assertStatus(422)
+    response.assertBodyContains({ message: 'errors.otpInvalid' })
   })
 
   test('destroy queues an email when TOTP is disabled', async ({ client }) => {
@@ -117,8 +155,10 @@ test.group('Profile TOTP', (group) => {
         totpRecoveryCodesEncrypted: encryption.encrypt(['CODE-1', 'CODE-2']),
       })
 
+      const validOtp = adonis2fa.generateToken(totpSecret.secret)!
       const response = await client
         .delete('/profile/totp')
+        .json({ otp: validOtp })
         .withCsrfToken()
         .loginAs(user)
         .withSession(withSecurityConfirmed())
