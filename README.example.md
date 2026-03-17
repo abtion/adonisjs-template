@@ -63,11 +63,17 @@ Mail env vars:
 
 These are required — the app will not start without them.
 
-| Environment | SMTP setup |
-|---|---|
-| Development | smtp4dev via `docker compose` (`localhost:2525`, inbox at <http://localhost:5000>) |
-| Staging | [Mailtrap.io](https://mailtrap.io) sandbox (login: `admin@abtion.com`, credentials in 1Password) |
-| Production | Requires a real SMTP provider (e.g. Postmark, SendGrid) |
+| Environment | SMTP setup                                                                                       |
+| ----------- | ------------------------------------------------------------------------------------------------ |
+| Development | smtp4dev via `docker compose` (`localhost:2525`, inbox at <http://localhost:5000>)               |
+| Staging     | [Mailtrap.io](https://mailtrap.io) sandbox (login: `admin@abtion.com`, credentials in 1Password) |
+| Production  | Requires a real SMTP provider (e.g. Postmark, SendGrid)                                          |
+
+Emails are queued, so keep a worker running when testing mail locally:
+
+```sh
+node ace jobs:listen --queue=default,mails --concurrency=1,5
+```
 
 ### Setup
 
