@@ -9,6 +9,6 @@ export const postOtpValidator = vine.compile(
 
 export const destroyTotpValidator = vine.compile(
   vine.object({
-    otp: vine.string().trim().minLength(1),
+    otp: vine.string().trim().minLength(6),
   })
 )
