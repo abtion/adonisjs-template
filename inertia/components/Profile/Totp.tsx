@@ -40,6 +40,7 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
   const [pendingAction, setPendingAction] = useState<(() => Promise<void>) | null>(null)
   const [disableOtp, setDisableOtp] = useState<string | null>(null)
   const [disableError, setDisableError] = useState<string | null>(null)
+  const [disableBusy, setDisableBusy] = useState(false)
 
   const handle = async (fn: () => Promise<void>) => {
     setBusy(true)
@@ -104,7 +105,7 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
 
   const submitDisableTotp = async () => {
     if (disableOtp === null) return
-    setBusy(true)
+    setDisableBusy(true)
     setDisableError(null)
     try {
       await tuyau.profile.totp.$delete({ otp: disableOtp }).unwrap()
@@ -114,7 +115,7 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
     } catch (err) {
       setDisableError(getErrorMessage(err, t('errors.fallbackError')))
     } finally {
-      setBusy(false)
+      setDisableBusy(false)
     }
   }
 
@@ -264,7 +265,7 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
                     variant="danger"
                     size="md"
                     type="submit"
-                    disabled={busy || !disableOtp}
+                    disabled={disableBusy || !disableOtp}
                     className="flex-1"
                   >
                     {t('components.totp.disableButton')}
@@ -274,7 +275,7 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
                       setDisableOtp(null)
                       setDisableError(null)
                     }}
-                    disabled={busy}
+                    disabled={disableBusy}
                     variant="neutral"
                     size="md"
                   >
