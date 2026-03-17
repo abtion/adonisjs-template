@@ -35,7 +35,6 @@ export default class AuthMiddleware {
 
     ctx.security = {
       confirm: () => ctx.session.put(SECURITY_CONFIRMATION_SESSION_KEY, Date.now()),
-      invalidate: () => ctx.session.forget(SECURITY_CONFIRMATION_SESSION_KEY),
       ensureConfirmed: () => {
         const confirmedAt = new Date(ctx.session.get(SECURITY_CONFIRMATION_SESSION_KEY)).getTime()
         const confirmed = Date.now() - confirmedAt <= SECURITY_CONFIRMATION_TIMEOUT_MS
@@ -51,7 +50,6 @@ declare module '@adonisjs/core/http' {
   export interface HttpContext {
     security: {
       confirm: () => void
-      invalidate: () => void
       ensureConfirmed: () => void
     }
   }
