@@ -3,6 +3,7 @@ import type { RegistrationResponseJSON } from '@simplewebauthn/types'
 
 import FormError from '#exceptions/form_error'
 import { db } from '#services/db'
+import { queueSecuritySettingsChangedMail } from '#services/security_settings_notifications'
 import WebauthnService from '#services/webauthn'
 import { inject } from '@adonisjs/core'
 
@@ -48,7 +49,7 @@ export default class ProfileWebauthnController {
 
     const { credential, credentialDeviceType, credentialBackedUp } = verification.registrationInfo
 
-    await db()
+    const insertedCredential = await db()
       .insertInto('webauthnCredentials')
       .values({
         userId: auth.user!.id,
@@ -61,9 +62,17 @@ export default class ProfileWebauthnController {
         friendlyName: friendlyName ?? null,
       })
       .onConflict((oc) => oc.column('credentialId').doNothing())
-      .execute()
+      .returning(['id'])
+      .executeTakeFirst()
 
     session.forget(WEBAUTHN_REG_CHALLENGE_KEY)
+
+    if (insertedCredential) {
+      await queueSecuritySettingsChangedMail(auth.user!, {
+        type: 'passkey_added',
+        credentialName: friendlyName ?? null,
+      })
+    }
 
     return response.ok({ verified: verification.verified })
   }
@@ -74,12 +83,17 @@ export default class ProfileWebauthnController {
     const user = auth.user!
     const credential = await db()
       .selectFrom('webauthnCredentials')
-      .select(['id', 'userId'])
+      .select(['id', 'userId', 'friendlyName'])
       .where('id', '=', params.id)
       .where('userId', '=', user.id)
       .executeTakeFirstOrThrow()
 
     await db().deleteFrom('webauthnCredentials').where('id', '=', credential.id).execute()
+
+    await queueSecuritySettingsChangedMail(user, {
+      type: 'passkey_removed',
+      credentialName: credential.friendlyName,
+    })
 
     return response.ok(null)
   }

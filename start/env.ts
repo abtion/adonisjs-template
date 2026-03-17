@@ -23,10 +23,12 @@ export const schema = {
   WEBAUTHN_ORIGIN: Env.schema.string.optional(),
 
   // Mail sending
-  SMTP_HOST: Env.schema.string.optional({ format: 'host' }),
-  SMTP_PORT: Env.schema.number.optional(),
-  SMTP_USERNAME: Env.schema.string.optional(),
-  SMTP_PASSWORD: Env.schema.string.optional(),
+  SMTP_HOST: Env.schema.string({ format: 'host' }),
+  SMTP_PORT: Env.schema.number(),
+  SMTP_USERNAME: Env.schema.string(),
+  SMTP_PASSWORD: Env.schema.string(),
+  MAIL_FROM_ADDRESS: Env.schema.string({ format: 'email' }),
+  MAIL_FROM_NAME: Env.schema.string(),
 
   /*
   |----------------------------------------------------------

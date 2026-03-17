@@ -3,6 +3,9 @@ import { withGlobalTransaction } from '#services/db'
 import { createUser } from '#tests/support/factories/user'
 import encryption from '@adonisjs/core/services/encryption'
 import adonis2fa from '@nulix/adonis-2fa/services/main'
+import mail from '@adonisjs/mail/services/main'
+
+import SecuritySettingsChangedMail from '#mails/security_settings_changed'
 
 const withSecurityConfirmed = () => ({ securityConfirmedAt: Date.now() })
 
@@ -57,6 +60,38 @@ test.group('Profile TOTP', (group) => {
     response.assertBodyContains({ message: 'errors.otpInvalid' })
   })
 
+  test('verify queues an email when TOTP is enabled', async ({ client }) => {
+    const fakeMailer = mail.fake()
+
+    try {
+      const totpSecret = await adonis2fa.generateSecret('user@example.com')
+      const user = await createUser({
+        email: 'user@example.com',
+        totpEnabled: false,
+        totpSecretEncrypted: encryption.encrypt(totpSecret.secret),
+        totpRecoveryCodesEncrypted: encryption.encrypt(['CODE-1', 'CODE-2']),
+      })
+
+      const response = await client
+        .post('/profile/totp/verify')
+        .json({ otp: adonis2fa.generateToken(totpSecret.secret)! })
+        .withCsrfToken()
+        .loginAs(user)
+
+      response.assertStatus(200)
+
+      fakeMailer.mails.assertQueuedCount(SecuritySettingsChangedMail, 1)
+      fakeMailer.mails.assertQueued(SecuritySettingsChangedMail, (notification) => {
+        notification.message.assertTo(user.email)
+        notification.message.assertSubject('Two-factor authentication enabled')
+        notification.message.assertTextIncludes('Two-factor authentication was enabled')
+        return true
+      })
+    } finally {
+      mail.restore()
+    }
+  })
+
   test('destroy throws error when TOTP is not enabled', async ({ client }) => {
     const user = await createUser({ totpEnabled: false })
 
@@ -70,6 +105,38 @@ test.group('Profile TOTP', (group) => {
     response.assertBodyContains({ message: 'errors.userWithout2FAActive' })
   })
 
+  test('destroy queues an email when TOTP is disabled', async ({ client }) => {
+    const fakeMailer = mail.fake()
+
+    try {
+      const totpSecret = await adonis2fa.generateSecret('user@example.com')
+      const user = await createUser({
+        email: 'user@example.com',
+        totpEnabled: true,
+        totpSecretEncrypted: encryption.encrypt(totpSecret.secret),
+        totpRecoveryCodesEncrypted: encryption.encrypt(['CODE-1', 'CODE-2']),
+      })
+
+      const response = await client
+        .delete('/profile/totp')
+        .withCsrfToken()
+        .loginAs(user)
+        .withSession(withSecurityConfirmed())
+
+      response.assertStatus(204)
+
+      fakeMailer.mails.assertQueuedCount(SecuritySettingsChangedMail, 1)
+      fakeMailer.mails.assertQueued(SecuritySettingsChangedMail, (notification) => {
+        notification.message.assertTo(user.email)
+        notification.message.assertSubject('Two-factor authentication disabled')
+        notification.message.assertTextIncludes('Two-factor authentication was disabled')
+        return true
+      })
+    } finally {
+      mail.restore()
+    }
+  })
+
   test('regenerateRecoveryCodes throws error when TOTP is not enabled', async ({ client }) => {
     const user = await createUser({ totpEnabled: false })
 
@@ -81,5 +148,37 @@ test.group('Profile TOTP', (group) => {
 
     response.assertStatus(422)
     response.assertBodyContains({ message: 'errors.userWithout2FAActive' })
+  })
+
+  test('regenerateRecoveryCodes queues an email when recovery codes change', async ({ client }) => {
+    const fakeMailer = mail.fake()
+
+    try {
+      const totpSecret = await adonis2fa.generateSecret('user@example.com')
+      const user = await createUser({
+        email: 'user@example.com',
+        totpEnabled: true,
+        totpSecretEncrypted: encryption.encrypt(totpSecret.secret),
+        totpRecoveryCodesEncrypted: encryption.encrypt(['CODE-1', 'CODE-2']),
+      })
+
+      const response = await client
+        .post('/profile/totp/regeneration')
+        .withCsrfToken()
+        .loginAs(user)
+        .withSession(withSecurityConfirmed())
+
+      response.assertStatus(200)
+
+      fakeMailer.mails.assertQueuedCount(SecuritySettingsChangedMail, 1)
+      fakeMailer.mails.assertQueued(SecuritySettingsChangedMail, (notification) => {
+        notification.message.assertTo(user.email)
+        notification.message.assertSubject('Recovery codes regenerated')
+        notification.message.assertTextIncludes('New two-factor recovery codes were generated')
+        return true
+      })
+    } finally {
+      mail.restore()
+    }
   })
 })
