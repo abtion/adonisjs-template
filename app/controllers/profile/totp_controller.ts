@@ -3,7 +3,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 
 import { db } from '#services/db'
 import encryption from '@adonisjs/core/services/encryption'
-import { postOtpValidator } from '#validators/profile/totp_validator'
+import { postOtpValidator, destroyTotpValidator } from '#validators/profile/totp_validator'
 import FormError from '#exceptions/form_error'
 
 export default class ProfileTotpController {
@@ -51,11 +51,22 @@ export default class ProfileTotpController {
     return response.ok(null)
   }
 
-  async destroy({ auth, response, security }: HttpContext) {
+  async destroy({ auth, request, response, security }: HttpContext) {
     const user = auth.user!
     if (!user.totpEnabled) throw new FormError('errors.userWithout2FAActive')
 
     security.ensureConfirmed()
+
+    const { otp } = await request.validateUsing(destroyTotpValidator)
+    const totpSecret = encryption.decrypt<string>(user.totpSecretEncrypted)
+    const totpRecoveryCodes = encryption.decrypt<string[]>(user.totpRecoveryCodesEncrypted)
+
+    if (!totpSecret || !totpRecoveryCodes) {
+      throw new FormError('errors.totpSecretNotGenerated')
+    }
+
+    const isValid = adonis2fa.verifyToken(totpSecret, otp, totpRecoveryCodes)
+    if (!isValid) throw new FormError('errors.otpInvalid')
 
     await db()
       .updateTable('users')

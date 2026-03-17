@@ -60,8 +60,8 @@ type ProfileTotpVerifyPost = {
   response: MakeTuyauResponse<import('../app/controllers/profile/totp_controller.ts').default['verify'], true>
 }
 type ProfileTotpDelete = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/controllers/profile/totp_controller.ts').default['destroy'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/validators/profile/totp_validator.ts')['destroyTotpValidator']>>
+  response: MakeTuyauResponse<import('../app/controllers/profile/totp_controller.ts').default['destroy'], true>
 }
 type ProfileTotpRegenerationPost = {
   request: unknown

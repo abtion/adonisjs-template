@@ -45,11 +45,45 @@ test.group('TOTP Setup', (group) => {
       password: await hash.make('password'),
       totpEnabled: true,
       totpSecretEncrypted: encryption.encrypt(totpSecret.secret),
-      totpRecoveryCodesEncrypted: encryption.encrypt(['RECOVERY-CODE-1']),
+      totpRecoveryCodesEncrypted: encryption.encrypt(['AAAAA-BBBBB']),
     })
     await browserContext.loginAs(user)
 
     const page = await visit('/profile')
+    await page.getByRole('button', { name: 'components.totp.disableButton' }).click()
+
+    // Enter OTP code
+    const validOtp = adonis2fa.generateToken(totpSecret.secret)!
+    await page.getByPlaceholder('components.totp.otpPlaceholder').fill(validOtp)
+    await page.getByRole('button', { name: 'components.totp.disableButton' }).click()
+
+    // Confirm with password
+    await page.getByLabel('fields.password').fill('password')
+    await page
+      .getByRole('button', { name: 'components.securityConfirmation.confirmButton' })
+      .click()
+
+    await expect(page.getByText('components.totp.notSetUp')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'components.totp.setupButton' })).toBeVisible()
+  })
+
+  test('disable totp with recovery code', async ({ browserContext, visit }) => {
+    const totpSecret = await adonis2fa.generateSecret('user@example.com')
+
+    const user = await createUser({
+      email: 'user@example.com',
+      password: await hash.make('password'),
+      totpEnabled: true,
+      totpSecretEncrypted: encryption.encrypt(totpSecret.secret),
+      totpRecoveryCodesEncrypted: encryption.encrypt(['AAAAA-BBBBB']),
+    })
+    await browserContext.loginAs(user)
+
+    const page = await visit('/profile')
+    await page.getByRole('button', { name: 'components.totp.disableButton' }).click()
+
+    // Enter recovery code
+    await page.getByPlaceholder('components.totp.otpPlaceholder').fill('AAAAA-BBBBB')
     await page.getByRole('button', { name: 'components.totp.disableButton' }).click()
 
     // Confirm with password

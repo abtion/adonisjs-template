@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import Button from '~/components/Button'
 import Input from '~/components/Input'
 import SecurityConfirmation from '~/components/SecurityConfirmation'
-import { errorIsType, tuyau } from '~/lib/tuyau'
+import { errorIsType, getErrorMessage, tuyau } from '~/lib/tuyau'
 import FlashMessage from '../FlashMessage'
 
 type TotpSecret = { secret: string; uri: string; qr: string }
@@ -13,6 +13,7 @@ type TotpState =
   | { state: 'disabled'; status?: string }
   | { state: 'setup-mode'; secret: TotpSecret; recoveryCodes: string[]; otp: string }
   | { state: 'enabled'; recoveryCodes?: string[]; status?: string }
+  | { state: 'confirm-disable'; otp: string }
 
 type TotpProps = {
   enabled: boolean
@@ -51,7 +52,7 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
         setBusy(false)
         return
       }
-      setError(err.message)
+      setError(getErrorMessage(err, t('errors.fallbackError')))
     } finally {
       setBusy(false)
     }
@@ -90,9 +91,14 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
       router.reload({ only: ['totp'] })
     })
 
+  const confirmDisableTotp = () => {
+    setTotpState({ state: 'confirm-disable', otp: '' })
+  }
+
   const disableTotp = () =>
     handle(async () => {
-      await tuyau.profile.totp.$delete().unwrap()
+      if (totpState.state !== 'confirm-disable') return
+      await tuyau.profile.totp.$delete({ otp: totpState.otp }).unwrap()
       setTotpState({ state: 'disabled', status: t('components.totp.disabled') })
       router.reload({ only: ['totp'] })
     })
@@ -206,13 +212,58 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
           </div>
         )}
 
+        {totpState.state === 'confirm-disable' && (
+          <div className="bg-gray-50 mt-6 space-y-4 rounded-md p-4">
+            <h3 className="text-md font-semibold">{t('components.totp.confirmDisableTitle')}</h3>
+            <p className="text-gray-600 text-sm">
+              {t('components.totp.confirmDisableDescription')}
+            </p>
+            <div>
+              <label className="mb-1 block text-sm font-semibold">
+                {t('components.totp.confirmDisableLabel')}
+              </label>
+              <Input
+                value={totpState.otp}
+                onChange={(e) => setTotpState({ ...totpState, otp: e.target.value })}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') disableTotp()
+                }}
+                placeholder={t('components.totp.otpPlaceholder')}
+                autoComplete="one-time-code"
+                size="md"
+                variant="default"
+                autoFocus
+              />
+            </div>
+            <p className="text-gray-500 text-xs">{t('components.totp.confirmDisableHelp')}</p>
+            <div className="flex gap-3">
+              <Button
+                onClick={disableTotp}
+                disabled={busy || !totpState.otp}
+                variant="danger"
+                size="md"
+              >
+                {t('components.totp.disableButton')}
+              </Button>
+              <Button
+                onClick={() => setTotpState({ state: 'enabled' })}
+                disabled={busy}
+                variant="neutral"
+                size="md"
+              >
+                {t('common.back')}
+              </Button>
+            </div>
+          </div>
+        )}
+
         {totpState.state === 'enabled' && (
           <div className="mt-6 space-y-4">
             <div>
               <p className="text-green-700 mb-3 text-sm font-medium">
                 {t('components.totp.configured')}
               </p>
-              <Button onClick={disableTotp} disabled={busy} variant="danger" size="md">
+              <Button onClick={confirmDisableTotp} disabled={busy} variant="danger" size="md">
                 {t('components.totp.disableButton')}
               </Button>
             </div>

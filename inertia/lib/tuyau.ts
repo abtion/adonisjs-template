@@ -17,3 +17,11 @@ export const errorIsType = (err: unknown, name: string) => {
   const value = err.value as any
   return value?.name === name
 }
+
+export const getErrorMessage = (err: unknown, fallback: string) => {
+  if (err instanceof TuyauHTTPError) {
+    return (err.value as any)?.message ?? fallback
+  }
+
+  return err instanceof Error ? err.message : fallback
+}

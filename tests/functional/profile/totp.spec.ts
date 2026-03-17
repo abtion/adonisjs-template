@@ -62,12 +62,32 @@ test.group('Profile TOTP', (group) => {
 
     const response = await client
       .delete('/profile/totp')
+      .json({ otp: '123456' })
       .withCsrfToken()
       .loginAs(user)
       .withSession(withSecurityConfirmed())
 
     response.assertStatus(422)
     response.assertBodyContains({ message: 'errors.userWithout2FAActive' })
+  })
+
+  test('destroy throws error when OTP is invalid', async ({ client }) => {
+    const totpSecret = await adonis2fa.generateSecret('user@example.com')
+    const user = await createUser({
+      totpEnabled: true,
+      totpSecretEncrypted: encryption.encrypt(totpSecret.secret),
+      totpRecoveryCodesEncrypted: encryption.encrypt(['AAAAA-BBBBB']),
+    })
+
+    const response = await client
+      .delete('/profile/totp')
+      .json({ otp: '000000' })
+      .withCsrfToken()
+      .loginAs(user)
+      .withSession(withSecurityConfirmed())
+
+    response.assertStatus(422)
+    response.assertBodyContains({ message: 'errors.otpInvalid' })
   })
 
   test('regenerateRecoveryCodes throws error when TOTP is not enabled', async ({ client }) => {
