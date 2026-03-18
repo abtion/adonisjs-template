@@ -108,6 +108,7 @@
     "@tuyau/core": "^1.2.2",
     "@types/on-finished": "^2.3.5",
     "@vinejs/vine": "^4.3.0",
+    "2fa-node": "^0.0.6",
     "adonisjs-jobs": "^0.2.0",
     "base64url": "^3.0.1",
     "classnames": "^2.5.1",
