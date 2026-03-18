@@ -24,8 +24,8 @@
       "required": true
     },
     "WEBAUTHN_ORIGIN": {
-      "description": "Full origin URL, e.g. https://my-app-staging.osc-fr1.scalingo.io",
-      "required": true
+      "description": "Full origin URL of the deployed application. Auto-generated.",
+      "generator": "url"
     },
     "WEBAUTHN_RP_NAME": {
       "description": "Human-friendly app name, e.g. My App Staging",
