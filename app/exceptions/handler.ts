@@ -5,6 +5,7 @@ import { errors as bouncerErrors } from '@adonisjs/bouncer'
 import logRequest from '#utils/log_request'
 import * as Kysely from 'kysely'
 import FormError from './form_error.js'
+import { SecurityConfirmationRequiredError } from '#middleware/auth_middleware'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -47,6 +48,11 @@ export default class HttpExceptionHandler extends ExceptionHandler {
       } else {
         ctx.response.status(error.status).send({ field: 'base', message: error.message })
       }
+      return
+    }
+
+    if (error instanceof SecurityConfirmationRequiredError) {
+      ctx.response.status(401).send({ name: error.name, message: error.message })
       return
     }
 
