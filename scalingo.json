@@ -1,0 +1,74 @@
+{
+  "name": "Abtion AdonisJS App",
+  "description": "AdonisJS application from the Abtion template",
+  "repository": "https://github.com/abtion/adonisjs-template",
+  "env": {
+    "NODE_ENV": {
+      "description": "Node environment",
+      "value": "production"
+    },
+    "APP_KEY": {
+      "description": "Application encryption key. Auto-generated.",
+      "generator": "secret"
+    },
+    "PUBLIC_URL": {
+      "description": "URL of the deployed application. Auto-generated.",
+      "generator": "url"
+    },
+    "APP_ISSUER": {
+      "description": "Issuer label for TOTP secrets",
+      "value": "adonis"
+    },
+    "WEBAUTHN_RP_ID": {
+      "description": "Your Scalingo app hostname, e.g. my-app-staging.osc-fr1.scalingo.io",
+      "required": true
+    },
+    "WEBAUTHN_ORIGIN": {
+      "description": "Full origin URL of the deployed application. Auto-generated.",
+      "generator": "url"
+    },
+    "WEBAUTHN_RP_NAME": {
+      "description": "Human-friendly app name, e.g. My App Staging",
+      "required": true
+    },
+    "SMTP_HOST": {
+      "description": "SMTP host. Use sandbox-smtp.mailtrap.io for staging.",
+      "value": "sandbox-smtp.mailtrap.io"
+    },
+    "SMTP_PORT": {
+      "description": "SMTP port. Use 2525 for Mailtrap.",
+      "value": "2525"
+    },
+    "SMTP_USERNAME": {
+      "description": "SMTP username. Get from Mailtrap sandbox inbox credentials.",
+      "required": true
+    },
+    "SMTP_PASSWORD": {
+      "description": "SMTP password. Get from Mailtrap sandbox inbox credentials.",
+      "required": true
+    },
+    "MAIL_FROM_ADDRESS": {
+      "description": "Sender email address",
+      "value": "noreply@example.com"
+    },
+    "MAIL_FROM_NAME": {
+      "description": "Sender display name for emails",
+      "value": "Abtion App"
+    }
+  },
+  "addons": [
+    {
+      "plan": "postgresql:postgresql-starter-512"
+    }
+  ],
+  "formation": {
+    "web": {
+      "amount": 1,
+      "size": "S"
+    },
+    "worker": {
+      "amount": 1,
+      "size": "S"
+    }
+  }
+}
