@@ -5,8 +5,8 @@ export const TOTP_USER_ID_KEY = 'TotpUserId'
 
 import { postOtpValidator } from '#validators/session/totp_validator'
 import encryption from '@adonisjs/core/services/encryption'
-import adonis2fa from '@nulix/adonis-2fa/services/main'
 import FormError from '#exceptions/form_error'
+import { verifyToken } from '#services/totp'
 
 const getUserById = async (id: number) =>
   await db().selectFrom('users').selectAll().where('users.id', '=', id).executeTakeFirst()
@@ -36,7 +36,7 @@ export default class SessionTotpController {
       throw new FormError('errors.totpSecretNotGenerated')
     }
 
-    const isValid = adonis2fa.verifyToken(totpSecret, otp, [])
+    const isValid = verifyToken(totpSecret, otp, [])
     if (!isValid) {
       throw new FormError('errors.otpInvalid')
     }

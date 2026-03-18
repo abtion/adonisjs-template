@@ -8,7 +8,7 @@ import {
 import encryption from '@adonisjs/core/services/encryption'
 import hash from '@adonisjs/core/services/hash'
 import mail from '@adonisjs/mail/services/main'
-import adonis2fa from '@nulix/adonis-2fa/services/main'
+import { generateSecret, generateToken } from '#services/totp'
 import { test } from '@japa/runner'
 import { expect } from '@playwright/test'
 
@@ -61,7 +61,7 @@ test.group('Auth', (group) => {
   })
 
   test('sign in with totp enabled', async ({ visit }) => {
-    const totpSecret = await adonis2fa.generateSecret('totp-user@example.com')
+    const totpSecret = await generateSecret('totp-user@example.com')
 
     await createUser({
       email: 'totp-user@example.com',
@@ -80,7 +80,7 @@ test.group('Auth', (group) => {
 
     // Should be redirected to TOTP verification page
     await expect(page).toHaveURL('/session/totp')
-    const validOtp = adonis2fa.generateToken(totpSecret.secret)!
+    const validOtp = generateToken(totpSecret.secret)!
     await page.getByLabel('fields.otp').fill(validOtp)
     await page.getByRole('button', { name: 'pages.session.totp.verifyButton' }).click()
 
@@ -88,7 +88,7 @@ test.group('Auth', (group) => {
   })
 
   test('sign in with totp shows error for invalid otp', async ({ visit }) => {
-    const totpSecret = await adonis2fa.generateSecret('totp-user@example.com')
+    const totpSecret = await generateSecret('totp-user@example.com')
 
     await createUser({
       email: 'totp-user@example.com',

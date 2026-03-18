@@ -3,7 +3,7 @@ import { createUser } from '#tests/support/factories/user'
 import encryption from '@adonisjs/core/services/encryption'
 import hash from '@adonisjs/core/services/hash'
 import mail from '@adonisjs/mail/services/main'
-import adonis2fa from '@nulix/adonis-2fa/services/main'
+import { generateSecret, generateToken } from '#services/totp'
 import { test } from '@japa/runner'
 import { expect } from '@playwright/test'
 
@@ -41,7 +41,7 @@ test.group('TOTP Setup', (group) => {
       const secretElement = page.getByLabel('components.totp.orKeyManual')
       const secret = await secretElement.inputValue()
 
-      const validOtp = adonis2fa.generateToken(secret!)!
+      const validOtp = generateToken(secret!)!
       await page.getByPlaceholder('components.totp.otpPlaceholder').fill(validOtp)
       await page.getByRole('button', { name: 'components.totp.verifyButton' }).click()
 
@@ -54,7 +54,7 @@ test.group('TOTP Setup', (group) => {
 
   test('disable totp from profile page', async ({ browserContext, visit }) => {
     await withFakeMail(async () => {
-      const totpSecret = await adonis2fa.generateSecret('user@example.com')
+      const totpSecret = await generateSecret('user@example.com')
 
       const user = await createUser({
         email: 'user@example.com',
@@ -75,7 +75,7 @@ test.group('TOTP Setup', (group) => {
         .click()
 
       // Then enter OTP code in modal
-      const validOtp = adonis2fa.generateToken(totpSecret.secret)!
+      const validOtp = generateToken(totpSecret.secret)!
       await page.getByPlaceholder('components.totp.otpPlaceholder').fill(validOtp)
       await page
         .locator('form')
@@ -89,7 +89,7 @@ test.group('TOTP Setup', (group) => {
 
   test('disable totp with recovery code', async ({ browserContext, visit }) => {
     await withFakeMail(async () => {
-      const totpSecret = await adonis2fa.generateSecret('user@example.com')
+      const totpSecret = await generateSecret('user@example.com')
 
       const user = await createUser({
         email: 'user@example.com',
@@ -123,7 +123,7 @@ test.group('TOTP Setup', (group) => {
 
   test('regenerate recovery codes', async ({ browserContext, visit }) => {
     await withFakeMail(async () => {
-      const totpSecret = await adonis2fa.generateSecret('user@example.com')
+      const totpSecret = await generateSecret('user@example.com')
 
       const user = await createUser({
         email: 'user@example.com',

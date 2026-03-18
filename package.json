@@ -100,7 +100,6 @@
     "@adonisjs/vite": "^5.1.0",
     "@heroicons/react": "^2.2.0",
     "@inertiajs/react": "^2.1.10",
-    "@nulix/adonis-2fa": "^1.1.1",
     "@simplewebauthn/browser": "^13.2.2",
     "@simplewebauthn/server": "^13.2.2",
     "@simplewebauthn/types": "^12.0.0",
