@@ -99,16 +99,24 @@ All the predefined colors are required for the built-in components to work:
 
 ### Configure CD
 
+> **Before you start:** Have your [Mailtrap](https://mailtrap.io) sandbox inbox credentials ready
+> (login: `admin@abtion.com`, credentials in 1Password). You will need the SMTP username and
+> password during setup.
+
+The initial deploy uses the public template repo to provision the app. Once created, you connect it
+to your project's repo for all subsequent deploys.
+
 1. Create staging Scalingo app based on the template.
-   1. Visit: <https://dashboard.scalingo.com/create/app?source=https%3A%2F%2Fgithub.com%2Fabtion%2Fadonisjs-template>
+   1. Visit: <https://dashboard.scalingo.com/create/app?source=https://github.com/abtion/adonisjs-template#main>
    2. Fill in the name with `<PROJECT-NAME>-staging`.
-   3. Select europe as region.
+   3. Select Europe as region.
    4. Fill in required env vars (read the field descriptions for guidance).
    5. Press the deploy button.
-   6. Take a 5 minute break while Scalingo sets up app and pipeline.
+   6. Take a 5 minute break while Scalingo sets up the app.
 2. Create the production app the same way as the staging app, only this time:
    - Name the app `<PROJECT-NAME>-production`.
-3. Connect deployment to the project's github repo.
+3. Connect the app to the project's GitHub repo for continuous deployment.
+   - Once connected, the next push will deploy your actual project code.
 
 ### Setup mailing
 

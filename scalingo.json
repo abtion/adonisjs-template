@@ -2,6 +2,7 @@
   "name": "Abtion AdonisJS App",
   "description": "AdonisJS application from the Abtion template",
   "repository": "https://github.com/abtion/adonisjs-template",
+  "ref": "main",
   "env": {
     "NODE_ENV": {
       "description": "Node environment",
@@ -20,7 +21,7 @@
       "value": "adonis"
     },
     "WEBAUTHN_RP_ID": {
-      "description": "Your Scalingo app hostname, e.g. my-app-staging.osc-fr1.scalingo.io",
+      "description": "Your Scalingo app hostname, e.g. my-app-staging.osc-fr1.scalingo.io without the https:// prefix",
       "required": true
     },
     "WEBAUTHN_ORIGIN": {
