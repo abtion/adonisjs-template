@@ -148,8 +148,8 @@ For added security we want to add basic auth to our review/staging environments.
 
 1. Go to the Review/Staging app in the Scalingo dashboard.
 2. Add environment variables for:
-3. `HTTP_AUTH_USERNAME`
-4. `HTTP_AUTH_PASSWORD`
+   - `HTTP_AUTH_USERNAME`
+   - `HTTP_AUTH_PASSWORD`
 
 ## Contributing
 
