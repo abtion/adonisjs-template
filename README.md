@@ -90,7 +90,7 @@ Proprietary and confidential.
 If there's a designer on the project, get that person to fill in all the colors and nuances.
 
 If there's no designer present, replace the colors with company colors where it makes sense. Use a tool like the following for creating nuances:
-<https://tailwind.simeongriggs.dev/>
+[Tailwind color shades generator](https://tailwind.simeongriggs.dev/)
 
 All the predefined colors are required for the built-in components to work:
 
