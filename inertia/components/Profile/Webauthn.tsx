@@ -12,7 +12,7 @@ type Credential = {
   id: number
   friendlyName: string | null
   createdAt: string | Date
-  lastUsed: string | Date
+  updatedAt: string | Date
 }
 
 type WebauthnProps = {
@@ -111,8 +111,8 @@ export default function Webauthn({ credentials }: WebauthnProps) {
                     <p className="text-gray-500 text-sm">
                       {t('components.webauthn.registered')}{' '}
                       {new Date(credential.createdAt).toLocaleDateString()}
-                      {credential.lastUsed &&
-                        ` | ${t('components.webauthn.lastUsed')} ${new Date(credential.lastUsed).toLocaleDateString()}`}
+                      {credential.updatedAt &&
+                        ` | ${t('components.webauthn.lastUsed')} ${new Date(credential.updatedAt).toLocaleDateString()}`}
                     </p>
                   </div>
                   <Button

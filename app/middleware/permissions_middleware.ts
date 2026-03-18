@@ -7,6 +7,13 @@ import { SessionUser } from '../auth_providers/session_user_provider.js'
 
 const defaultActions = ['show', 'edit', 'destroy'] as const
 
+export type WithPermissions<
+  Target,
+  Permissions extends keyof any = (typeof defaultActions)[number],
+> = Target & {
+  permissions: Record<Permissions, boolean>
+}
+
 export type RelevantActions<PolicyInstance, UserType, TargetType> = {
   [Key in keyof PolicyInstance]: Key extends GetPolicyMethods<UserType, PolicyInstance>
     ? PolicyInstance[Key] extends (...args: infer Args) => AuthorizerResponse

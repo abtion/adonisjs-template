@@ -3,15 +3,24 @@ import { useTranslation } from 'react-i18next'
 import MainLayout from '~/layouts/main'
 import Totp from '~/components/Profile/Totp'
 import Webauthn from '~/components/Profile/Webauthn'
-import ProfileController from '#controllers/profile_controller'
-import { InferPageProps } from '@adonisjs/inertia/types'
+import type { WebauthnCredentials } from '#database/types'
+import { Selectable } from 'kysely'
+import { SharedProps } from '@adonisjs/inertia/types'
 
-export default function ProfilePage({
-  user,
-  totp,
-  credentials,
-}: InferPageProps<ProfileController, 'show'>) {
+type Props = SharedProps & {
+  totp: {
+    enabled: boolean
+    recoveryCodesCount: number
+  }
+  credentials: Pick<
+    Selectable<WebauthnCredentials>,
+    'id' | 'friendlyName' | 'createdAt' | 'updatedAt'
+  >[]
+}
+
+export default function ProfilePage({ auth, totp, credentials }: Props) {
   const { t } = useTranslation()
+  const user = auth.user!
 
   return (
     <MainLayout>

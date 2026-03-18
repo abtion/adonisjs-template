@@ -6,6 +6,7 @@ import { queueSecuritySettingsChangedMail } from '#services/security_settings_no
 import WebauthnService from '#services/webauthn'
 import { createOtpValidator } from '#validators/profile/webauthn_validator'
 import { inject } from '@adonisjs/core'
+import { Infer } from '@vinejs/vine/types'
 
 export const WEBAUTHN_REG_CHALLENGE_KEY = 'webauthnRegistrationChallenge'
 
@@ -35,13 +36,19 @@ export default class ProfileWebauthnController {
   ) {
     security.ensureConfirmed()
 
-    const [error, result] = await request.tryValidateUsing(createOtpValidator)
+    let error: any
+    let result: Infer<(typeof createOtpValidator)['schema']>
+    await request
+      .validateUsing(createOtpValidator)
+      .then((res) => (result = res))
+      .catch((err) => (error = err))
+
     const expectedChallenge = session.get(WEBAUTHN_REG_CHALLENGE_KEY) as string | undefined
     if (error || !expectedChallenge) {
       throw new FormError('errors.missingRegistrationPayload')
     }
 
-    const { attestation, friendlyName } = result
+    const { attestation, friendlyName } = result!
     const verification = await webauthn
       .verifyRegistration(attestation, expectedChallenge)
       .catch(FormError.catcher)

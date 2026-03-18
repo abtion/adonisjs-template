@@ -64,7 +64,7 @@ export default class UsersController {
     await bouncer.with(UserPolicy).authorize('show', user)
 
     return inertia.render('users/show', {
-      user: await permissions.appendTo(user, UserPolicy, ['edit', 'destroy']),
+      user: await permissions.appendTo(user, UserPolicy),
     })
   }
 
@@ -75,7 +75,7 @@ export default class UsersController {
     const user = await db()
       .selectFrom('users')
       .where('id', '=', params.id)
-      .select(['id', 'email', 'name', 'createdAt'])
+      .select(['id', 'email', 'name'])
       .executeTakeFirstOrThrow()
 
     await bouncer.with(UserPolicy).authorize('edit', user)
