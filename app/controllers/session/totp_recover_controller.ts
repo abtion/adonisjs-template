@@ -16,7 +16,7 @@ export default class SessionTotpRecoverController {
 
     if (!user) return response.unauthorized()
     const { totpRecoveryCodesEncrypted } = user
-    const recoveryCodes = encryption.decrypt<string[]>(totpRecoveryCodesEncrypted)
+    const recoveryCodes = encryption.decrypt<string[]>(totpRecoveryCodesEncrypted!)
 
     return inertia.render('session/totpRecover', {
       canRecover: (recoveryCodes ?? []).length > 0,
@@ -30,8 +30,8 @@ export default class SessionTotpRecoverController {
     if (!user) return response.unauthorized()
 
     const { totpSecretEncrypted, totpRecoveryCodesEncrypted } = user
-    const totpSecret = encryption.decrypt<string>(totpSecretEncrypted)
-    const totpRecoveryCodes = encryption.decrypt<string[]>(totpRecoveryCodesEncrypted)
+    const totpSecret = encryption.decrypt<string>(totpSecretEncrypted!)
+    const totpRecoveryCodes = encryption.decrypt<string[]>(totpRecoveryCodesEncrypted!)
     if (!totpSecret || !totpRecoveryCodes) {
       throw new FormError('errors.totpSecretNotGenerated')
     }

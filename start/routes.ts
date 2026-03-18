@@ -28,7 +28,7 @@ const ProfileController = () => import('#controllers/profile_controller')
 router.where('id', router.matchers.number())
 
 // Home
-router.on('/').renderInertia('home/index')
+router.on('/').renderInertia('home/index', {})
 
 // Authenticated routes
 router

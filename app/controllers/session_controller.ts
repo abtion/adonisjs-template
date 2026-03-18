@@ -86,7 +86,7 @@ export default class SessionController {
 
     if (needsTotp) {
       session.put(TOTP_USER_ID_KEY, user.id)
-      return response.redirect().toRoute(`/session/totp`)
+      return response.redirect('/session/totp')
     }
 
     session.forget(TOTP_USER_ID_KEY)

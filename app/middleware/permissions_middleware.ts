@@ -1,4 +1,5 @@
-import { AuthorizerResponse, Constructor, GetPolicyMethods } from '@adonisjs/bouncer/types'
+import { AuthorizerResponse, GetPolicyMethods } from '@adonisjs/bouncer/types'
+import type { Constructor } from '@adonisjs/core/types/common'
 
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'

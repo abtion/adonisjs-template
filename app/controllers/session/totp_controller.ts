@@ -19,7 +19,7 @@ export default class SessionTotpController {
       return response.redirect('/')
     }
 
-    return inertia.render('session/totp')
+    return inertia.render('session/totp', {})
   }
 
   async store({ auth, session, request, response, i18n }: HttpContext) {
@@ -30,7 +30,7 @@ export default class SessionTotpController {
       session.flash('error', i18n.t('errors.noLoginSession'))
       return response.redirect('/')
     }
-    const totpSecret = encryption.decrypt<string>(user.totpSecretEncrypted)
+    const totpSecret = encryption.decrypt<string>(user.totpSecretEncrypted!)
 
     if (!totpSecret) {
       throw new FormError('errors.totpSecretNotGenerated')

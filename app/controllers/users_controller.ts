@@ -27,7 +27,7 @@ export default class UsersController {
   async create({ inertia, bouncer }: HttpContext) {
     await bouncer.with(UserPolicy).authorize('create')
 
-    return inertia.render('users/create')
+    return inertia.render('users/create', {})
   }
 
   /**

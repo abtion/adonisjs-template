@@ -5,7 +5,7 @@ import encryption from '@adonisjs/core/services/encryption'
 export default class ProfileController {
   async show({ auth, inertia }: HttpContext) {
     const user = auth.user!
-    const recoveryCodes = encryption.decrypt<string[]>(user.totpRecoveryCodesEncrypted)
+    const recoveryCodes = encryption.decrypt<string[]>(user.totpRecoveryCodesEncrypted!)
 
     const webauthnCredentials = await db()
       .selectFrom('webauthnCredentials')
