@@ -2,7 +2,7 @@ import { useState, useEffect, FormEvent } from 'react'
 import { AuthenticationResponseJSON, startAuthentication } from '@simplewebauthn/browser'
 import Button from '~/components/Button'
 import Input from '~/components/Input'
-import { tuyau } from '~/lib/tuyau'
+import { client } from '~/client'
 import { PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types'
 import { useTranslation } from 'react-i18next'
 import Alert from '../Alert'
@@ -34,22 +34,19 @@ export default function SecurityConfirmation({
       return
     }
 
-    tuyau.session['confirm-security']
-      .$get()
-      .unwrap()
-      .then(({ options }) => {
-        if (!options) return
-        setWebauthnOptions(options)
-      })
+    client.api.sessionConfirmSecurity.index({}).then(({ options }) => {
+      if (!options) return
+      setWebauthnOptions(options)
+    })
   }, [isOpen])
 
   const confirm = async (
-    params: { password: string } | { assertion: AuthenticationResponseJSON }
+    body: { password: string } | { assertion: AuthenticationResponseJSON }
   ) => {
     setBusy(true)
     setError(null)
     try {
-      await tuyau.session['confirm-security'].$post(params).unwrap()
+      await client.api.sessionConfirmSecurity.store({ body })
       onConfirmed()
       onClose()
     } catch (err) {

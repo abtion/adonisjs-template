@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import Button from '~/components/Button'
 import Input from '~/components/Input'
 import SecurityConfirmation from '~/components/SecurityConfirmation'
-import { errorIsType, getErrorMessage, tuyau } from '~/lib/tuyau'
+import { errorIsType, getErrorMessage, client } from '~/client'
 import Alert from '../Alert'
 import FlashMessage from '../FlashMessage'
 
@@ -70,7 +70,7 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
 
   const setupTotp = () =>
     handle(async () => {
-      const data = await tuyau.profile.totp.$post().unwrap()
+      const data = await client.api.profileTotp.store({})
       setTotpState({
         state: 'setup-mode',
         secret: data.secret,
@@ -82,14 +82,14 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
   const verifyTotp = () =>
     handle(async () => {
       if (totpState.state !== 'setup-mode') return
-      await tuyau.profile.totp.verify.$post({ otp: totpState.otp }).unwrap()
+      await client.api.profileTotp.verify({ body: { otp: totpState.otp } })
       setTotpState({ state: 'enabled', status: t('components.totp.enabled') })
       router.reload({ only: ['totp'] })
     })
 
   const generateRecovery = () =>
     handle(async () => {
-      const data = await tuyau.profile.totp.regeneration.$post().unwrap()
+      const data = await client.api.profileTotp.regenerateRecoveryCodes({})
       setTotpState({ state: 'enabled', recoveryCodes: data.recoveryCodes })
       router.reload({ only: ['totp'] })
     })
@@ -108,7 +108,7 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
     setDisableBusy(true)
     setDisableError(null)
     try {
-      await tuyau.profile.totp.$delete({ otp: disableOtp }).unwrap()
+      await client.api.profileTotp.destroy({ body: { otp: disableOtp } })
       setDisableOtp(null)
       setTotpState({ state: 'disabled', status: t('components.totp.disabled') })
       router.reload({ only: ['totp'] })

@@ -7,7 +7,7 @@ import { FieldError } from '~/components/FieldError'
 import Input from '~/components/Input'
 import { useAutofillRef } from '~/hooks/use_autofill_ref'
 import SessionLayout from '~/layouts/session'
-import { tuyau } from '~/lib/tuyau'
+import { urlFor } from '~/client'
 
 export default function TotpRecover() {
   const { t } = useTranslation()
@@ -18,7 +18,7 @@ export default function TotpRecover() {
 
   const recover = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    post(tuyau.session.totp.recover.$url())
+    post(urlFor('session_totp_recover.store'))
   }
 
   return (

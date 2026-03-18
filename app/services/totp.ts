@@ -12,6 +12,7 @@ export async function generateSecret(userInfo: string): Promise<TotpSecret> {
     name: 'Project Name Human',
     account: userInfo,
     counter: undefined,
+    numberOfSecretBytes: undefined,
   })
 }
 
@@ -24,21 +25,17 @@ export function verifyToken(secret: string = '', token: string, recoveryCodes: s
 
 export function generateRecoveryCodes(n = 16) {
   return Array.from({ length: n }, () => getRecoveryCode())
-}  
+}
 
 export function generateToken(secret: string) {
   return twoFactor.generateToken(secret)?.token
 }
 
 export function getRecoveryCode() {
-  let recoveryCode = ''
+  const chars = Array.from({ length: 10 }, () => getRandomChar())
+  chars.splice(5, 0, ' ')
 
-  for (let i = 0; i < 10; i++) {
-    if (i === 5) recoveryCode += ' '
-    recoveryCode += getRandomChar()
-  }
-
-  return recoveryCode
+  return chars.join()
 }
 
 export function getRandomChar() {

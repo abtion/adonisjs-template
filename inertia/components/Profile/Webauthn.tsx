@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { startRegistration } from '@simplewebauthn/browser'
 import Button from '~/components/Button'
 import SecurityConfirmation from '~/components/SecurityConfirmation'
-import { tuyau, errorIsType, getErrorMessage } from '~/lib/tuyau'
+import { client, errorIsType, getErrorMessage } from '~/client'
 import { router } from '@inertiajs/react'
 import { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/types'
 import { useTranslation } from 'react-i18next'
@@ -56,18 +56,18 @@ export default function Webauthn({ credentials }: WebauthnProps) {
 
   const registerCredential = () =>
     handle(async () => {
-      const { options } = await tuyau.profile.webauthn.options.$get().unwrap()
+      const { options } = await client.api.profileWebauthn.options({})
       const attestation = await startRegistration({
         optionsJSON: options as PublicKeyCredentialCreationOptionsJSON,
       })
-      await tuyau.profile.webauthn.$post({ attestation })
+      await client.api.profileWebauthn.store({ body: { attestation } })
       setStatus(t('components.webauthn.credentialRegisteredSuccess'))
       router.reload({ only: ['credentials'] })
     })
 
   const removeCredential = (id: number) =>
     handle(async () => {
-      await tuyau.profile.webauthn({ id }).$delete().unwrap()
+      await client.api.profileWebauthn.destroy({ params: { id } })
       setStatus(t('components.webauthn.credentialRemovedSuccess'))
       router.reload({ only: ['credentials'] })
     })

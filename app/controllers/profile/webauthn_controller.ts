@@ -1,10 +1,10 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import type { RegistrationResponseJSON } from '@simplewebauthn/types'
 
 import FormError from '#exceptions/form_error'
 import { db } from '#services/db'
 import { queueSecuritySettingsChangedMail } from '#services/security_settings_notifications'
 import WebauthnService from '#services/webauthn'
+import { createOtpValidator } from '#validators/profile/webauthn_validator'
 import { inject } from '@adonisjs/core'
 
 export const WEBAUTHN_REG_CHALLENGE_KEY = 'webauthnRegistrationChallenge'
@@ -35,14 +35,13 @@ export default class ProfileWebauthnController {
   ) {
     security.ensureConfirmed()
 
-    const attestation = request.input('attestation') as RegistrationResponseJSON | undefined
-    const friendlyName = request.input('friendlyName') as string | undefined
+    const [error, result] = await request.tryValidateUsing(createOtpValidator)
     const expectedChallenge = session.get(WEBAUTHN_REG_CHALLENGE_KEY) as string | undefined
-
-    if (!attestation || !expectedChallenge) {
+    if (error || !expectedChallenge) {
       throw new FormError('errors.missingRegistrationPayload')
     }
 
+    const { attestation, friendlyName } = result
     const verification = await webauthn
       .verifyRegistration(attestation, expectedChallenge)
       .catch(FormError.catcher)

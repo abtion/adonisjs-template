@@ -43,6 +43,7 @@ test.group('Profile WebAuthn', (group) => {
             clientDataJSON: 'test',
             attestationObject: 'test',
           },
+          clientExtensionResults: {},
         },
       })
       .withCsrfToken()
@@ -67,6 +68,7 @@ test.group('Profile WebAuthn', (group) => {
             clientDataJSON: 'test',
             attestationObject: 'test',
           },
+          clientExtensionResults: {},
         },
       })
       .withCsrfToken()
@@ -91,6 +93,7 @@ test.group('Profile WebAuthn', (group) => {
             clientDataJSON: 'test',
             attestationObject: 'test',
           },
+          clientExtensionResults: {},
         },
       })
       .withCsrfToken()
@@ -126,6 +129,7 @@ test.group('Profile WebAuthn', (group) => {
             clientDataJSON: 'test',
             attestationObject: 'test',
           },
+          clientExtensionResults: {},
         },
       })
       .withCsrfToken()
@@ -173,6 +177,7 @@ test.group('Profile WebAuthn', (group) => {
               clientDataJSON: 'test',
               attestationObject: 'test',
             },
+            clientExtensionResults: {},
           },
         })
         .withCsrfToken()

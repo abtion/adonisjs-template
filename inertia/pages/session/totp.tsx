@@ -7,7 +7,7 @@ import { FieldError } from '~/components/FieldError'
 import Input from '~/components/Input'
 import { useAutofillRef } from '~/hooks/use_autofill_ref'
 import SessionLayout from '~/layouts/session'
-import { tuyau } from '~/lib/tuyau'
+import { urlFor } from '~/client'
 
 export default function Totp() {
   const { t } = useTranslation()
@@ -18,7 +18,7 @@ export default function Totp() {
 
   const verifyTotp = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    post(tuyau.session.totp.$url())
+    post(urlFor('session_totp.store'))
   }
 
   const otpRef = useAutofillRef<HTMLInputElement>(({ value }) => setData('otp', value))
