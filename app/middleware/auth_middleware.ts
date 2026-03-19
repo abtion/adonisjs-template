@@ -1,17 +1,10 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 import type { Authenticators } from '@adonisjs/auth/types'
-import { errors } from '@adonisjs/core/http'
+import BaseError from '#exceptions/base_error'
 
 const SECURITY_CONFIRMATION_SESSION_KEY = 'securityConfirmedAt'
 const SECURITY_CONFIRMATION_TIMEOUT_MS = 5 * 60 * 1000
-
-export class SecurityConfirmationRequiredError extends errors.E_HTTP_EXCEPTION {
-  constructor() {
-    super('Security confirmation required', { status: 401 })
-    this.name = 'SecurityConfirmationRequiredError'
-  }
-}
 
 /**
  * Auth middleware is used authenticate HTTP requests and deny
@@ -39,7 +32,7 @@ export default class AuthMiddleware {
       ensureConfirmed: () => {
         const confirmedAt = new Date(ctx.session.get(SECURITY_CONFIRMATION_SESSION_KEY)).getTime()
         const confirmed = Date.now() - confirmedAt <= SECURITY_CONFIRMATION_TIMEOUT_MS
-        if (!confirmed) throw new SecurityConfirmationRequiredError()
+        if (!confirmed) throw new BaseError('security_confirmation_required', 401)
       },
     }
 

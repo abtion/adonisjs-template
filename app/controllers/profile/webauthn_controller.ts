@@ -45,7 +45,7 @@ export default class ProfileWebauthnController {
 
     const expectedChallenge = session.get(WEBAUTHN_REG_CHALLENGE_KEY) as string | undefined
     if (error || !expectedChallenge) {
-      throw new FormError('errors.missingRegistrationPayload')
+      throw new FormError('missingRegistrationPayload')
     }
 
     const { attestation, friendlyName } = result!

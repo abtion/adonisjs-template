@@ -1,11 +1,10 @@
-import app from '@adonisjs/core/services/app'
-import { type HttpContext, ExceptionHandler, errors } from '@adonisjs/core/http'
-import type { StatusPageRange, StatusPageRenderer } from '@adonisjs/core/types/http'
-import { errors as bouncerErrors } from '@adonisjs/bouncer'
 import logRequest from '#utils/log_request'
+import { errors as bouncerErrors } from '@adonisjs/bouncer'
+import { type HttpContext, ExceptionHandler, errors } from '@adonisjs/core/http'
+import app from '@adonisjs/core/services/app'
+import type { StatusPageRange, StatusPageRenderer } from '@adonisjs/core/types/http'
 import * as Kysely from 'kysely'
-import FormError from './form_error.js'
-import { SecurityConfirmationRequiredError } from '#middleware/auth_middleware'
+import BaseError from './base_error.ts'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -27,9 +26,9 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    */
   protected statusPages: Record<StatusPageRange, StatusPageRenderer> = {
     /* v8 ignore start */
-    '404': (error, ctx) => {
+    '404': (_error, ctx) => {
       logRequest(ctx)
-      return ctx.inertia.render('errors/notFound', { error, requestId: ctx.request.id() })
+      return ctx.inertia.render('errors/notFound', { requestId: ctx.request.id() })
     },
     '500..599': (error, { inertia, request }) =>
       inertia.render('errors/serverError', { error, requestId: request.id() }),
@@ -51,20 +50,17 @@ export default class HttpExceptionHandler extends ExceptionHandler {
       return
     }
 
-    if (error instanceof SecurityConfirmationRequiredError) {
-      ctx.response.status(401).send({ name: error.name, message: error.message })
-      return
-    }
-
-    if (error instanceof FormError) {
+    if (error instanceof BaseError) {
       if (ctx.session && ctx.request.header('x-inertia')) {
-        ctx.session.flashErrors({ [error.field]: ctx.i18n.t(error.translationKey) })
+        ctx.session.flashErrors({ [error.field]: ctx.i18n.t(`errors.${error.code}`) })
         ctx.response.redirect('back', true)
       } else {
         error.message
-        ctx.response
-          .status(error.status)
-          .send({ field: error.field, message: ctx.i18n.t(error.translationKey) })
+        ctx.response.status(error.status).send({
+          field: error.field,
+          code: error.code,
+          message: ctx.i18n.t(`errors.${error.code}`),
+        })
       }
       return
     }

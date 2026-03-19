@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import Button from '~/components/Button'
 import Input from '~/components/Input'
 import SecurityConfirmation from '~/components/SecurityConfirmation'
-import { errorIsType, getErrorMessage, client } from '~/client'
+import { errorHasCode, getErrorMessage, client } from '~/client'
 import Alert from '../Alert'
 import FlashMessage from '../FlashMessage'
 
@@ -48,7 +48,7 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
     try {
       await fn()
     } catch (err) {
-      if (errorIsType(err, 'SecurityConfirmationRequiredError')) {
+      if (errorHasCode(err, 'security_confirmation_required')) {
         setError(null)
         setPendingAction(() => fn)
         setShowConfirmation(true)
@@ -113,7 +113,7 @@ export default function Totp({ enabled, recoveryCodesCount }: TotpProps) {
       setTotpState({ state: 'disabled', status: t('components.totp.disabled') })
       router.reload({ only: ['totp'] })
     } catch (err) {
-      if (errorIsType(err, 'SecurityConfirmationRequiredError')) {
+      if (errorHasCode(err, 'security_confirmation_required')) {
         setDisableError(null)
         setPendingAction(() => submitDisableTotp)
         setShowConfirmation(true)

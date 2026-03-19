@@ -1,18 +1,19 @@
-export default class FormError extends Error {
+import BaseError from './base_error.ts'
+
+export default class FormError extends BaseError {
   constructor(
-    readonly translationKey: string,
-    readonly field: string = 'base',
-    readonly status = 422
+    readonly code: string = 'FormError',
+    readonly status = 422,
+    readonly field: string = 'base'
   ) {
-    super(`FormError: ${translationKey}`)
-    this.name = 'FormError'
+    super(`FormError: ${code}`)
   }
 
   static from(error: any) {
     if ('toFormError' in error && typeof error.toFormError === 'function') {
       return error.toFormError()
     }
-    return new FormError('errors.fallbackError')
+    return new FormError('fallbackError')
   }
 
   static catcher(error: any): never {

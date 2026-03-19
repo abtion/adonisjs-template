@@ -35,7 +35,7 @@ export default class SessionTotpRecoverController {
     const totpRecoveryCodes =
       totpRecoveryCodesEncrypted && encryption.decrypt<string[]>(totpRecoveryCodesEncrypted)
     if (!totpSecret || !totpRecoveryCodes) {
-      throw new FormError('errors.totpSecretNotGenerated')
+      throw new FormError('totpSecretNotGenerated')
     }
 
     let isValid: boolean = false
@@ -47,7 +47,7 @@ export default class SessionTotpRecoverController {
     })
 
     if (!isValid) {
-      throw new FormError('errors.recoveryCodeInvalid')
+      throw new FormError('recoveryCodeInvalid')
     }
 
     session.forget(TOTP_USER_ID_KEY)
