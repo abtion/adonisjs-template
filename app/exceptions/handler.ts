@@ -1,5 +1,5 @@
 import app from '@adonisjs/core/services/app'
-import { HttpContext, ExceptionHandler, errors } from '@adonisjs/core/http'
+import { type HttpContext, ExceptionHandler, errors } from '@adonisjs/core/http'
 import type { StatusPageRange, StatusPageRenderer } from '@adonisjs/core/types/http'
 import { errors as bouncerErrors } from '@adonisjs/bouncer'
 import logRequest from '#utils/log_request'

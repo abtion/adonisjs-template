@@ -4,6 +4,7 @@ import { useForm } from '@inertiajs/react'
 import MainLayout from '~/layouts/main'
 import UserForm from '~/components/UserForm'
 import { useTranslation } from 'react-i18next'
+import { urlFor } from '~/client'
 
 export default function UsersCreate() {
   const { t } = useTranslation()
@@ -16,7 +17,7 @@ export default function UsersCreate() {
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    post('/users')
+    post(urlFor('users.store'))
   }
 
   function handleChange(event: ChangeEvent<{ name: string; value: string }>) {

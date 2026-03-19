@@ -1,8 +1,11 @@
 import type { Users } from '../../database/types.js'
 
-import { Selectable } from 'kysely'
+import { type Selectable } from 'kysely'
 import { symbols } from '@adonisjs/auth'
-import { SessionGuardUser, SessionUserProviderContract } from '@adonisjs/auth/types/session'
+import {
+  type SessionGuardUser,
+  type SessionUserProviderContract,
+} from '@adonisjs/auth/types/session'
 import { db } from '#services/db'
 
 export type SessionUser = Selectable<Users>

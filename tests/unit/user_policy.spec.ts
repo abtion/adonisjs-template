@@ -1,6 +1,6 @@
 import { test } from '@japa/runner'
 import UserPolicy from '#policies/user_policy'
-import { SessionUser } from '../../app/auth_providers/session_user_provider.js'
+import { type SessionUser } from '../../app/auth_providers/session_user_provider.js'
 
 test.group('User policy', () => {
   test('it grants access when user is admin', ({ assert }) => {

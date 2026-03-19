@@ -12,7 +12,7 @@ import Button from '~/components/Button'
 import { FieldError } from '~/components/FieldError'
 import Input from '~/components/Input'
 import SessionLayout from '~/layouts/session'
-import { tuyau } from '~/lib/tuyau'
+import { urlFor } from '~/client'
 
 interface Props {
   email: string
@@ -41,7 +41,7 @@ export default function Authenticate({ email, webauthnOptions }: Props) {
 
   useEffect(() => {
     if (!data.assertion) return
-    post(tuyau['sign-in']({ email }).$url())
+    post(urlFor('sign_in_email.store', { email }))
   }, [data.assertion])
 
   useEffect(() => {
@@ -50,7 +50,7 @@ export default function Authenticate({ email, webauthnOptions }: Props) {
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    post(tuyau['sign-in']({ email }).$url())
+    post(urlFor('sign_in_email.store', { email }))
   }
 
   const showPasswordField = !webauthnOptions || webauthnAttempted

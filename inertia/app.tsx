@@ -1,15 +1,19 @@
-/// <reference path="../../adonisrc.ts" />
-/// <reference path="../../config/inertia.ts" />
+/// <reference path="../adonisrc.ts" />
+/// <reference path="../config/inertia.ts" />
 
-import '../css/app.scss'
+import './css/app.scss'
 import { hydrateRoot } from 'react-dom/client'
 import { createInertiaApp } from '@inertiajs/react'
 import { resolvePageComponent } from '@adonisjs/inertia/helpers'
 import i18next from 'i18next'
-import colors from '../../colors.json'
 import { I18nextProvider } from 'react-i18next'
 import { SharedProps } from '@adonisjs/inertia/types'
-import i18nextConfig from '../config/i18next_config'
+import i18nextConfig from './config/i18next_config'
+import { client } from './client'
+import { TuyauProvider } from '@adonisjs/inertia/react'
+
+// eslint-disable-next-line @adonisjs/no-backend-import-in-frontend
+import colors from '../colors.json'
 
 createInertiaApp<SharedProps>({
   progress: { color: colors.primary.DEFAULT },
@@ -17,7 +21,7 @@ createInertiaApp<SharedProps>({
   title: (title) => [title, 'Project Name Human'].filter(Boolean).join(' - '),
 
   resolve: (name) =>
-    resolvePageComponent(`../pages/${name}.tsx`, import.meta.glob('../pages/**/*.tsx')),
+    resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
 
   setup({ el, App, props }) {
     const i18n = i18next.createInstance({
@@ -29,7 +33,9 @@ createInertiaApp<SharedProps>({
     hydrateRoot(
       el,
       <I18nextProvider i18n={i18n}>
-        <App {...props} />
+        <TuyauProvider client={client}>
+          <App {...props} />
+        </TuyauProvider>
       </I18nextProvider>
     )
   },

@@ -1,16 +1,19 @@
-import { WebauthnCredentials } from '#database/types'
+import { type WebauthnCredentials } from '#database/types'
 import FormError from '#exceptions/form_error'
 import env from '#start/env'
 import {
   generateAuthenticationOptions,
   generateRegistrationOptions,
-  VerifiedAuthenticationResponse,
-  VerifiedRegistrationResponse,
+  type VerifiedAuthenticationResponse,
+  type VerifiedRegistrationResponse,
   verifyAuthenticationResponse,
   verifyRegistrationResponse,
 } from '@simplewebauthn/server'
-import { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/types'
-import { Selectable } from 'kysely'
+import {
+  type AuthenticationResponseJSON,
+  type RegistrationResponseJSON,
+} from '@simplewebauthn/types'
+import { type Selectable } from 'kysely'
 import { db } from './db.js'
 
 export function fromBase64Url(value: string): Uint8Array<ArrayBuffer> {

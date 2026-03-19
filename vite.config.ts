@@ -1,9 +1,8 @@
-import { defineConfig, Plugin } from 'vite'
-import { getDirname } from '@adonisjs/core/helpers'
-import inertia from '@adonisjs/inertia/client'
+import { defineConfig, type Plugin } from 'vite'
+import inertia from '@adonisjs/inertia/vite'
 import react from '@vitejs/plugin-react'
 import adonisjs from '@adonisjs/vite/client'
-import istanbulPluginUntyped, { IstanbulPluginOptions } from 'vite-plugin-istanbul'
+import istanbulPluginUntyped, { type IstanbulPluginOptions } from 'vite-plugin-istanbul'
 import env from '#start/env'
 
 //  The types for the default export of 'vite-plugin-istanbul' are not working correctly
@@ -11,10 +10,10 @@ const istanbulPlugin = istanbulPluginUntyped as unknown as (opts?: IstanbulPlugi
 
 export default defineConfig({
   plugins: [
-    inertia({ ssr: { enabled: true, entrypoint: 'inertia/app/ssr.tsx' } }),
+    inertia({ ssr: { enabled: true, entrypoint: 'inertia/ssr.tsx' } }),
     react(),
     adonisjs({
-      entrypoints: ['inertia/app/app.tsx'],
+      entrypoints: ['inertia/app.tsx'],
       reload: ['resources/views/**/*.edge'],
     }),
 
@@ -22,7 +21,7 @@ export default defineConfig({
     ...(process.env.NYC_COVERAGE
       ? [
           istanbulPlugin({
-            exclude: ['inertia/app/ssr.tsx'],
+            exclude: ['inertia/ssr.tsx'],
             extension: ['.js', '.ts', '.tsx'],
           }),
         ]
@@ -45,7 +44,8 @@ export default defineConfig({
    */
   resolve: {
     alias: {
-      '~/': `${getDirname(import.meta.url)}/inertia/`,
+      '~/': `${import.meta.dirname}/inertia/`,
+      '@generated': `${import.meta.dirname}/.adonisjs/client/`,
     },
   },
 })

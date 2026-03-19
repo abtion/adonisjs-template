@@ -1,4 +1,8 @@
 import { defineConfig } from '@adonisjs/core/app'
+import { indexEntities } from '@adonisjs/core'
+import { indexPages } from '@adonisjs/inertia'
+import { indexPolicies } from '@adonisjs/bouncer'
+import { generateRegistry } from '@tuyau/core/hooks'
 
 export default defineConfig({
   /*
@@ -46,8 +50,6 @@ export default defineConfig({
     () => import('@adonisjs/bouncer/bouncer_provider'),
     () => import('@adonisjs/i18n/i18n_provider'),
     () => import('@adonisjs/mail/mail_provider'),
-    () => import('@nulix/adonis-2fa/two_factor_auth_provider'),
-    () => import('@tuyau/core/tuyau_provider'),
     () => import('adonisjs-jobs/jobs_provider'),
   ],
 
@@ -77,17 +79,17 @@ export default defineConfig({
   tests: {
     suites: [
       {
-        files: ['tests/unit/**/*.spec(.ts|.js)'],
+        files: ['tests/unit/**/*.spec.{ts,js}'],
         name: 'unit',
         timeout: 2000,
       },
       {
-        files: ['tests/functional/**/*.spec(.ts|.js)'],
+        files: ['tests/functional/**/*.spec.{ts,js}'],
         name: 'functional',
         timeout: 30000,
       },
       {
-        files: ['tests/browser/**/*.spec(.ts|.js)'],
+        files: ['tests/browser/**/*.spec.{ts,js}'],
         name: 'browser',
         timeout: 300000,
       },
@@ -119,8 +121,13 @@ export default defineConfig({
     },
   ],
 
-  assetsBundler: false,
   hooks: {
-    onBuildStarting: [() => import('@adonisjs/vite/build_hook')],
+    init: [
+      indexEntities({ transformers: { enabled: true, withSharedProps: true } }),
+      indexPages({ framework: 'react' }),
+      generateRegistry(),
+      indexPolicies(),
+    ],
+    buildStarting: [() => import('@adonisjs/vite/build_hook')],
   },
 })

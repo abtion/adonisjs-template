@@ -2,7 +2,7 @@ import { test } from '@japa/runner'
 import { withGlobalTransaction } from '#services/db'
 import { createUser } from '#tests/support/factories/user'
 import encryption from '@adonisjs/core/services/encryption'
-import adonis2fa from '@nulix/adonis-2fa/services/main'
+import { generateSecret, generateToken } from '#services/totp'
 import mail from '@adonisjs/mail/services/main'
 
 import SecuritySettingsChangedMail from '#mails/security_settings_changed'
@@ -43,7 +43,7 @@ test.group('Profile TOTP', (group) => {
   })
 
   test('verify throws error when OTP is invalid', async ({ client }) => {
-    const totpSecret = await adonis2fa.generateSecret('user@example.com')
+    const totpSecret = await generateSecret('user@example.com')
     const user = await createUser({
       totpEnabled: false,
       totpSecretEncrypted: encryption.encrypt(totpSecret.secret),
@@ -64,7 +64,7 @@ test.group('Profile TOTP', (group) => {
     const fakeMailer = mail.fake()
 
     try {
-      const totpSecret = await adonis2fa.generateSecret('user@example.com')
+      const totpSecret = await generateSecret('user@example.com')
       const user = await createUser({
         email: 'user@example.com',
         totpEnabled: false,
@@ -74,7 +74,7 @@ test.group('Profile TOTP', (group) => {
 
       const response = await client
         .post('/profile/totp/verify')
-        .json({ otp: adonis2fa.generateToken(totpSecret.secret)! })
+        .json({ otp: generateToken(totpSecret.secret)! })
         .withCsrfToken()
         .loginAs(user)
 
@@ -125,7 +125,7 @@ test.group('Profile TOTP', (group) => {
   })
 
   test('destroy throws error when OTP is invalid', async ({ client }) => {
-    const totpSecret = await adonis2fa.generateSecret('user@example.com')
+    const totpSecret = await generateSecret('user@example.com')
     const user = await createUser({
       totpEnabled: true,
       totpSecretEncrypted: encryption.encrypt(totpSecret.secret),
@@ -147,7 +147,7 @@ test.group('Profile TOTP', (group) => {
     const fakeMailer = mail.fake()
 
     try {
-      const totpSecret = await adonis2fa.generateSecret('user@example.com')
+      const totpSecret = await generateSecret('user@example.com')
       const user = await createUser({
         email: 'user@example.com',
         totpEnabled: true,
@@ -155,7 +155,7 @@ test.group('Profile TOTP', (group) => {
         totpRecoveryCodesEncrypted: encryption.encrypt(['CODE-1', 'CODE-2']),
       })
 
-      const validOtp = adonis2fa.generateToken(totpSecret.secret)!
+      const validOtp = generateToken(totpSecret.secret)!
       const response = await client
         .delete('/profile/totp')
         .json({ otp: validOtp })
@@ -194,7 +194,7 @@ test.group('Profile TOTP', (group) => {
     const fakeMailer = mail.fake()
 
     try {
-      const totpSecret = await adonis2fa.generateSecret('user@example.com')
+      const totpSecret = await generateSecret('user@example.com')
       const user = await createUser({
         email: 'user@example.com',
         totpEnabled: true,

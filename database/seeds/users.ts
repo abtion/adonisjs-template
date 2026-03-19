@@ -1,8 +1,8 @@
-import { DB } from '#database/types'
+import { type DB } from '#database/types'
 import timestamps from '#tests/support/timestamps'
-import { BaseCommand } from '@adonisjs/core/ace'
+import { type BaseCommand } from '@adonisjs/core/ace'
 import hash from '@adonisjs/core/services/hash'
-import { Kysely } from 'kysely'
+import { type Kysely } from 'kysely'
 
 export default async function (db: Kysely<DB>, logger: BaseCommand['logger']) {
   const { count } = await db

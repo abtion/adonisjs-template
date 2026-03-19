@@ -3,7 +3,7 @@ import { withGlobalTransaction } from '#services/db'
 import { createUser } from '#tests/support/factories/user'
 import encryption from '@adonisjs/core/services/encryption'
 import { test } from '@japa/runner'
-import adonis2fa from '@nulix/adonis-2fa/services/main'
+import { generateSecret } from '#services/totp'
 
 test.group('Session TOTP', (group) => {
   group.each.setup(() => withGlobalTransaction())
@@ -37,7 +37,7 @@ test.group('Session TOTP', (group) => {
   })
 
   test('store throws error when OTP is invalid', async ({ client }) => {
-    const totpSecret = await adonis2fa.generateSecret('user@example.com')
+    const totpSecret = await generateSecret('user@example.com')
     const user = await createUser({
       totpEnabled: true,
       totpSecretEncrypted: encryption.encrypt(totpSecret.secret),

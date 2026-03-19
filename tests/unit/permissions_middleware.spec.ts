@@ -5,9 +5,9 @@ import {
 import { BasePolicy, Bouncer } from '@adonisjs/bouncer'
 import { test } from '@japa/runner'
 import { policies } from '#policies/main'
-import { SessionUser } from '../../app/auth_providers/session_user_provider.js'
-import { PolicyUser } from '#policies/user_policy'
-import { AuthorizerResponse } from '@adonisjs/bouncer/types'
+import { type SessionUser } from '../../app/auth_providers/session_user_provider.js'
+import { type PolicyUser } from '#policies/user_policy'
+import { type AuthorizerResponse } from '@adonisjs/bouncer/types'
 
 class TestPolicy extends BasePolicy {
   show(user: SessionUser, targetUser: PolicyUser): AuthorizerResponse {

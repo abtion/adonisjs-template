@@ -1,5 +1,5 @@
 import mail from '@adonisjs/mail/services/main'
-import { MailersList } from '@adonisjs/mail/types'
+import { type MailersList } from '@adonisjs/mail/types'
 import SendMailJob from '#jobs/send_mail_job'
 
 // add queue handler for sending emails via `sendLater`

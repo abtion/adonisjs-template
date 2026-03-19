@@ -1,12 +1,19 @@
-import UsersController from '#controllers/users_controller'
-import { InferPageProps } from '@adonisjs/inertia/types'
-import { Head, Link } from '@inertiajs/react'
+import { Head } from '@inertiajs/react'
+import { Link } from '@adonisjs/inertia/react'
 import { useTranslation } from 'react-i18next'
-import Button from '~/components/Button'
-import ButtonClear from '~/components/ButtonClear'
 import MainLayout from '~/layouts/main'
+import { SharedProps } from '@adonisjs/inertia/types'
+import type { WithPermissions } from '#middleware/permissions_middleware'
+import type { Selectable } from 'kysely'
+import type { Users } from '#database/types'
+import ButtonClear from '~/components/ButtonClear'
+import Button from '~/components/Button'
 
-export default function UserShow({ user, policies }: InferPageProps<UsersController, 'show'>) {
+type Props = SharedProps & {
+  user: WithPermissions<Pick<Selectable<Users>, 'id' | 'name' | 'email' | 'createdAt'>>
+}
+
+export default function UserShow({ user, policies }: Props) {
   const { t } = useTranslation()
 
   return (

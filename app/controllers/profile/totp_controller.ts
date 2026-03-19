@@ -1,4 +1,3 @@
-import adonis2fa from '@nulix/adonis-2fa/services/main'
 import type { HttpContext } from '@adonisjs/core/http'
 
 import { db } from '#services/db'
@@ -6,6 +5,7 @@ import { queueSecuritySettingsChangedMail } from '#services/security_settings_no
 import encryption from '@adonisjs/core/services/encryption'
 import { postOtpValidator, destroyTotpValidator } from '#validators/profile/totp_validator'
 import FormError from '#exceptions/form_error'
+import { generateRecoveryCodes, generateSecret, verifyToken } from '#services/totp'
 
 export default class ProfileTotpController {
   async store({ auth, security, response }: HttpContext) {
@@ -14,8 +14,8 @@ export default class ProfileTotpController {
     const user = auth.user!
     if (user.totpEnabled) throw new FormError('errors.totpAlreadyEnabled')
 
-    const secret = await adonis2fa.generateSecret(user.email)
-    const recoveryCodes = adonis2fa.generateRecoveryCodes()
+    const secret = await generateSecret(user.email)
+    const recoveryCodes = generateRecoveryCodes()
 
     await db()
       .updateTable('users')
@@ -33,14 +33,17 @@ export default class ProfileTotpController {
     const { otp } = await request.validateUsing(postOtpValidator)
     const user = auth.user!
 
-    const totpSecret = encryption.decrypt<string>(user.totpSecretEncrypted)
-    const totpRecoveryCodes = encryption.decrypt<string[]>(user.totpRecoveryCodesEncrypted)
+    const totpSecret =
+      user.totpSecretEncrypted && encryption.decrypt<string>(user.totpSecretEncrypted)
+    const totpRecoveryCodes =
+      user.totpRecoveryCodesEncrypted &&
+      encryption.decrypt<string[]>(user.totpRecoveryCodesEncrypted)
 
     if (!totpSecret || !totpRecoveryCodes) {
       throw new FormError('errors.totpSecretNotGenerated')
     }
 
-    const isValid = adonis2fa.verifyToken(totpSecret, otp, totpRecoveryCodes)
+    const isValid = verifyToken(totpSecret, otp, totpRecoveryCodes)
     if (!isValid) throw new FormError('errors.otpInvalid')
 
     await db()
@@ -61,14 +64,17 @@ export default class ProfileTotpController {
     security.ensureConfirmed()
 
     const { otp } = await request.validateUsing(destroyTotpValidator)
-    const totpSecret = encryption.decrypt<string>(user.totpSecretEncrypted)
-    const totpRecoveryCodes = encryption.decrypt<string[]>(user.totpRecoveryCodesEncrypted)
+    const totpSecret =
+      user.totpSecretEncrypted && encryption.decrypt<string>(user.totpSecretEncrypted)
+    const totpRecoveryCodes =
+      user.totpRecoveryCodesEncrypted &&
+      encryption.decrypt<string[]>(user.totpRecoveryCodesEncrypted)
 
     if (!totpSecret || !totpRecoveryCodes) {
       throw new FormError('errors.totpSecretNotGenerated')
     }
 
-    const isValid = adonis2fa.verifyToken(totpSecret, otp, totpRecoveryCodes)
+    const isValid = verifyToken(totpSecret, otp, totpRecoveryCodes)
     if (!isValid) throw new FormError('errors.otpInvalid')
 
     await db()
@@ -93,7 +99,7 @@ export default class ProfileTotpController {
 
     security.ensureConfirmed()
 
-    const recoveryCodes = adonis2fa.generateRecoveryCodes()
+    const recoveryCodes = generateRecoveryCodes()
 
     await db()
       .updateTable('users')

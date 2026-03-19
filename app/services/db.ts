@@ -1,13 +1,13 @@
 import { CamelCasePlugin, Kysely, PostgresDialect, sql } from 'kysely'
 import PG from 'pg'
-import { DB } from '#database/types'
+import { type DB } from '#database/types'
 import env from '#start/env'
 import { databaseConfig } from '#config/database'
-import { KyselyPlugin } from 'kysely'
-import { PluginTransformQueryArgs } from 'kysely'
-import { RootOperationNode } from 'kysely'
-import { PluginTransformResultArgs } from 'kysely'
-import { QueryResult } from 'kysely'
+import { type KyselyPlugin } from 'kysely'
+import { type PluginTransformQueryArgs } from 'kysely'
+import { type RootOperationNode } from 'kysely'
+import { type PluginTransformResultArgs } from 'kysely'
+import { type QueryResult } from 'kysely'
 
 const dialect = new PostgresDialect({
   pool: new PG.Pool(databaseConfig[env.get('NODE_ENV') as keyof typeof databaseConfig]()),

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { startRegistration } from '@simplewebauthn/browser'
 import Button from '~/components/Button'
 import SecurityConfirmation from '~/components/SecurityConfirmation'
-import { tuyau, errorIsType, getErrorMessage } from '~/lib/tuyau'
+import { client, errorIsType, getErrorMessage } from '~/client'
 import { router } from '@inertiajs/react'
 import { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/types'
 import { useTranslation } from 'react-i18next'
@@ -12,7 +12,7 @@ type Credential = {
   id: number
   friendlyName: string | null
   createdAt: string | Date
-  lastUsed: string | Date
+  updatedAt: string | Date
 }
 
 type WebauthnProps = {
@@ -56,18 +56,18 @@ export default function Webauthn({ credentials }: WebauthnProps) {
 
   const registerCredential = () =>
     handle(async () => {
-      const { options } = await tuyau.profile.webauthn.options.$get().unwrap()
+      const { options } = await client.api.profileWebauthn.options({})
       const attestation = await startRegistration({
         optionsJSON: options as PublicKeyCredentialCreationOptionsJSON,
       })
-      await tuyau.profile.webauthn.$post({ attestation })
+      await client.api.profileWebauthn.store({ body: { attestation } })
       setStatus(t('components.webauthn.credentialRegisteredSuccess'))
       router.reload({ only: ['credentials'] })
     })
 
   const removeCredential = (id: number) =>
     handle(async () => {
-      await tuyau.profile.webauthn({ id }).$delete().unwrap()
+      await client.api.profileWebauthn.destroy({ params: { id } })
       setStatus(t('components.webauthn.credentialRemovedSuccess'))
       router.reload({ only: ['credentials'] })
     })
@@ -111,8 +111,8 @@ export default function Webauthn({ credentials }: WebauthnProps) {
                     <p className="text-gray-500 text-sm">
                       {t('components.webauthn.registered')}{' '}
                       {new Date(credential.createdAt).toLocaleDateString()}
-                      {credential.lastUsed &&
-                        ` | ${t('components.webauthn.lastUsed')} ${new Date(credential.lastUsed).toLocaleDateString()}`}
+                      {credential.updatedAt &&
+                        ` | ${t('components.webauthn.lastUsed')} ${new Date(credential.updatedAt).toLocaleDateString()}`}
                     </p>
                   </div>
                   <Button

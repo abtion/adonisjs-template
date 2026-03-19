@@ -6,7 +6,7 @@ import WebauthnService from '#services/webauthn'
 import Sinon from 'sinon'
 import { WEBAUTHN_CHALLENGE_KEY } from '#controllers/session_controller'
 import { createWebauthnCredential } from '#tests/support/factories/webauthn_credential'
-import { VerifiedAuthenticationResponse } from '@simplewebauthn/server'
+import { type VerifiedAuthenticationResponse } from '@simplewebauthn/server'
 
 test.group('Session Controller', (group) => {
   group.each.setup(() => withGlobalTransaction())

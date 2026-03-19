@@ -99,7 +99,7 @@ export const configureSuite: Config['configureSuite'] = (suite) => {
     suite.setup(async () => {
       // Add warm up route before running server
       const { default: router } = await import('@adonisjs/core/services/router')
-      router.on('/_warm-up').renderInertia('_test/warm-up')
+      router.on('/_warm-up').renderInertia('_test/warm-up', {})
 
       const stopServer = await testUtils.httpServer().start()
 

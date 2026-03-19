@@ -1,5 +1,9 @@
 import { Job } from 'adonisjs-jobs'
-import { MailersList, MessageBodyTemplates, NodeMailerMessage } from '@adonisjs/mail/types'
+import {
+  type MailersList,
+  type MessageBodyTemplates,
+  type NodeMailerMessage,
+} from '@adonisjs/mail/types'
 import mail from '@adonisjs/mail/services/main'
 
 interface MailJobPayload {

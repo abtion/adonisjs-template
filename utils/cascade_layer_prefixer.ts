@@ -1,4 +1,4 @@
-import postcss, { Plugin } from 'postcss'
+import postcss, { type Plugin } from 'postcss'
 
 // PostCSS plugin for wrapping matching CSS files in a cascade layer
 type Options = {

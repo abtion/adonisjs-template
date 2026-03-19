@@ -1,7 +1,7 @@
 import hash from '@adonisjs/core/services/hash'
 import timestamps from '../timestamps.js'
-import { InsertObject } from 'kysely'
-import { DB } from '#database/types'
+import { type InsertObject } from 'kysely'
+import { type DB } from '#database/types'
 import { db } from '#services/db'
 
 export async function getUserAttributes(attributes: Partial<InsertObject<DB, 'users'>> = {}) {

@@ -1,6 +1,4 @@
-import { policies } from '#policies/main'
 import { defineConfig } from '@adonisjs/inertia'
-import type { InferSharedProps } from '@adonisjs/inertia/types'
 
 const inertiaConfig = defineConfig({
   /**
@@ -9,52 +7,12 @@ const inertiaConfig = defineConfig({
   rootView: 'inertia_layout',
 
   /**
-   * Data that should be shared with all rendered pages
-   */
-  sharedData: {
-    locale: (ctx) => ctx.i18n?.locale,
-    auth: (ctx) => {
-      const { user, isAuthenticated } = ctx.auth?.use('web') ?? {
-        user: undefined,
-        isAuthenticated: false,
-      }
-
-      let inertiaUser
-      if (user) {
-        // Only select non-sensitive props
-        const { name, admin, id, email } = user
-        inertiaUser = { name, admin, id, email }
-      }
-
-      return { isAuthenticated, user: inertiaUser }
-    },
-    policies: async ({ bouncer }) => {
-      const res = {} as Record<keyof typeof policies, Record<'index' | 'create', boolean>>
-
-      for (let [name, importer] of Object.entries(policies)) {
-        const { default: policy } = await importer()
-        res[name as keyof typeof policies] = {
-          index: (await bouncer?.with(policy).allows('index')) || false,
-          create: (await bouncer?.with(policy).allows('create')) || false,
-        }
-      }
-      return res
-    },
-    exceptions: (ctx) => ctx.session?.flashMessages.get('errorsBag') ?? {},
-    messages: (ctx) => ctx.session?.flashMessages.all() ?? {},
-  },
-
-  /**
    * Options for the server-side rendering
    */
   ssr: {
     enabled: true,
-    entrypoint: 'inertia/app/ssr.tsx',
+    entrypoint: 'inertia/ssr.tsx',
   },
 })
 
 export default inertiaConfig
-
-declare module '@adonisjs/inertia/types' {
-  export interface SharedProps extends InferSharedProps<typeof inertiaConfig> {}
-}

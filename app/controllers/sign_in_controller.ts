@@ -6,7 +6,7 @@ export default class SignInController {
    * Sign-in form (step 1: email)
    */
   async index({ inertia }: HttpContext) {
-    return inertia.render('signIn/index')
+    return inertia.render('signIn/index', {})
   }
 
   /**
