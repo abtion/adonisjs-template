@@ -59,7 +59,7 @@ export default class ProfileTotpController {
 
   async destroy({ auth, request, response, security }: HttpContext) {
     const user = auth.user!
-    if (!user.totpEnabled) throw new FormError('userWithout2FaActive')
+    if (!user.totpEnabled) throw new FormError('userWithout2FAActive')
 
     security.ensureConfirmed()
 
@@ -95,7 +95,7 @@ export default class ProfileTotpController {
   async regenerateRecoveryCodes({ auth, security }: HttpContext) {
     const user = auth.user!
 
-    if (!user.totpEnabled) throw new FormError('userWithout2FaActive')
+    if (!user.totpEnabled) throw new FormError('userWithout2FAActive')
 
     security.ensureConfirmed()
 

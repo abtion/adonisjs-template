@@ -1,12 +1,8 @@
 import BaseError from './base_error.ts'
 
 export default class FormError extends BaseError {
-  constructor(
-    readonly code: string = 'FormError',
-    readonly status = 422,
-    readonly field: string = 'base'
-  ) {
-    super(`FormError: ${code}`)
+  constructor(code: string, status = 422, field: string = 'base') {
+    super(code, status, field)
   }
 
   static from(error: any) {

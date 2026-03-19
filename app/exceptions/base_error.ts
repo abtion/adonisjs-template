@@ -4,6 +4,10 @@ export default class BaseError extends Error {
     readonly status = 500,
     readonly field: string = 'base'
   ) {
-    super('BaseError')
+    super()
+  }
+
+  get message() {
+    return `${this.constructor.name}: ${this.code}`
   }
 }

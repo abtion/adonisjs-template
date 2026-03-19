@@ -103,7 +103,7 @@ test.group('Profile TOTP', (group) => {
       .withSession(withSecurityConfirmed())
 
     response.assertStatus(422)
-    response.assertBodyContains({ message: 'errors.userWithout2FaActive' })
+    response.assertBodyContains({ message: 'errors.userWithout2FAActive' })
   })
 
   test('destroy throws error when TOTP secret is not set', async ({ client }) => {
@@ -187,7 +187,7 @@ test.group('Profile TOTP', (group) => {
       .withSession(withSecurityConfirmed())
 
     response.assertStatus(422)
-    response.assertBodyContains({ message: 'errors.userWithout2FaActive' })
+    response.assertBodyContains({ message: 'errors.userWithout2FAActive' })
   })
 
   test('regenerateRecoveryCodes queues an email when recovery codes change', async ({ client }) => {
