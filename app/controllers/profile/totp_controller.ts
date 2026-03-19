@@ -33,8 +33,11 @@ export default class ProfileTotpController {
     const { otp } = await request.validateUsing(postOtpValidator)
     const user = auth.user!
 
-    const totpSecret = encryption.decrypt<string>(user.totpSecretEncrypted!)
-    const totpRecoveryCodes = encryption.decrypt<string[]>(user.totpRecoveryCodesEncrypted!)
+    const totpSecret =
+      user.totpSecretEncrypted && encryption.decrypt<string>(user.totpSecretEncrypted)
+    const totpRecoveryCodes =
+      user.totpRecoveryCodesEncrypted &&
+      encryption.decrypt<string[]>(user.totpRecoveryCodesEncrypted)
 
     if (!totpSecret || !totpRecoveryCodes) {
       throw new FormError('errors.totpSecretNotGenerated')
@@ -61,8 +64,11 @@ export default class ProfileTotpController {
     security.ensureConfirmed()
 
     const { otp } = await request.validateUsing(destroyTotpValidator)
-    const totpSecret = encryption.decrypt<string>(user.totpSecretEncrypted!)
-    const totpRecoveryCodes = encryption.decrypt<string[]>(user.totpRecoveryCodesEncrypted!)
+    const totpSecret =
+      user.totpSecretEncrypted && encryption.decrypt<string>(user.totpSecretEncrypted)
+    const totpRecoveryCodes =
+      user.totpRecoveryCodesEncrypted &&
+      encryption.decrypt<string[]>(user.totpRecoveryCodesEncrypted)
 
     if (!totpSecret || !totpRecoveryCodes) {
       throw new FormError('errors.totpSecretNotGenerated')
