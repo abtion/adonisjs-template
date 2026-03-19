@@ -12,7 +12,7 @@ export default function Nav() {
 
   const [open, setOpen] = useState(false)
   const {
-    props: { auth, policies },
+    props: { user, policies },
     component,
   } = usePage<SharedProps>()
 
@@ -50,7 +50,7 @@ export default function Nav() {
               hidden: !open,
             })}
           >
-            {auth.isAuthenticated && (
+            {user && (
               <>
                 {policies.UserPolicy.index && (
                   <li>
@@ -69,7 +69,7 @@ export default function Nav() {
 
             <li className="md:flex-grow"></li>
             <li>
-              {auth.isAuthenticated ? (
+              {user ? (
                 <NavLink href="/session" method="delete" as="button">
                   {t('components.nav.signOut')}
                 </NavLink>

@@ -18,9 +18,8 @@ type Props = SharedProps & {
   >[]
 }
 
-export default function ProfilePage({ auth, totp, credentials }: Props) {
+export default function ProfilePage({ user, totp, credentials }: Props) {
   const { t } = useTranslation()
-  const user = auth.user!
 
   return (
     <MainLayout>
@@ -34,7 +33,7 @@ export default function ProfilePage({ auth, totp, credentials }: Props) {
         <div className="rounded-md border border-neutral-300 p-4 mt-10">
           <h2 className="mb-2 text-xl">{t('pages.profile.accountTitle')}</h2>
           <p className="text-gray-700 text-sm">
-            {t('pages.profile.signedInAs', { name: user.name, email: user.email })}
+            {t('pages.profile.signedInAs', { name: user!.name, email: user!.email })}
           </p>
         </div>
 

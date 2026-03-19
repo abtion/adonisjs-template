@@ -68,7 +68,7 @@ Database types are auto-generated in `database/types.d.ts` via kysely-codegen.
 
 ### Shared Props (Inertia)
 All pages receive via `config/inertia.ts`:
-- `auth` - Current user + isAuthenticated
+- `user` - Current user, if authenticated
 - `locale` - For i18n
 - `policies` - Permission matrix for UI
 - `exceptions` - Form validation errors
