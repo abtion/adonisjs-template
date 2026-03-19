@@ -34,12 +34,12 @@ export default class SessionTotpController {
       user.totpSecretEncrypted && encryption.decrypt<string>(user.totpSecretEncrypted)
 
     if (!totpSecret) {
-      throw new FormError('errors.totpSecretNotGenerated')
+      throw new FormError('totpSecretNotGenerated')
     }
 
     const isValid = verifyToken(totpSecret, otp, [])
     if (!isValid) {
-      throw new FormError('errors.otpInvalid')
+      throw new FormError('otpInvalid')
     }
 
     session.forget(TOTP_USER_ID_KEY)

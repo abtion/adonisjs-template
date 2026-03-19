@@ -8,7 +8,7 @@ test.group('FormError', () => {
     const result = FormError.from(plainError)
 
     assert.instanceOf(result, FormError)
-    assert.equal(result.translationKey, 'errors.fallbackError')
+    assert.equal(result.code, 'fallbackError')
     assert.equal(result.field, 'base')
   })
 })

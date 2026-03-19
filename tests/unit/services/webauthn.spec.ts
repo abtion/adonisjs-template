@@ -7,6 +7,6 @@ test.group('WebauthnError', () => {
 
     const formError = error.toFormError()
 
-    assert.equal(formError.translationKey, 'errors.fallbackError')
+    assert.equal(formError.code, 'fallbackError')
   })
 })

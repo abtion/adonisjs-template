@@ -57,16 +57,16 @@ export default class SessionController {
         .where('users.email', '=', email)
         .executeTakeFirst()
 
-      if (!user) throw new FormError('errors.invalidCredentials')
+      if (!user) throw new FormError('invalidCredentials')
       if ('password' in data) {
         needsTotp = user.totpEnabled
         if (!(await hash.verify(user.password, data.password))) {
-          throw new FormError('errors.invalidCredentials')
+          throw new FormError('invalidCredentials')
         }
       } else {
         const expectedChallenge = session.get(WEBAUTHN_CHALLENGE_KEY)
         if (!expectedChallenge || typeof expectedChallenge !== 'string') {
-          throw new FormError('errors.missingAuthenticationPayload')
+          throw new FormError('missingAuthenticationPayload')
         }
 
         await webauthn

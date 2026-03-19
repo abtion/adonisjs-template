@@ -8,11 +8,11 @@ export const client = createTuyau({
 
 export const urlFor = client.urlFor
 
-export const errorIsType = (err: unknown, name: string) => {
+export const errorHasCode = (err: unknown, code: string) => {
   if (!(err instanceof TuyauHTTPError)) return false
 
   const value = err.response as any
-  return value?.name === name
+  return value?.code === code
 }
 
 export const getErrorMessage = (err: unknown, fallback: string) => {

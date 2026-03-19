@@ -31,8 +31,8 @@ export class WebauthnError extends Error {
 
   toFormError() {
     const klass = this.constructor
-    let translationKey = errorTranslationKeys.get(klass) ?? 'errors.fallbackError'
-    return new FormError(translationKey)
+    let code = errorCodes.get(klass) ?? 'fallbackError'
+    return new FormError(code)
   }
 }
 
@@ -40,10 +40,10 @@ class CredentialNotFoundError extends WebauthnError {}
 class VerifyAuthenticationError extends WebauthnError {}
 class VerifyRegistrationError extends WebauthnError {}
 
-const errorTranslationKeys = new Map<Function, string>([
-  [CredentialNotFoundError, 'errors.fallbackError'],
-  [VerifyAuthenticationError, 'errors.webauthnVerificationFailed'],
-  [VerifyRegistrationError, 'errors.webauthnVerificationFailed'],
+const errorCodes = new Map<Function, string>([
+  [CredentialNotFoundError, 'fallbackError'],
+  [VerifyAuthenticationError, 'webauthnVerificationFailed'],
+  [VerifyRegistrationError, 'webauthnVerificationFailed'],
 ])
 
 export default class WebauthnService {

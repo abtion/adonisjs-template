@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { startRegistration } from '@simplewebauthn/browser'
 import Button from '~/components/Button'
 import SecurityConfirmation from '~/components/SecurityConfirmation'
-import { client, errorIsType, getErrorMessage } from '~/client'
+import { client, errorHasCode, getErrorMessage } from '~/client'
 import { router } from '@inertiajs/react'
 import { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/types'
 import { useTranslation } from 'react-i18next'
@@ -34,7 +34,7 @@ export default function Webauthn({ credentials }: WebauthnProps) {
     try {
       await fn()
     } catch (err) {
-      if (errorIsType(err, 'SecurityConfirmationRequiredError')) {
+      if (errorHasCode(err, 'security_confirmation_required')) {
         setError(null)
         setPendingAction(() => fn)
         setShowConfirmation(true)

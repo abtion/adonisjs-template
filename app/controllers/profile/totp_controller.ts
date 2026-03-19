@@ -12,7 +12,7 @@ export default class ProfileTotpController {
     security.ensureConfirmed()
 
     const user = auth.user!
-    if (user.totpEnabled) throw new FormError('errors.totpAlreadyEnabled')
+    if (user.totpEnabled) throw new FormError('totpAlreadyEnabled')
 
     const secret = await generateSecret(user.email)
     const recoveryCodes = generateRecoveryCodes()
@@ -40,11 +40,11 @@ export default class ProfileTotpController {
       encryption.decrypt<string[]>(user.totpRecoveryCodesEncrypted)
 
     if (!totpSecret || !totpRecoveryCodes) {
-      throw new FormError('errors.totpSecretNotGenerated')
+      throw new FormError('totpSecretNotGenerated')
     }
 
     const isValid = verifyToken(totpSecret, otp, totpRecoveryCodes)
-    if (!isValid) throw new FormError('errors.otpInvalid')
+    if (!isValid) throw new FormError('otpInvalid')
 
     await db()
       .updateTable('users')
@@ -59,7 +59,7 @@ export default class ProfileTotpController {
 
   async destroy({ auth, request, response, security }: HttpContext) {
     const user = auth.user!
-    if (!user.totpEnabled) throw new FormError('errors.userWithout2FAActive')
+    if (!user.totpEnabled) throw new FormError('userWithout2FaActive')
 
     security.ensureConfirmed()
 
@@ -71,11 +71,11 @@ export default class ProfileTotpController {
       encryption.decrypt<string[]>(user.totpRecoveryCodesEncrypted)
 
     if (!totpSecret || !totpRecoveryCodes) {
-      throw new FormError('errors.totpSecretNotGenerated')
+      throw new FormError('totpSecretNotGenerated')
     }
 
     const isValid = verifyToken(totpSecret, otp, totpRecoveryCodes)
-    if (!isValid) throw new FormError('errors.otpInvalid')
+    if (!isValid) throw new FormError('otpInvalid')
 
     await db()
       .updateTable('users')
@@ -95,7 +95,7 @@ export default class ProfileTotpController {
   async regenerateRecoveryCodes({ auth, security }: HttpContext) {
     const user = auth.user!
 
-    if (!user.totpEnabled) throw new FormError('errors.userWithout2FAActive')
+    if (!user.totpEnabled) throw new FormError('userWithout2FaActive')
 
     security.ensureConfirmed()
 

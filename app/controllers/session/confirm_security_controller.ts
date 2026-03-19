@@ -43,12 +43,12 @@ export default class ProfileConfirmSecurityController {
     const verifyCredentials = async () => {
       if ('password' in data) {
         if (!(await hash.verify(user.password, data.password))) {
-          throw new FormError('errors.verificationFailed')
+          throw new FormError('verificationFailed')
         }
       } else {
         const expectedChallenge = session.get(SECURITY_CONFIRMATION_CHALLENGE_KEY)
         if (!expectedChallenge || typeof expectedChallenge !== 'string') {
-          throw new FormError('errors.missingAuthenticationPayload')
+          throw new FormError('missingAuthenticationPayload')
         }
 
         await webauthn
