@@ -1,6 +1,6 @@
 import { fromBase64Url } from '#services/webauthn'
 import crypto from 'node:crypto'
-import { CDPSession } from 'playwright'
+import { type CDPSession } from 'playwright'
 
 export function generateTestKeyPair() {
   // Generate a P-256 keypair suitable for WebAuthn

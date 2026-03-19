@@ -1,9 +1,9 @@
-import { AuthorizerResponse, GetPolicyMethods } from '@adonisjs/bouncer/types'
+import { type AuthorizerResponse, type GetPolicyMethods } from '@adonisjs/bouncer/types'
 import type { Constructor } from '@adonisjs/core/types/common'
 
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
-import { SessionUser } from '../auth_providers/session_user_provider.js'
+import { type SessionUser } from '../auth_providers/session_user_provider.js'
 
 const defaultActions = ['show', 'edit', 'destroy'] as const
 

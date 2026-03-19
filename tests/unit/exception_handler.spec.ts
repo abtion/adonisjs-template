@@ -1,7 +1,7 @@
 import { test } from '@japa/runner'
 import HttpExceptionHandler from '#exceptions/handler'
 import { AuthorizationResponse, errors as bouncerErrors } from '@adonisjs/bouncer'
-import { HttpContext } from '@adonisjs/core/http'
+import { type HttpContext } from '@adonisjs/core/http'
 import sinon from 'sinon'
 
 test.group('HttpExceptionhandler', () => {

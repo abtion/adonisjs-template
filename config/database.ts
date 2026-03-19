@@ -1,5 +1,5 @@
 import env from '#start/env'
-import PG from 'pg'
+import type PG from 'pg'
 
 const requireEnvVar = (key: string) => {
   const value = env.get(key)

@@ -1,4 +1,6 @@
-import { InitOptions } from 'i18next'
+import { type InitOptions } from 'i18next'
+
+// eslint-disable-next-line @adonisjs/no-backend-import-in-frontend
 import en from '../../resources/lang/en.json'
 
 const i18nextOptions: Partial<InitOptions> = {

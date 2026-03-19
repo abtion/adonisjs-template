@@ -1,5 +1,5 @@
-import { HttpContext } from '@adonisjs/core/http'
-import { Logger } from '@adonisjs/core/logger'
+import { type HttpContext } from '@adonisjs/core/http'
+import { type Logger } from '@adonisjs/core/logger'
 import onFinished from 'on-finished'
 
 /* v8 ignore start */

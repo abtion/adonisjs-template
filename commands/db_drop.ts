@@ -1,7 +1,7 @@
 import { BaseCommand } from '@adonisjs/core/ace'
 import PG from 'pg'
 import { databaseConfig } from '#config/database'
-import { CommandOptions } from '@adonisjs/core/types/ace'
+import { type CommandOptions } from '@adonisjs/core/types/ace'
 
 export default class KyselyMigrate extends BaseCommand {
   static commandName = 'db:drop'

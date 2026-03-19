@@ -1,5 +1,5 @@
 import { BasePolicy } from '@adonisjs/bouncer'
-import { SessionUser } from '../auth_providers/session_user_provider.js'
+import { type SessionUser } from '../auth_providers/session_user_provider.js'
 
 export type PolicyUser = { id: number }
 

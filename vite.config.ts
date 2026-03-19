@@ -1,8 +1,8 @@
-import { defineConfig, Plugin } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import inertia from '@adonisjs/inertia/vite'
 import react from '@vitejs/plugin-react'
 import adonisjs from '@adonisjs/vite/client'
-import istanbulPluginUntyped, { IstanbulPluginOptions } from 'vite-plugin-istanbul'
+import istanbulPluginUntyped, { type IstanbulPluginOptions } from 'vite-plugin-istanbul'
 import env from '#start/env'
 
 //  The types for the default export of 'vite-plugin-istanbul' are not working correctly
