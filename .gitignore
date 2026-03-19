@@ -2,7 +2,6 @@
 node_modules
 build
 tmp
-.adonisjs
 
 # Secrets
 .env.local
