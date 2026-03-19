@@ -1,4 +1,4 @@
-import { SharedData } from '@adonisjs/inertia/types'
+import { SharedProps } from '@adonisjs/inertia/types'
 import { usePage } from '@inertiajs/react'
 import Alert, { AlertProps } from '../Alert'
 
@@ -6,7 +6,7 @@ import Alert, { AlertProps } from '../Alert'
  * Meant to show FormErrors thrown from controllers
  */
 export function BaseFormError({ ...alertProps }: AlertProps) {
-  const errors = usePage<SharedData>().props.errors
+  const errors = usePage<SharedProps>().props.errors
   if (!errors?.base && !errors?.['']) return null
 
   return (
