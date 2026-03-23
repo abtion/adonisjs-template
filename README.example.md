@@ -162,6 +162,19 @@ node ace list:routes # Similar to `rails routes`
 node ace jobs:make # Make a new type of background job
 ```
 
+## Deployment
+
+[![Deploy on Scalingo](https://cdn.scalingo.com/deploy/button.svg)](https://dashboard.scalingo.com/create/app?source=https://github.com/abtion/adonisjs-template#main)
+
+> Need a Scalingo app? Click the button above to create one. It deploys from the base template — once created, connect the app to this repo for subsequent deploys. See [Configure CD](https://github.com/abtion/adonisjs-template#configure-cd) for detailed steps.
+
+The app is hosted on [Scalingo](https://scalingo.com). Deploys happen automatically when pushing to the connected branch.
+
+- Staging deploys from `main`.
+- Production deploys are triggered manually.
+
+Environment variables are managed in the [Scalingo dashboard](https://dashboard.scalingo.com).
+
 ## Good to know
 
 ### Notable changes to default AdonisJS template
