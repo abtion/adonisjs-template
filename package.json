@@ -15,9 +15,10 @@
     "typecheck": "tsc --noEmit",
     "i18n:check": "i18n-check"
   },
-  "packageManager": "npm@11.7.0",
+  "packageManager": "npm@11.10.0",
   "engines": {
-    "node": "24"
+    "node": ">=24.14.1",
+    "npm": ">=11.10.0"
   },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",
