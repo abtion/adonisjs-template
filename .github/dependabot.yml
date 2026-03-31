@@ -6,6 +6,8 @@ updates:
       interval: 'weekly'
     allow:
       - dependency-type: 'all'
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: 'github-actions'
     directory: '/'
