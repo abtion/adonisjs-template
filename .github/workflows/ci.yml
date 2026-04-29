@@ -89,7 +89,7 @@ jobs:
         run: npx c8 report --check-coverage --reporter=text --reporter=lcovonly
       - name: check front-end coverage
         run: npx nyc report --check-coverage --reporter=text --reporter=lcov
-      - uses: SonarSource/sonarqube-scan-action@v7
+      - uses: SonarSource/sonarqube-scan-action@v8
         if: always() && github.ref == 'refs/heads/main'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
