@@ -43,11 +43,11 @@ class PostgresEnumArrayPlugin implements KyselyPlugin {
       /* v8 ignore start */
       if (value === null) continue
       if (typeof value !== 'string') throw new Error(`Could not convert row ${key}`)
-      if (!value.startsWith('{') && value.endsWith('}'))
+      if (!value.startsWith('{') || !value.endsWith('}'))
         throw new Error(`Could not convert row ${key}`)
       /* v8 ignore end */
 
-      newRow[key] = value.substring(1, -1).split(',')
+      newRow[key] = value.slice(1, -1).split(',').filter(Boolean)
     }
     return newRow
   }
