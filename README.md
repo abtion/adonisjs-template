@@ -159,6 +159,10 @@ For added security we want to add basic auth to our review/staging environments.
    - `HTTP_AUTH_USERNAME`
    - `HTTP_AUTH_PASSWORD`
 
+### Custom Docker Ports
+
+Docker services bind to default ports (Postgres 5432, Redis 6379). To use custom host ports (e.g. to run multiple projects simultaneously), set `POSTGRES_PORT` and/or `REDIS_PORT` in `.env.local` and make sure they're exported before running `docker compose`.
+
 ## Contributing
 
 The Abtion AdonisJS Template is maintained by [_Abtioneers_](#about-abtion), but open for anyone to suggest improvements and bugfixes.
