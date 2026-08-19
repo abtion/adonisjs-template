@@ -1,3 +1,4 @@
+import app from '@adonisjs/core/services/app'
 import { defineConfig } from '@adonisjs/shield'
 
 const shieldConfig = defineConfig({
@@ -6,8 +7,21 @@ const shieldConfig = defineConfig({
    * to learn more
    */
   csp: {
-    enabled: false,
-    directives: {},
+    enabled: true,
+    directives: {
+      defaultSrc: ["'none'"],
+      scriptSrc: ["'strict-dynamic'", '@nonce'],
+      // Vite cannot nonce the style tags it injects during dev,
+      // so nonces are only enforced in production builds
+      styleSrc: app.inDev ? ["'self'", "'unsafe-inline'"] : ["'self'", '@nonce'],
+      imgSrc: ["'self'", 'data:'],
+      fontSrc: ["'self'"],
+      // @viteHmrUrl allows the HMR websocket during dev (empty in production)
+      connectSrc: ["'self'", '@viteHmrUrl'],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      frameAncestors: ["'none'"],
+    },
     reportOnly: false,
   },
 

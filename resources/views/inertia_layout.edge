@@ -5,17 +5,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <style>
+    <style nonce="{{ cspNonce }}">
       @layer tailwind-base, components, tailwind-utils;
     </style>
     <link rel="stylesheet" href="/colors.css" />
 
-    @viteReactRefresh()
+    @viteReactRefresh({ nonce: cspNonce })
     @inertiaHead()
     @vite([
       'inertia/app.tsx',
       `inertia/pages/${page.component}.tsx`,
-    ])
+    ], { nonce: cspNonce })
   </head>
   <body>
     @inertia()
