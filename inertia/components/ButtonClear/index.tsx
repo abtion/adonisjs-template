@@ -5,14 +5,7 @@ import './index.scss'
 export interface ButtonClearProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   variant?:
-    | 'basic'
-    | 'secondary'
-    | 'primary'
-    | 'neutral'
-    | 'success'
-    | 'danger'
-    | 'warning'
-    | 'info'
+    'basic' | 'secondary' | 'primary' | 'neutral' | 'success' | 'danger' | 'warning' | 'info'
 }
 
 function classes(props: ButtonClearProps, className?: string) {

@@ -4,14 +4,7 @@ import './index.scss'
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?:
-    | 'basic'
-    | 'secondary'
-    | 'primary'
-    | 'neutral'
-    | 'success'
-    | 'danger'
-    | 'warning'
-    | 'info'
+    'basic' | 'secondary' | 'primary' | 'neutral' | 'success' | 'danger' | 'warning' | 'info'
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 }
 
