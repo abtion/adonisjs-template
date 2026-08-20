@@ -1,3 +1,5 @@
+[![Observatory](https://img.shields.io/mozilla-observatory/grade-score/adonisjs-template.osc-fr1.scalingo.io)](https://developer.mozilla.org/en-US/observatory/analyze?host=adonisjs-template.osc-fr1.scalingo.io)
+
 # Abtion AdonisJS Template
 
 - [Abtion AdonisJS Template](#abtion-adonisjs-template)
