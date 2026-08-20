@@ -1,3 +1,5 @@
+[![Observatory](https://img.shields.io/mozilla-observatory/grade-score/project-name-param-production.osc-fr1.scalingo.io)](https://developer.mozilla.org/en-US/observatory/analyze?host=project-name-param-production.osc-fr1.scalingo.io)
+
 # Project Name Human
 
 - [Development](#development)
