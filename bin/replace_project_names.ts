@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node --no-warnings=ExperimentalWarning --loader ts-node-maintained/esm
+#!/usr/bin/env -S node --no-warnings=ExperimentalWarning --import=@poppinss/ts-exec
 
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
