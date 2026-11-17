@@ -135,6 +135,7 @@
   },
   "prettier": "@adonisjs/prettier-config",
   "overrides": {
-    "lodash-es": "4.18.1"
+    "lodash-es": "4.18.1",
+    "nodemailer": "10.5.0"
   }
 }
