@@ -1,0 +1,47 @@
+name: Sonar
+
+# Dispatched by the CI workflow (see ci.yml -> trigger-sonar) once the tests
+# have run on main. Running it out-of-band keeps it off CI's critical path: CI
+# finishes as soon as the tests do, and the (non-blocking) Sonar analysis lands
+# in its own run a few minutes later. It can also be re-run by hand from the
+# Actions tab, with a CI run id and that run's commit SHA, without re-running
+# the suite.
+on:
+  workflow_dispatch:
+    inputs:
+      ci_run_id:
+        description: CI workflow run id holding the coverage artifact
+        required: true
+      sha:
+        description: Commit SHA to analyze
+        required: true
+
+permissions:
+  contents: read
+  actions: read # download-artifact needs this to reach another run's artifacts
+
+jobs:
+  sonar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.sha }}
+          fetch-depth: 0
+      # `pattern` + `merge-multiple` (rather than `name`) lets the scan still
+      # run when the tests failed before any report was written.
+      # The artifact holds backend/lcov.info and frontend/lcov.info, the paths
+      # sonar-project.properties reads under coverage/.
+      - name: Download coverage from the CI run
+        uses: actions/download-artifact@v8
+        with:
+          pattern: coverage
+          merge-multiple: true
+          path: coverage
+          run-id: ${{ inputs.ci_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: SonarSource/sonarqube-scan-action@v8
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
