@@ -29,6 +29,15 @@ jobs:
         with:
           ref: ${{ inputs.sha }}
           fetch-depth: 0
+      # SonarQube Community Edition has no branch analysis: whatever is scanned
+      # is recorded as main. CI only dispatches for main, but a manual run takes
+      # any SHA, so refuse a commit that is not on main.
+      - name: Refuse a commit that is not on main
+        run: |
+          if ! git merge-base --is-ancestor HEAD origin/main; then
+            echo "::error::$(git rev-parse HEAD) is not on main. SonarQube would record it as main, so it is not scanned."
+            exit 1
+          fi
       # `pattern` + `merge-multiple` (rather than `name`) lets the scan still
       # run when the tests failed before any report was written.
       # The artifact holds backend/lcov.info and frontend/lcov.info, the paths
