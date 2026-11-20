@@ -21,9 +21,45 @@ permissions:
   actions: read # download-artifact needs this to reach another run's artifacts
 
 jobs:
+  # Decides whether to scan. A "no" skips the scan job instead of failing it: a
+  # run of this workflow is a check on main's newest commit, and a red check
+  # there holds back every deploy that waits for CI.
+  precheck:
+    runs-on: ubuntu-latest
+    outputs:
+      scan: ${{ steps.decide.outputs.scan }}
+    steps:
+      - name: Decide whether to scan
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ inputs.sha }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+        run: |
+          scan=true
+          # SonarQube Community Edition has no branch analysis: whatever is
+          # scanned is recorded as main. CI only dispatches for main, but a
+          # manual run takes any SHA, so a commit that is not on main is
+          # refused. An API error counts as "not on main".
+          on_main=$(gh api "repos/$GITHUB_REPOSITORY/compare/$SHA...main" \
+            --jq '.status == "ahead" or .status == "identical"' || echo error)
+          if [ "$on_main" != true ]; then
+            echo "::error title=Not scanned::$SHA could not be confirmed as a commit on main. SonarQube would record it as main."
+            scan=false
+          elif ! curl --silent --show-error --fail --max-time 30 --retry 2 --output /dev/null "${SONAR_HOST_URL%/}/api/system/status"; then
+            echo "::warning title=Sonar server is down::The Sonar server did not answer, so $SHA was not scanned."
+            echo "**Sonar server is down.** $SHA was not scanned." >> "$GITHUB_STEP_SUMMARY"
+            scan=false
+          fi
+          echo "scan=$scan" >> "$GITHUB_OUTPUT"
+
   sonar:
+    needs: precheck
+    if: needs.precheck.outputs.scan == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      scan: ${{ steps.sonar.outcome }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -42,6 +78,53 @@ jobs:
           run-id: ${{ inputs.ci_run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: SonarSource/sonarqube-scan-action@v8
+        id: sonar
+        # A failed scan must not turn the run red (see precheck). The next step
+        # and the report job flag it instead.
+        continue-on-error: true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+      - name: Warn when the Sonar scan failed
+        if: steps.sonar.outcome == 'failure'
+        run: |
+          echo "::warning title=Sonar scan failed::SonarQube did not analyse this commit. See the scan step log."
+          echo "**Sonar scan failed.** SonarQube did not analyse this commit." >> "$GITHUB_STEP_SUMMARY"
+
+  # A failed scan leaves the run green, so it is reported as an issue instead:
+  # opened by the first failing scan, closed by the next one that passes. A
+  # scan that precheck skipped neither opens nor closes it.
+  report:
+    needs: sonar
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Open or close the "Sonar scan is failing" issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          OUTCOME: ${{ needs.sonar.outputs.scan }}
+          SHA: ${{ inputs.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Sonar scan is failing"
+          if [ "$(gh api "repos/$GH_REPO" --jq .has_issues)" != true ]; then
+            if [ "$OUTCOME" = failure ]; then
+              echo "::warning title=Sonar scan failed::Issues are disabled in this repository, so the failed scan is only reported here."
+            fi
+            exit 0
+          fi
+          open=$(gh issue list --state open --search "in:title \"$title\"" --json number,title \
+            --jq "[.[] | select(.title == \"$title\") | .number] | join(\" \")")
+          if [ "$OUTCOME" = failure ]; then
+            if [ -z "$open" ]; then
+              gh issue create --title "$title" --body "The SonarQube scan failed for $SHA: $RUN_URL
+
+          The Sonar workflow stays green when the scan fails, so that Sonar never holds back a deploy. This issue is how the failure is reported instead. It closes itself on the next scan that passes."
+            fi
+          else
+            for number in $open; do
+              gh issue close "$number" --comment "The scan passed for $SHA: $RUN_URL"
+            done
+          fi
