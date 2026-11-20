@@ -78,8 +78,6 @@ jobs:
     steps:
       - name: checkout repository
         uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.tool-versions'
@@ -97,8 +95,30 @@ jobs:
         run: npx c8 report --check-coverage --reporter=text --reporter=lcovonly
       - name: check front-end coverage
         run: npx nyc report --check-coverage --reporter=text --reporter=lcov
-      - uses: SonarSource/sonarqube-scan-action@v8
-        if: always() && github.ref == 'refs/heads/main'
+      - name: upload coverage for Sonar
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage
+          path: coverage/*/lcov.info
+          if-no-files-found: warn
+
+  # Fire-and-forget: hand the analysis off to the Sonar workflow (sonar.yml)
+  # and finish. Sonar is not a blocking gate, so it should not hold CI's status
+  # open for the length of the scan, or fail CI when its server is down.
+  trigger-sonar:
+    needs: [tests]
+    if: always() && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch Sonar analysis
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh workflow run sonar.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f ci_run_id="$GITHUB_RUN_ID" \
+            -f sha="$GITHUB_SHA"
