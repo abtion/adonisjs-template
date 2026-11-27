@@ -113,7 +113,7 @@
     "base64url": "^3.0.1",
     "classnames": "^2.5.1",
     "edge.js": "^6.5.0",
-    "i18next": "^25.5.2",
+    "i18next": "^26.7.2",
     "kysely": "^0.28.8",
     "kysely-codegen": "^0.18.5",
     "luxon": "^3.7.2",
